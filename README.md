@@ -4,15 +4,18 @@ Evolving Infra is a serving system that adapts to agent workload at runtime. Thi
 project page, the demo video, and the code that renders the video.
 
 - Project page: https://weilixu.com/evolving-infra-demo/ (source in `docs/`, served by GitHub Pages)
-- Demo video: [`video/evolving-infra-vs-dynamo-cc126.mp4`](video/evolving-infra-vs-dynamo-cc126.mp4).
-  Dynamo and Evolving Infra each serve 126 concurrent Claude Code agents with GLM-5.2 on 36 GB300 GPUs.
-  The video shows one hour of each run at 60× speed.
+- Demo video: [`video/evolving-infra-vs-dynamo-cc126.mp4`](video/evolving-infra-vs-dynamo-cc126.mp4) (light) and
+  [`video/evolving-infra-vs-dynamo-cc126-dark.mp4`](video/evolving-infra-vs-dynamo-cc126-dark.mp4) (dark, played by the
+  page in dark mode). Dynamo and Evolving Infra each serve 126 concurrent Claude Code agents with GLM-5.2 on 36 GB300
+  GPUs. The video shows one hour of each run at 60× speed. Each agent window shows with an icon what its agent did for
+  most of the last 30 seconds: waiting for the model, generating, or a tool call / idle. A check mark in its title bar
+  counts each agent that finished in that window. The counters and charts are exact.
 
 ## Layout
 
 | Path | Content |
 | --- | --- |
-| `docs/` | The project page: one static `index.html` (HTML, CSS and JavaScript; Google Fonts and KaTeX load from CDNs), SVG figures in `fig/`, the video and its poster in `media/`. No build step. |
+| `docs/` | The project page: one static `index.html` (HTML, CSS and JavaScript; Google Fonts and KaTeX load from CDNs), SVG figures in `fig/`, the light and dark videos and their posters in `media/`. The page plays the video that matches its theme. No build step. |
 | `video/` | The video, `render.py` (renders it), `data.json` (its input), `extract.py` (built `data.json` from the benchmark logs), and the icon font. |
 | `web/figbuild/` | TikZ wrappers of the architecture and KV-directory figures in `docs/fig/`. They compile against the paper's LaTeX sources, which are not included. |
 
@@ -30,12 +33,15 @@ Tested with Python 3.12, matplotlib 3.11.2, numpy 2.5.4 and imageio-ffmpeg 0.8.1
 cd video
 python3 -m venv .venv && . .venv/bin/activate
 pip install matplotlib numpy imageio-ffmpeg
-python render.py data.json out --preview      # a few PNG frames, in seconds
-python render.py data.json out --ffmpeg "$(python -c 'import imageio_ffmpeg; print(imageio_ffmpeg.get_ffmpeg_exe())')"
+python render.py data.json out --preview                 # a few PNG frames, in seconds
+FF="$(python -c 'import imageio_ffmpeg; print(imageio_ffmpeg.get_ffmpeg_exe())')"
+python render.py data.json out --ffmpeg "$FF"              # light video
+python render.py data.json out --theme dark --ffmpeg "$FF" # dark video
 ```
 
-The full render writes `out/evolving-infra-vs-dynamo-cc126.mp4` (1920×1080, 30 fps, H.264) in about 8 minutes on
-8 CPU cores. The renderer checks that its live counters end at the summary values in `data.json`.
+A full render writes `out/evolving-infra-vs-dynamo-cc126.mp4` (or `…-dark.mp4` with `--theme dark`; 1920×1080,
+30 fps, H.264) in about 8 minutes on 8 CPU cores. The dark theme uses the MIT brand colors (Bright Red, Silver Gray,
+Light Silver Gray, Green, Yellow, Blue) on the page's dark background. The renderer checks that its live counters end at the summary values in `data.json`.
 
 `data.json` has one entry per system (`dyn`, `ours`):
 

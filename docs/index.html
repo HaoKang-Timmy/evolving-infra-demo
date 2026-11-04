@@ -18,22 +18,27 @@
     --panel-2: #221f23;
     --line: #2f2b30;
     --fg: #ece8e9;
-    --muted: #a8a1a4;
-    --faint: #756e71;
-    --accent: #ea4c62;
-    --accent-strong: #ff6b7f;
-    --accent-tint: rgba(234, 76, 98, 0.12);
-    --glow: rgba(234, 76, 98, 0.32);
+    /* dark mode follows the MIT brand colors (brand.mit.edu/color): Bright Red, Light Silver Gray, Silver Gray */
+    --muted: #b8c2cc;
+    --faint: #8b959e;
+    --accent: #ff1423;
+    --accent-strong: #ff1423;
+    --accent-tint: rgba(255, 20, 35, 0.12);
+    --glow: rgba(255, 20, 35, 0.32);
     --grid: rgba(255, 255, 255, 0.032);
     --chip-p: #3b373c;
-    --chip-p-edge: #9a9497;
+    --chip-p-edge: #8b959e;
     --chip-p-fg: #ffffff;
     --chip-d: #cdcdcd;
     --chip-d-edge: #8c8c8c;
     --chip-d-fg: #1a1a1a;
-    --dyn: #bab4b6;
-    --static: #6e676a;
-    --ours: #ea4c62;
+    --dyn: #b8c2cc;
+    --static: #8b959e;
+    --ours: #ff1423;
+    --v-wait: #ff6b5e;
+    --v-gen: #00ad00;
+    --v-tool: #8b959e;
+    --v-done: #ffeb00;
     --track: rgba(255, 255, 255, 0.06);
     --plate: #ffffff;
     --plate-edge: #2f2b30;
@@ -54,7 +59,8 @@
       --accent-tint: rgba(163, 31, 52, 0.07); --glow: rgba(163, 31, 52, 0.16); --grid: rgba(26, 26, 26, 0.04);
       --chip-p: #2b2b2b; --chip-p-edge: #1a1a1a; --chip-p-fg: #ffffff; --chip-d: #cdcdcd; --chip-d-edge: #5e5e5e;
       --chip-d-fg: #1a1a1a; --dyn: #c4c0c1; --static: #6b6668; --ours: #a31f34; --track: rgba(26, 26, 26, 0.06);
-      --plate-edge: #dcd8d9; color-scheme: light;
+      --plate-edge: #dcd8d9; --v-wait: #d43f35; --v-gen: #2e8b4a; --v-tool: #8b959e; --v-done: #b58500;
+      color-scheme: light;
     }
   }
   :root[data-theme="light"] {
@@ -63,7 +69,8 @@
     --accent-tint: rgba(163, 31, 52, 0.07); --glow: rgba(163, 31, 52, 0.16); --grid: rgba(26, 26, 26, 0.04);
     --chip-p: #2b2b2b; --chip-p-edge: #1a1a1a; --chip-p-fg: #ffffff; --chip-d: #cdcdcd; --chip-d-edge: #5e5e5e;
     --chip-d-fg: #1a1a1a; --dyn: #c4c0c1; --static: #6b6668; --ours: #a31f34; --track: rgba(26, 26, 26, 0.06);
-    --plate-edge: #dcd8d9; color-scheme: light;
+    --plate-edge: #dcd8d9; --v-wait: #d43f35; --v-gen: #2e8b4a; --v-tool: #8b959e; --v-done: #b58500;
+    color-scheme: light;
   }
 
   *, *::before, *::after { box-sizing: border-box; }
@@ -214,6 +221,7 @@
   .dstat strong { display: block; margin-top: 4px; font: 600 0.8rem var(--mono); color: var(--accent); }
   .legend-row { display: flex; flex-wrap: wrap; gap: 6px 16px; margin: 14px 0 0; font-size: 0.86rem; color: var(--muted); }
   .legend-row span { display: inline-flex; align-items: center; gap: 6px; }
+  .vi { width: 18px; height: 18px; fill: currentColor; flex: none; }
   .sw { width: 12px; height: 12px; border-radius: 2px; display: inline-block; border: 1px solid rgba(128, 128, 128, 0.55); }
 
   /* Native bar charts */
@@ -428,14 +436,14 @@
 
         <div class="panel" role="tabpanel" id="p-demo" aria-labelledby="t-demo">
           <h4>Serving 126 coding agents concurrently</h4>
-          <video class="video" id="demo-video" controls muted playsinline preload="metadata" poster="media/poster.png">
-            <source src="media/evolving-infra-vs-dynamo-cc126.mp4" type="video/mp4">
+          <video class="video" id="demo-video" controls muted playsinline preload="metadata" poster="media/poster-dark.png">
+            <source src="media/evolving-infra-vs-dynamo-cc126-dark.mp4" type="video/mp4">
           </video>
-          <div class="legend-row" aria-label="Colors in the video">
-            <span><i class="sw" style="background:#d1495b"></i>waiting for the model</span>
-            <span><i class="sw" style="background:#3a9d5d"></i>generating</span>
-            <span><i class="sw" style="background:#e4e7eb"></i>tool call or idle</span>
-            <span><i class="sw" style="background:#e5a000"></i>agent finished</span>
+          <div class="legend-row" aria-label="Icons in the video">
+            <span><svg class="vi" style="color:var(--v-wait)" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 2.01L6 8.01L9.99 12L6 16.03L6 21.98L18 21.98L18 15.98L14.02 12L18 8.01L18 2.01L6 2.01ZM15.99 16.5L15.99 20.01L8.02 20.01L8.02 16.5L12 12.51L15.99 16.5Z"/></svg>waiting for the model</span>
+            <span><svg class="vi" style="color:var(--v-gen)" viewBox="0 0 24 24" aria-hidden="true"><path d="M18.99 9L20.25 6.23L23.02 5.01L20.25 3.75L18.99 0.98L17.77 3.75L15 5.01L17.77 6.23L18.99 9ZM11.49 9.51L9 3.98L6.52 9.51L0.99 12L6.52 14.48L9 20.01L11.49 14.48L17.02 12L11.49 9.51ZM18.99 15L17.77 17.76L15 18.98L17.77 20.25L18.99 23.01L20.25 20.25L23.02 18.98L20.25 17.76L18.99 15Z"/></svg>generating</span>
+            <span><svg class="vi" style="color:var(--v-tool)" viewBox="0 0 24 24" aria-hidden="true"><path d="M22.69 18.98Q23.02 19.17 22.99 19.62Q22.97 20.06 22.59 20.39L20.3 22.69Q19.59 23.39 18.89 22.69L9.8 13.59Q8.11 14.3 6.21 13.9Q4.31 13.5 2.91 12.09Q1.41 10.59 1.03 8.53Q0.66 6.47 1.59 4.69L6 9L9 6L4.69 1.69Q6.47 0.84 8.53 1.17Q10.59 1.5 12.09 3Q13.5 4.41 13.9 6.3Q14.3 8.2 13.59 9.89L22.69 18.98Z"/></svg>tool call or idle</span>
+            <span><svg class="vi" style="color:var(--v-done)" viewBox="0 0 24 24" aria-hidden="true"><path d="M9.99 17.01L18.99 8.01L17.58 6.56L9.99 14.16L6.42 10.59L5.02 12L9.99 17.01ZM4.95 4.95Q7.88 2.01 12 2.01Q16.12 2.01 19.05 4.95Q21.99 7.88 21.99 12Q21.99 16.12 19.05 19.05Q16.12 21.98 12 21.98Q7.88 21.98 4.95 19.05Q2.02 16.12 2.02 12Q2.02 7.88 4.95 4.95Z"/></svg>agent finished</span>
           </div>
           <div class="demo-stats">
             <div class="dstat"><b>52 → <em>117</em></b><span>agents finished in 60 min</span><strong>2.25× more</strong></div>
@@ -443,7 +451,7 @@
             <div class="dstat"><b>$0.060 → <em>$0.051</em></b><span>user cost per agent step</span><strong>15% lower</strong></div>
             <div class="dstat"><b>228 s → <em>20 s</em></b><span>P95 time to first token</span><strong>11.7× lower</strong></div>
           </div>
-          <p class="hb-note">Dynamo is on the left and Evolving Infra on the right. Both serve the same Claude Code workload with GLM-5.2 on the same 36 GB300 GPUs, and the video shows 60 minutes at 60× speed. The numbers above come from the two runs in the video. Revenue and user cost use the GLM-5.2 list price: $1.40 per 1M input tokens ($0.26 if cached) and $4.40 per 1M output tokens. User cost per agent step is revenue divided by completed LLM calls.</p>
+          <p class="hb-note">Dynamo is on the left and Evolving Infra on the right. Both serve the same Claude Code workload with GLM-5.2 on the same 36 GB300 GPUs, and the video shows 60 minutes at 60× speed. Each window shows what its agent did for most of the last 30 seconds. The numbers above come from the two runs in the video. Revenue and user cost use the GLM-5.2 list price: $1.40 per 1M input tokens ($0.26 if cached) and $4.40 per 1M output tokens. User cost per agent step is revenue divided by completed LLM calls.</p>
         </div>
 
         <div class="panel" role="tabpanel" id="p-fast" aria-labelledby="t-fast" hidden>
@@ -849,8 +857,30 @@
   const themeBtn = document.getElementById('theme-btn');
   const isDark = () => (root.dataset.theme ? root.dataset.theme === 'dark' : !window.matchMedia('(prefers-color-scheme: light)').matches);
   const label = () => { themeBtn.textContent = isDark() ? 'Light' : 'Dark'; };
-  themeBtn.addEventListener('click', () => { root.dataset.theme = isDark() ? 'light' : 'dark'; label(); });
-  label();
+  // Demo video: the dark page plays the dark render and the light page the light render.
+  const video = document.getElementById('demo-video');
+  const syncVideo = () => {
+    const source = video && video.querySelector('source');
+    if (!source) return;
+    const dark = isDark();
+    const src = `media/evolving-infra-vs-dynamo-cc126${dark ? '-dark' : ''}.mp4`;
+    if (source.getAttribute('src') === src) return;
+    const t = video.currentTime;
+    const playing = !video.paused && !video.ended;
+    video.poster = dark ? 'media/poster-dark.png' : 'media/poster.png';
+    source.setAttribute('src', src);
+    video.load();
+    if (t > 0) {
+      video.addEventListener('loadedmetadata', () => {
+        video.currentTime = t;
+        if (playing) video.play().catch(() => {});
+      }, { once: true });
+    }
+  };
+  const onTheme = () => { label(); syncVideo(); };
+  themeBtn.addEventListener('click', () => { root.dataset.theme = isDark() ? 'light' : 'dark'; onTheme(); });
+  window.matchMedia('(prefers-color-scheme: light)').addEventListener('change', onTheme);
+  onTheme();
 
   // Equations, rendered as MathML. Without KaTeX the plain-text fallback stays.
   if (window.katex) {

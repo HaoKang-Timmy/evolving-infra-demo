@@ -8,6 +8,11 @@ Design (merged from three reviews):
   * v11 (user 2026-11-04): icons, not colors alone, say what each agent window is doing (Material Icons:
     hourglass = waiting for the model, sparkles = generating, wrench = tool call or idle, check = agent
     finished); finished agents leave small check marks in the window's title bar; no 'so far' wording;
+  * v12 (user 2026-11-04: the video was too distracting): light tile tints with colored icons instead of solid
+    fills; a window shows the state that held most of its last 30 s (less flicker; counters stay exact);
+    --theme dark renders a dark version for the dark mode of the project page (MIT brand colors: Bright Red
+    #ff1423 is the page's color for 'ours', so 'waiting' uses a coral red (#ff6b5e dark, #d43f35 light) instead;
+    lighter grays #b8c2cc / #8b959e, background = the page's dark background);
   * one centered caption narrates timestamped, data-driven beats (no causal claims);
   * bottom: cumulative agents finished + cumulative LLM calls completed (v10e, user 2026-11-03: cumulative calls
     instead of the trailing 5-min rate, so the chart ends at the end-card totals);
@@ -16,7 +21,7 @@ All counts, curves and states are exact data at the current trace time; easing o
 (alpha / bar growth on the end card, pulse of a highlight frame).
 
 Input: data.json from extract.py. Output: MP4 (H.264) or preview PNGs.
-Usage: python render.py data.json OUT_DIR [--preview [--frames I,J]] [--ffmpeg PATH] [--icons TTF]
+Usage: python render.py data.json OUT_DIR [--theme light|dark] [--preview [--frames I,J]] [--ffmpeg PATH] [--icons TTF]
 """
 import argparse
 import json
@@ -25,7 +30,6 @@ from pathlib import Path
 
 import matplotlib
 matplotlib.use('Agg')
-import matplotlib.patheffects as pe
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib import animation
@@ -38,6 +42,7 @@ ap.add_argument('out')
 ap.add_argument('--preview', action='store_true')
 ap.add_argument('--ffmpeg', default='ffmpeg')
 ap.add_argument('--frames', default='', help='with --preview: comma-separated frame indices instead of the default set')
+ap.add_argument('--theme', choices=('light', 'dark'), default='light')
 ap.add_argument('--icons', default=str(Path(__file__).resolve().parent / 'font-icons' / 'MaterialIcons-Regular.ttf'))
 args = ap.parse_args()
 out = Path(args.out)
@@ -59,24 +64,42 @@ ROWS, COLS = 9, 14
 NSLOT = ROWS * COLS
 FLASH = 60.0                  # trace seconds a finished session stays gold (1 s of video)
 MAXPIP = 4
+SMOOTH_S = 30.0               # a window shows the state that held most of its last 30 s (sampled every STEP)
+NSM = int(round(SMOOTH_S / STEP))
 
-# ---------------------------------------------------------------- palette (light)
-BG, CARD_BG, CARD_EC = '#ffffff', '#f6f7f9', '#e3e6ea'
-INK, MUTED, FAINT, GRIDL = '#1f2328', '#5b6470', '#8a929c', '#e6e9ee'
-C_DYN, C_OURS = '#64748b', '#2563eb'           # slate vs blue (blue never reads as 'waiting' red / 'generating' green)
-C_WAIT, C_GEN, C_IDLE, C_DONE = '#d1495b', '#3a9d5d', '#e4e7eb', '#e5a000'
-C_PIP, C_PIP_EC = '#f5b400', '#7a5a00'
-C_OFF = '#b4424f'
-C_BAND = '#94a3b8'
-C_TOOL = '#8a919c'
+# ---------------------------------------------------------------- palettes
+# Tiles are light tints and the icon carries the state. Dark follows the project page's dark mode and the MIT
+# brand colors (brand.mit.edu/color): Silver Gray, Light Silver Gray, Green, Yellow, Blue. The page draws 'ours' in
+# its reds (#a31f34 light, MIT Bright Red #ff1423 dark), so 'waiting' and 'offline' use a coral red here.
+THEMES = {
+    'light': dict(BG='#ffffff', CARD_BG='#f6f7f9', CARD_EC='#e3e6ea', INK='#1f2328', MUTED='#5b6470', FAINT='#8a929c',
+                  GRIDL='#e6e9ee', AX_EDGE='#c9ced6', SPINE='#b8bfc8', PILL='#eceef2', POP='#ffffff',
+                  C_DYN='#64748b', C_OURS='#2563eb', C_OFF='#d43f35', C_BAND='#94a3b8',
+                  C_WAIT='#d43f35', C_GEN='#2e8b4a', C_TOOL='#8b959e', C_DONE='#b58500', C_PIP='#b58500',
+                  # state -> (body, title bar): 0 tool / idle, 1 generating, 2 waiting, 3 just finished
+                  TINT={0: ('#eef1f4', '#dde1e6'), 1: ('#e4f3e8', '#c6e5cf'), 2: ('#fdecea', '#f7cfcb'),
+                        3: ('#fff3c4', '#ffe07a')},
+                  NODE_P=('#2f3640', '#2f3640', 0.0, '#ffffff'), NODE_D=('#cbd3dd', '#1f2328'),
+                  NODE_S_EC='#7c8696', NODE_R_EC='#9aa5b1'),
+    'dark': dict(BG='#121113', CARD_BG='#1a181b', CARD_EC='#2f2b30', INK='#ece8e9', MUTED='#b8c2cc', FAINT='#8b959e',
+                 GRIDL='#2f2b30', AX_EDGE='#4a464b', SPINE='#4a464b', PILL='#221f23', POP='#1a181b',
+                 C_DYN='#b8c2cc', C_OURS='#1966ff', C_OFF='#ff6b5e', C_BAND='#626a73',
+                 C_WAIT='#ff6b5e', C_GEN='#00ad00', C_TOOL='#8b959e', C_DONE='#ffeb00', C_PIP='#ffeb00',
+                 TINT={0: ('#232427', '#2d2f33'), 1: ('#14271a', '#1c3a25'), 2: ('#2e1513', '#4a1e1a'),
+                       3: ('#302800', '#4a3d00')},
+                 NODE_P=('#3b373c', '#8b959e', 1.2, '#ffffff'), NODE_D=('#cdcdcd', '#1a1a1a'),
+                 NODE_S_EC='#8b959e', NODE_R_EC='#8b959e'),
+}
+TH = THEMES[args.theme]
+BG, CARD_BG, CARD_EC, INK, MUTED, FAINT, GRIDL = (TH[k] for k in ('BG', 'CARD_BG', 'CARD_EC', 'INK', 'MUTED', 'FAINT', 'GRIDL'))
+C_DYN, C_OURS, C_OFF, C_BAND = TH['C_DYN'], TH['C_OURS'], TH['C_OFF'], TH['C_BAND']
+C_WAIT, C_GEN, C_TOOL, C_DONE, C_PIP = TH['C_WAIT'], TH['C_GEN'], TH['C_TOOL'], TH['C_DONE'], TH['C_PIP']
 ICON_FP = FontProperties(fname=args.icons)       # Material Icons (Apache 2.0), glyphs by codepoint
 IC_WAIT, IC_GEN, IC_TOOL, IC_DONE, IC_PIP = '\uea5b', '\ue65f', '\ue869', '\ue86c', '\ue5ca'
 #   hourglass_top, auto_awesome (sparkles), build (wrench), check_circle, check
 # tile state -> (body, title bar, icon, icon color); 0 idle/tool, 1 generating, 2 waiting, 3 just finished
-TILE = {0: (C_IDLE, '#cdd2d9', IC_TOOL, C_TOOL),
-        1: (C_GEN, '#2a7a46', IC_GEN, 'white'),
-        2: (C_WAIT, '#a8323f', IC_WAIT, 'white'),
-        3: (C_DONE, '#b07d00', IC_DONE, INK)}
+TILE = {s: (*TH['TINT'][s], ic, col)
+        for s, ic, col in ((0, IC_TOOL, C_TOOL), (1, IC_GEN, C_GEN), (2, IC_WAIT, C_WAIT), (3, IC_DONE, C_DONE))}
 
 
 def mmss(el):
@@ -127,13 +150,19 @@ def precompute(a):
     cps = np.full(NT, np.nan)
     kf = a['kok'] & (a['kte'] >= W0) & (a['kslot'] >= 0) & (a['kslot'] < NSLOT)
     kte, kslot = a['kte'][kf], a['kslot'][kf]
-    for k, t in enumerate(TIMES):
+
+    def active(t):                                    # instantaneous state of every window: 2 waiting, 1 generating
         wait = np.bincount(slot[(ts <= t) & (t < tf)], minlength=NSLOT)[:NSLOT] > 0
         gen = np.bincount(slot[(tf <= t) & (t < te)], minlength=NSLOT)[:NSLOT] > 0
+        return wait, np.where(wait, 2, np.where(gen, 1, 0))
+
+    raw = np.zeros((NT, NSLOT), np.int8)
+    flash_m = np.zeros((NT, NSLOT), bool)
+    for k, t in enumerate(TIMES):
+        wait, raw[k] = active(t)
         done = kte < t
-        flash = np.bincount(kslot[done & (kte > t - FLASH)], minlength=NSLOT)[:NSLOT] > 0
+        flash_m[k] = np.bincount(kslot[done & (kte > t - FLASH)], minlength=NSLOT)[:NSLOT] > 0
         pips[k] = np.minimum(np.bincount(kslot[done], minlength=NSLOT)[:NSLOT], MAXPIP)
-        st[k] = np.where(flash, 3, np.where(wait, 2, np.where(gen, 1, 0)))
         waitn[k] = int(wait.sum())
         sess[k] = int(done.sum())
         n = int(np.searchsorted(te_s, t, side='left'))       # LLM calls completed in [W0, t)
@@ -147,6 +176,13 @@ def precompute(a):
         if span >= 60.0:                                      # LLM calls/min, trailing 5 min (shorter at the start)
             n0 = int(np.searchsorted(te_s, t - span, side='left'))
             rate[k] = (n - n0) / (span / 60.0)
+    # displayed state = the state seen most often in the last NSM frames (ties go to the current state);
+    # the 'just finished' flash overrides it
+    ext = np.concatenate([np.stack([active(W0 - STEP * j)[1] for j in range(NSM - 1, 0, -1)]), raw])
+    oh = np.stack([ext == s for s in (0, 1, 2)], axis=-1).astype(np.int32)
+    cs = np.concatenate([np.zeros((1, NSLOT, 3), np.int32), np.cumsum(oh, axis=0)])
+    cnt = cs[NSM:] - cs[:-NSM]
+    st[:] = np.where(flash_m, 3, np.argmax(cnt * 2 + oh[NSM - 1:], axis=-1))
     return dict(st=st, pips=pips, waitn=waitn, sess=sess, steps=steps, p95=p95, rate=rate, rev=rev, cps=cps)
 
 
@@ -287,7 +323,7 @@ def beat_text(k, t, mode):
 
 
 # ---------------------------------------------------------------- figure
-plt.rcParams.update({'font.family': 'DejaVu Sans', 'text.color': INK, 'axes.edgecolor': '#c9ced6',
+plt.rcParams.update({'font.family': 'DejaVu Sans', 'text.color': INK, 'axes.edgecolor': TH['AX_EDGE'],
                      'hatch.linewidth': 1.0})
 fig = plt.figure(figsize=(19.2, 10.8), dpi=100, facecolor=BG)
 FW, FH = 1920.0, 1080.0
@@ -360,10 +396,10 @@ for arm in ('dyn', 'ours'):
     boxes, nlabels = [], []
     for i in range(9):
         b = FancyBboxPatch((i + 0.06, 0.06), 0.88, 0.88, boxstyle='round,pad=0,rounding_size=0.12',
-                           mutation_aspect=nx_px / ny_px, lw=0, fc='#2f3640', ec='#2f3640')
+                           mutation_aspect=nx_px / ny_px, lw=0, fc=TH['NODE_P'][0], ec=TH['NODE_P'][1])
         axn.add_patch(b); boxes.append(b)
         nlabels.append(axn.text(i + 0.5, 0.5, 'P', ha='center', va='center', fontsize=16, weight='bold',
-                                color='white', linespacing=1.0))
+                                color=TH['NODE_P'][3], linespacing=1.0))
     hl = FancyBboxPatch((x0 - 0.004, STRIP[0] - 0.005), PW * STRIP_WF + 0.008, STRIP[1] + 0.010,
                         transform=fig.transFigure, boxstyle='round,pad=0,rounding_size=0.006',
                         mutation_aspect=FW / FH, fc='none', ec=C_OURS, lw=3, zorder=5, visible=False)
@@ -399,7 +435,7 @@ for arm in ('dyn', 'ours'):
     for r in range(ROWS):
         for c in range(COLS):
             body = FancyBboxPatch((c + 0.06, r + 0.08), 0.88, 0.84, boxstyle='round,pad=0,rounding_size=0.08',
-                                  mutation_aspect=gx_px / gy_px, lw=0, fc=C_IDLE)
+                                  mutation_aspect=gx_px / gy_px, lw=0, fc=TILE[0][0])
             axg.add_patch(body)
             bar = Rectangle((c + 0.06, r + 0.08), 0.88, 0.27, lw=0, fc=TILE[0][1])
             axg.add_patch(bar)
@@ -410,13 +446,12 @@ for arm in ('dyn', 'ours'):
             row = []
             for j in range(MAXPIP):
                 e = axg.text(c + 0.20 + j * 0.18, r + 0.08 + 0.135, IC_PIP, ha='center', va='center',
-                             fontproperties=ICON_FP, fontsize=8, color=C_PIP, zorder=3, visible=False,
-                             path_effects=[pe.withStroke(linewidth=1.4, foreground=C_PIP_EC)])
+                             fontproperties=ICON_FP, fontsize=8, color=C_PIP, zorder=3, visible=False)
                 row.append(e)
             pips.append([row, 0])
     callout = axg.annotate('one Claude Code agent', xy=(0.5, 0.6), xytext=(2.4, 1.6), fontsize=15, weight='bold',
                            color=INK, va='center', zorder=20,
-                           bbox=dict(boxstyle='round,pad=0.35', fc='white', ec=INK, lw=1.5),
+                           bbox=dict(boxstyle='round,pad=0.35', fc=TH['POP'], ec=INK, lw=1.5),
                            arrowprops=dict(arrowstyle='-|>', color=INK, lw=2))
 
     # stats row
@@ -442,7 +477,7 @@ for arm in ('dyn', 'ours'):
 
 # caption pill
 caption = fig.text(0.5, 0.290, '', fontsize=17, weight='bold', ha='center', va='center', color=INK, zorder=6,
-                   bbox=dict(boxstyle='round,pad=0.45', fc='#eceef2', ec='none'))
+                   bbox=dict(boxstyle='round,pad=0.45', fc=TH['PILL'], ec='none'))
 # first beat ('@legend'): what the icons mean, as icon + text runs on a pill like the caption's
 _ic, _tx = dict(fontproperties=ICON_FP, fontsize=21), dict(fontsize=17, weight='bold', color=INK)
 INTRO_LEG = runs(0.5, 0.290, [(IC_WAIT, dict(_ic, color=C_WAIT), 5), ('waiting for the model', _tx, 30),
@@ -454,7 +489,7 @@ _pad = 0.45 * 17 * 100 / 72                       # px, the caption pill's pad (
 _hh = max(b.height for b in _bx) / 2 + _pad
 _pill = FancyBboxPatch(((_bx[0].x0 - _pad) / FW, 0.290 - _hh / FH), (_bx[-1].x1 - _bx[0].x0 + 2 * _pad) / FW, 2 * _hh / FH,
                        transform=fig.transFigure, boxstyle=f'round,pad=0,rounding_size={_pad / FW}',
-                       mutation_aspect=FW / FH, fc='#eceef2', ec='none', zorder=6)
+                       mutation_aspect=FW / FH, fc=TH['PILL'], ec='none', zorder=6)
 fig.add_artist(_pill)
 INTRO_LEG.append(_pill)
 
@@ -469,7 +504,7 @@ def style_chart(ax, title, ymax, yticks):
     ax.patch.set_visible(False)
     for s in ('top', 'right', 'left'):
         ax.spines[s].set_visible(False)
-    ax.spines['bottom'].set_color('#b8bfc8')
+    ax.spines['bottom'].set_color(TH['SPINE'])
     ax.set_xticks(range(0, 61, 10))
     ax.set_xticklabels([str(v) for v in range(0, 60, 10)] + ['60 min'])
     ax.set_yticks(yticks)
@@ -577,10 +612,11 @@ card_text(0.5, 0.112, f'Time per agent step = 126 agents × 60 min ÷ LLM calls 
                       f'(Dynamo {fd["n"]:,}, Evolving Infra {fo["n"]:,})  ·  latencies measured at the client',
           appear=34, ha='center', va='center', fontsize=13, color=MUTED)
 
-NODE_STYLE = {'P': dict(fc='#2f3640', ec='#2f3640', lw=0, ls='-', hatch=None, tc='white', fs=16),
-              'D': dict(fc='#cbd3dd', ec='#cbd3dd', lw=0, ls='-', hatch=None, tc=INK, fs=16),
-              'S': dict(fc='white', ec='#7c8696', lw=1.2, ls='-', hatch='////', tc=INK, fs=11),
-              'R': dict(fc='white', ec='#9aa5b1', lw=1.6, ls='--', hatch=None, tc=C_OFF, fs=10.5)}
+_P, _D = TH['NODE_P'], TH['NODE_D']
+NODE_STYLE = {'P': dict(fc=_P[0], ec=_P[1], lw=_P[2], ls='-', hatch=None, tc=_P[3], fs=16),
+              'D': dict(fc=_D[0], ec=_D[0], lw=0, ls='-', hatch=None, tc=_D[1], fs=16),
+              'S': dict(fc=TH['POP'], ec=TH['NODE_S_EC'], lw=1.2, ls='-', hatch='////', tc=INK, fs=11),
+              'R': dict(fc=TH['POP'], ec=TH['NODE_R_EC'], lw=1.6, ls='--', hatch=None, tc=C_OFF, fs=10.5)}
 
 
 # ---------------------------------------------------------------- per-frame drawing
@@ -648,7 +684,7 @@ def draw_panel(arm, k, t, i, mode):
         else:
             txt = s
         lab.set_text(txt); lab.set_color(ns['tc']); lab.set_fontsize(ns['fs'])
-        lab.set_bbox(dict(boxstyle='round,pad=0.15', fc='white', ec='none') if s == 'S' else None)
+        lab.set_bbox(dict(boxstyle='round,pad=0.15', fc=TH['POP'], ec='none') if s == 'S' else None)
     # pulse a frame around our strip during each in-place switch (>= 3 s of video)
     if arm == 'ours':
         on = False
@@ -750,7 +786,7 @@ else:
     plt.rcParams['animation.ffmpeg_path'] = args.ffmpeg
     writer = animation.FFMpegWriter(fps=FPS, codec='libx264', bitrate=6000,
                                     extra_args=['-pix_fmt', 'yuv420p', '-preset', 'medium', '-crf', '20'])
-    with writer.saving(fig, str(out / 'evolving-infra-vs-dynamo-cc126.mp4'), dpi=100):
+    with writer.saving(fig, str(out / f'evolving-infra-vs-dynamo-cc126{"-dark" if args.theme == "dark" else ""}.mp4'), dpi=100):
         for i in range(TOTAL):
             draw(i)
             writer.grab_frame()
