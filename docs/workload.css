@@ -1,0 +1,109 @@
+/* Motion carries the contrast: changing work above, fixed physical anchors below. */
+.workload-heading { display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 6px 13px; }
+.motion-badge, .static-badge { display: inline-flex; align-items: center; justify-content: center; gap: 6px; font: 500 9px/1.4 var(--mono); letter-spacing: .09em; padding: 5px 8px; border-radius: 3px; }
+.motion-badge { color: var(--red); background: #f9e6e8; }
+.motion-badge i { display: inline-block; width: 5px; height: 5px; border-radius: 50%; background: var(--red); animation: live-work 1.2s ease-in-out infinite; }
+.static-badge { color: #55515a; background: #e5e2dc; margin-right: 7px; vertical-align: middle; }
+#workload-moment { width: 100%; height: 16px; color: #9b3340; font: 11px/16px var(--mono); text-align: center; margin-top: 2px; }
+.application-row { margin-top: 12px; }
+.application { position: relative; }
+.application .app-art {
+  transform: translateY(5px) scale(.94);
+  filter: saturate(.6);
+  transition: transform .7s cubic-bezier(.2,.65,.25,1), filter .65s;
+}
+.application.is-working .app-art { transform: translateY(-1px) scale(1); filter: saturate(.9); }
+.application.is-busy .app-art { transform: translateY(-13px) rotate(-2.5deg) scale(1.08); filter: saturate(1.1) drop-shadow(0 10px 13px #bb3d3915); }
+.application.is-busy:nth-child(2n) .app-art { transform: translateY(-13px) rotate(2.5deg) scale(1.08); }
+.application figcaption { transition: color .4s; }
+.application.is-busy figcaption { color: var(--red); }
+.application figcaption .activity-label { color: #6a6268; min-height: 17px; font-size: 10px; transition: color .3s; }
+.application.is-busy figcaption .activity-label { color: #a71e30; }
+.activity-label::after { content: ''; display: block; height: 2px; width: 12px; margin: 6px auto 0; background: #b4a6a8; transition: width .5s, background .3s; }
+.application[data-step="2"] .activity-label::after { width: 25px; }
+.application[data-step="3"] .activity-label::after { width: 40px; }
+.application.is-busy .activity-label::after { background: var(--red); }
+.activity-track { position: absolute; inset: 0; z-index: 2; }
+.task-chip { position: absolute; display: inline-flex; align-items: center; gap: 5px; background: #fffdfb; border: 1px solid #dcccca; border-radius: 5px; padding: 5px 8px; color: #75656a; font: 10px/1.2 var(--mono); box-shadow: 0 5px 13px #60494b0d; opacity: 0; transform: translateY(10px) scale(.85); transition: opacity .4s, transform .55s cubic-bezier(.2,.7,.2,1), background .35s, color .35s; white-space: nowrap; }
+.task-chip:nth-child(1) { left: -8%; top: 27%; }
+.task-chip:nth-child(2) { right: -9%; top: 10%; }
+.task-chip:nth-child(3) { right: -6%; top: 66%; }
+.task-chip::before { content: ''; width: 4px; height: 4px; border-radius: 50%; background: currentColor; opacity: .65; }
+.application.is-working .task-chip.is-current { opacity: .88; transform: translateY(0) scale(.93); }
+.application.is-busy .task-chip.is-current { opacity: 1; transform: translateY(-6px) scale(1); background: var(--red); color: #fff; border-color: var(--red); box-shadow: 0 7px 17px #c9233624; }
+.application.is-busy .task-chip.is-complete { opacity: .8; transform: translateY(0) scale(.9); }
+.application-code[data-phase="new-branch"] .task-chip:nth-child(2) { transform: translate(13px,-7px) scale(.95); opacity: .85; }
+.application-code[data-phase="new-branch"] .task-chip:nth-child(3) { transform: translate(13px,4px) scale(1); }
+.application-cua .scene-cursor { animation: none; width: 22px; height: 30px; left: 57%; top: 35%; transition: transform .5s cubic-bezier(.2,.7,.2,1); }
+.application-cua[data-phase="clicking"] .scene-cursor { transform: translate(15px,29px) scale(.8); }
+.application-cua[data-phase="new-screen"] .scene-cursor { transform: translate(-29px,7px) scale(1); }
+.application-proactive .scene-ping { animation: none; opacity: 0; transition: opacity .4s, transform .6s; }
+.application-proactive[data-phase="triggered"] .scene-ping { opacity: .85; transform: scale(1.6); }
+.application-proactive[data-phase="starting-task"] .scene-ping { opacity: .4; transform: scale(2); }
+.scene-gap { opacity: .13; }
+
+.hardware-layer { padding: 0 5px; }
+.hardware-row { position: relative; }
+.hardware { position: relative; }
+.hardware-art { filter: grayscale(1); transform: none; animation: none !important; transition: none; }
+.hardware-art::after { content: ''; position: absolute; z-index: -1; left: 12%; right: 12%; bottom: 10%; height: 14px; border-radius: 50%; background: #28272e12; filter: blur(4px); }
+.hardware-baseline { height: 1px; position: relative; background: #c8c3bc; margin: 17px 5% 0; }
+.hardware-baseline i { position: absolute; top: -3px; width: 7px; height: 7px; border: 1px solid #99938b; background: #f7f5f2; }
+.hardware-baseline i:nth-child(1) { left: 10%; }
+.hardware-baseline i:nth-child(2) { left: 50%; }
+.hardware-baseline i:nth-child(3) { left: 90%; }
+.hardware-layer .layer-title { margin-top: 14px; }
+.hardware figcaption span { color: #68656c; }
+
+.scene-hero[data-mode=evolving] .workload-heading,
+.scene-hero[data-mode=evolving] .activity-track,
+.scene-hero[data-mode=evolving] .hardware-baseline { opacity: 0; }
+.scene-hero[data-mode=evolving] .workload-heading { transition: opacity .45s; }
+.workload-paused *, .workload-paused *::after, .application.is-paused * { animation-play-state: paused !important; }
+@keyframes live-work { 0%,100% { opacity: .35; transform: scale(.8); } 50% { opacity: 1; transform: scale(1.15); } }
+
+@media (min-width:701px) {
+  .application-layer { top: clamp(68px, 9vh, 108px); }
+  .application-row { margin-top: 7px; }
+  .application .app-art { width: min(100%, clamp(160px, 20vh, 200px)); }
+  .hardware-art { width: min(100%, clamp(160px, 19.5vh, 195px)); }
+}
+@media (max-width:1000px) and (min-width:701px) {
+  .task-chip { font-size: 9px; padding: 4px 6px; }
+  .task-chip:nth-child(1) { left: -3%; }
+  .task-chip:nth-child(2) { right: -3%; }
+}
+@media (max-width:700px) {
+  .workload-heading { gap: 5px 8px; }
+  .motion-badge, .static-badge { font-size: 8px; padding: 4px 6px; }
+  .workload-heading .layer-title { font-size: 14px; }
+  #workload-moment { font-size: 9px; height: 13px; line-height: 13px; margin-top: 1px; }
+  .application-layer { top: 70px; }
+  .application-row { margin-top: 12px; gap: 7px 20px; }
+  .application .app-art { width: 110px; }
+  .application.is-busy .app-art { transform: translateY(-8px) rotate(-2deg) scale(1.07); }
+  .application.is-busy:nth-child(2n) .app-art { transform: translateY(-8px) rotate(2deg) scale(1.07); }
+  .task-chip { font-size: 8px; padding: 4px 5px; gap: 3px; border-radius: 4px; }
+  .task-chip:nth-child(1) { left: -10%; top: 24%; }
+  .task-chip:nth-child(2) { right: -10%; top: 20%; }
+  .task-chip:nth-child(3) { right: -9%; top: 67%; }
+  .task-chip::before { width: 3px; height: 3px; }
+  .application figcaption .activity-label { font-size: 9px; min-height: 15px; }
+  .activity-label::after { margin-top: 3px; }
+  .scene-intro { top: 57%; }
+  .hardware-baseline { margin-top: 13px; }
+  .hardware-layer .layer-title { font-size: 13px; margin-top: 13px; }
+  .hardware-art::after { height: 9px; }
+  .application-cua .scene-cursor { width: 14px; height: 20px; }
+  .application-cua[data-phase="clicking"] .scene-cursor { transform: translate(8px,15px) scale(.8); }
+  .application-cua[data-phase="new-screen"] .scene-cursor { transform: translate(-14px,6px); }
+  .scene-hero[data-mode=evolving] .application-row { gap: 6px; }
+}
+@media (max-width:360px) {
+  .application .app-art { width: 100px; }
+  .hardware-layer .layer-title { font-size: 12px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .application .app-art, .application.is-working .app-art, .application.is-busy .app-art, .application.is-busy:nth-child(2n) .app-art { transform: none; filter: none; }
+  .application *, .motion-badge i { animation: none !important; transition: none !important; }
+}

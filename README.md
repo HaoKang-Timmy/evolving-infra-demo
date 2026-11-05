@@ -4,9 +4,9 @@ Evolving Infra is a serving system that adapts to agent workload at runtime. Thi
 project page, the demo video, and the code that renders the video.
 
 - Project page: https://inference-rsi.com/ (source in `docs/`, served by GitHub Pages)
-- Demo video: [`video/evolving-infra-vs-dynamo-cc126.mp4`](video/evolving-infra-vs-dynamo-cc126.mp4) (light) and
-  [`video/evolving-infra-vs-dynamo-cc126-dark.mp4`](video/evolving-infra-vs-dynamo-cc126-dark.mp4) (dark, played by the
-  page). Dynamo and Evolving Infra each serve 126 concurrent Claude Code agents with GLM-5.2 on 36 GB300
+- Demo video: [`video/evolving-infra-vs-dynamo-cc126.mp4`](video/evolving-infra-vs-dynamo-cc126.mp4) (light, played by the page) and
+  [`video/evolving-infra-vs-dynamo-cc126-dark.mp4`](video/evolving-infra-vs-dynamo-cc126-dark.mp4) (dark).
+  Dynamo and Evolving Infra each serve 126 concurrent Claude Code agents with GLM-5.2 on 36 GB300
   GPUs. The video shows one hour of each run at 60× speed. Each agent window shows with an icon what its agent did for
   most of the last 30 seconds: waiting for the model, generating, or a tool call / idle. A check mark in its title bar
   counts each agent that finished in that window. The counters and charts are exact.
@@ -15,7 +15,7 @@ project page, the demo video, and the code that renders the video.
 
 | Path | Content |
 | --- | --- |
-| `docs/` | The static project page: `index.html`, `site.css`, `scene.css`, and native JavaScript in `js/`. An illustrated opening places changing agent applications above fixed hardware; activating it turns the scene into the background for the project and demo. Results and technical details follow. SVG figures live in `fig/`; videos, posters, and scene artwork in `media/`. Google Fonts load from a CDN. No build step. |
+| `docs/` | The static project page: `index.html`, base styles in `site.css` and `scene.css`, the default light palette in `light.css`, motion styling in `workload.css`, and native JavaScript in `js/`. An illustrated opening places changing agent applications above fixed hardware; activating it turns the scene into the background for the project and demo. Results and technical details follow. SVG figures live in `fig/`; videos, posters, and scene artwork in `media/`. Google Fonts load from a CDN. No build step. |
 | `video/` | The video, `render.py` (renders it), `data.json` (its input), `extract.py` (built `data.json` from the benchmark logs), and the icon font. |
 | `web/figbuild/` | TikZ wrappers of the architecture and KV-directory figures in `docs/fig/`. They compile against the paper's LaTeX sources, which are not included. |
 
@@ -34,6 +34,14 @@ The opening uses two transparent 2×2 illustration atlases in `docs/media/scene/
 prompts alongside them. They are conceptual artwork, not product photographs or a list of validated
 platforms. The demo and result captions state the actual experimental hardware. The upper-layer
 motion stops for reduced-motion preferences and when the scene is offscreen or the page is hidden.
+
+The light opening uses explicit workflow stages (reasoning/checking, reading/clicking,
+editing/testing/forking, and watching/triggering) rather than decorative floating alone.
+`js/workload.js` advances these illustrative states every 1.2 seconds, with a new focal workload
+every 2.4 seconds. It never changes the hardware layer. These states are not experiment telemetry.
+Design references: [Figma's interactive homepage case study](https://rive.app/blog/figma-s-new-homepage-is-full-of-rive-animations)
+for demonstrating actions, [Dropbox Motion](https://brand.dropbox.com/motion) for purposeful motion
+and immediate feedback, and [Stripe](https://stripe.com/) for a bright, structured presentation.
 
 ## Render the video
 

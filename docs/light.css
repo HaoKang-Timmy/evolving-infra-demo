@@ -1,0 +1,90 @@
+/* Default light palette. Loaded after site.css and scene.css; geometry stays there. */
+:root {
+  --bg: #f7f5f2;
+  --panel: #ffffff;
+  --fg: #232328;
+  --muted: #56545d;
+  --faint: #67646d;
+  --red: #c92336;
+  --line: #d9d5cf;
+  color-scheme: light;
+}
+body, .scene-hero { background: var(--bg); color: var(--fg); }
+::selection { background: var(--red); color: #fff; }
+.site-header { color: var(--fg); border-color: var(--line); }
+.nav-links a, .nav-links button, .intro-skip { color: var(--muted); }
+.nav-links a:hover, .nav-links button:hover, .intro-skip:hover { color: var(--red); }
+.nav-links .nav-code, .menu-toggle { border-color: #b7b2ab; color: var(--fg); }
+.intro-skip span, .reveal-heading h1 span { color: var(--red); }
+.button-primary, .skip-link { background: var(--red); color: #fff; }
+.button-primary:hover { background: #ad192b; }
+.button-outline { border-color: #aaa59e; background: transparent; color: var(--fg); }
+.button-outline:hover { background: #ece8e2; border-color: #817a74; color: var(--fg); }
+.scene-grain {
+  background: radial-gradient(ellipse at 50% 20%, #c9233610, transparent 52%),
+              radial-gradient(ellipse at 50% 84%, #38343a09, transparent 48%);
+}
+.scene-world::after {
+  background: radial-gradient(ellipse at 50% 40%, #f7f5f2f0 0, #f7f5f2a6 44%, transparent 76%);
+}
+.layer-title, .scene-intro > p { color: var(--muted); }
+.layer-title strong, .application figcaption, .hardware figcaption { color: var(--fg); }
+.application figcaption span, .hardware figcaption span, .scene-scope { color: var(--faint); }
+.scene-enter { color: var(--fg); }
+.enter-disc { background: var(--red); color: #fff; box-shadow: 0 10px 30px #c923361c; }
+.scene-enter:hover .enter-disc { box-shadow: 0 12px 36px #c9233630; }
+.scene-gap span { background: linear-gradient(transparent, #ad53602b, transparent); }
+.scene-gap span::after { background: var(--red); }
+.math-sparks i, .code-sparks i { color: #b7192d; text-shadow: 0 1px 10px #ffffffb3; }
+.scene-cursor { background: var(--red); }
+.scene-ping { border-color: var(--red); }
+.scene-ping::after { background: var(--red); }
+.reveal-heading, .reveal-heading h1 { color: var(--fg); }
+.reveal-description, .replay-intro, .reveal-demo-heading { color: var(--muted); }
+.replay-intro:hover { color: var(--red); }
+.reveal-demo-heading strong { color: var(--fg); }
+.hero-title span { color: var(--muted); }
+.evolved-title span { color: var(--red); }
+.hero-description, .hero-demo-link, .scene-caption, .scene-footer p { color: var(--muted); }
+.hero-micro, .scene-footer > span, .scroll-cue { color: var(--faint); }
+.scene-caption-line, .scroll-line { background: #aaa59f; }
+.hero[data-mode=evolving] .evolve-trigger { border-color: #b7b2ab; color: var(--muted); }
+.proof-section, #results.proof-section { background: var(--bg); border-color: var(--line); }
+.demo-player, .scene-reveal .demo-player {
+  background: var(--panel); border-color: #d1ccc5; box-shadow: 0 24px 70px #28201e14;
+}
+.player-top { background: #eeebe6; border-color: var(--line); }
+.player-top, .player-bottom { color: var(--muted); }
+.player-bottom { background: var(--panel); border-color: var(--line); }
+.player-top > span:first-child, .player-bottom > span:first-child { color: #39373e; }
+.result, .try-row { border-color: var(--line); }
+.result p > span, .result p > i, .result-label, .measurement-note { color: var(--faint); }
+.result strong { color: var(--fg); }
+.try-action > span { color: var(--muted); }
+.idea-section { background: radial-gradient(ellipse at 10% 20%, #c9233608, transparent 60%); border-color: var(--line); }
+.freedom-visual { background: linear-gradient(135deg, #ffffff, #efede8); border-color: var(--line); }
+.role-rail > span { background: #e7e3dd; border-color: #aaa49d; color: #37353c; }
+.role-rail > .role-shift { background: #fae6e9; border-color: #d9959e; color: var(--red); }
+.freedom-divider span { background: linear-gradient(90deg, transparent, #b6505e); }
+.context-rail { background: #fae8ea; border-color: #d99da5; }
+.context-rail i { background: #ae5663; }
+.context-rail i:nth-child(4n) { background: #c92336; }
+.mechanism, .technical-detail, .technical-detail:last-child { border-color: var(--line); }
+.mechanism-tag, .detail-content .evidence-note { color: var(--faint); }
+.detail-plus { color: var(--muted); }
+.technical-detail[open] .detail-plus { color: var(--red); }
+.paper-figure { background: var(--panel); color: var(--fg); box-shadow: inset 0 0 0 1px #e2ddd6; }
+.paper-figure figcaption { color: var(--muted); }
+.research-section { background: #eeebe6; border-color: var(--line); }
+.paper-title { color: var(--fg); }
+.authors { color: #45424a; }
+.affiliations, .research-note { color: var(--muted); }
+.site-footer > span, .site-footer > a:last-child { color: var(--muted); }
+dialog { background: var(--panel); color: var(--fg); border-color: #c4beb6; box-shadow: 0 30px 100px #201c2033; }
+dialog::backdrop { background: #29252b73; }
+.dialog-close, dialog p { color: var(--muted); }
+.dialog-close:hover { color: var(--red); }
+@media (max-width: 540px) {
+  .nav-links { background: var(--panel); border-color: var(--line); box-shadow: 0 18px 32px #28201e17; }
+  .menu-toggle { background: var(--panel); }
+}

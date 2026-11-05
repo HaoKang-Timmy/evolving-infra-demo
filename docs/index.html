@@ -3,14 +3,14 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#0b0c0e">
+  <meta name="theme-color" content="#f7f5f2">
   <title>Evolving Infra — Infrastructure that moves with your agents</title>
   <meta name="description" content="Agents evolve. Infrastructure should, too. Evolving Infra unlocks the freedom to adapt compute and KV cache management to changing agent workloads.">
   <meta property="og:title" content="Evolving Infra — Let infrastructure evolve.">
   <meta property="og:description" content="Same hardware. More freedom. Watch 126 coding agents finish more than twice as many sessions on the same 36 GB300 GPUs.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://inference-rsi.com/">
-  <meta property="og:image" content="https://inference-rsi.com/media/poster-dark.png">
+  <meta property="og:image" content="https://inference-rsi.com/media/poster.png">
   <meta name="twitter:card" content="summary_large_image">
   <link rel="canonical" href="https://inference-rsi.com/">
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
@@ -18,11 +18,14 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="site.css">
-  <link rel="stylesheet" href="scene.css?v=layered-scene">
+  <link rel="stylesheet" href="scene.css?v=light-motion">
+  <link rel="stylesheet" href="light.css?v=light-motion">
+  <link rel="stylesheet" href="workload.css?v=light-motion">
   <link rel="preload" as="image" href="media/scene/apps-atlas.png">
   <link rel="preload" as="image" href="media/scene/hardware-atlas.png">
-  <script src="js/site.js?v=layered-scene" defer></script>
-  <script src="js/hero.js?v=layered-scene" defer></script>
+  <script src="js/site.js?v=light-motion" defer></script>
+  <script src="js/hero.js?v=light-motion" defer></script>
+  <script src="js/workload.js?v=light-motion" defer></script>
 </head>
 <body class="intro-active">
   <a class="skip-link" href="#demo" data-enter>Skip to the demo</a>
@@ -41,12 +44,12 @@
       <div class="scene-world">
         <div class="scene-grain" aria-hidden="true"></div>
         <div class="application-layer">
-          <p class="layer-title">An ever-changing world of <strong>agents.</strong></p>
+          <div class="workload-heading"><span class="motion-badge"><i aria-hidden="true"></i>DYNAMIC</span><p class="layer-title">The work keeps <strong>changing.</strong></p><p id="workload-moment">Deep reasoning</p></div>
           <div class="application-row">
-            <figure class="application application-math"><div class="scene-art app-art art-math" role="img" aria-label="Mathematical reasoning illustrated by a notebook and floating formulas"><span class="math-sparks" aria-hidden="true"><i>∑</i><i>x²</i><i>∫</i></span></div><figcaption>Math<span>reason · verify</span></figcaption></figure>
-            <figure class="application application-cua"><div class="scene-art app-art art-cua" role="img" aria-label="Computer use illustrated by desktop windows and a cursor"><span class="scene-cursor" aria-hidden="true"></span></div><figcaption>Computer use<span>observe · act</span></figcaption></figure>
-            <figure class="application application-code"><div class="scene-art app-art art-code" role="img" aria-label="Coding illustrated by a terminal and branching editor windows"><span class="code-sparks" aria-hidden="true"><i>{ }</i><i>↗</i></span></div><figcaption>Code<span>build · branch</span></figcaption></figure>
-            <figure class="application application-proactive"><div class="scene-art app-art art-proactive" role="img" aria-label="Proactive agents illustrated by a radar, calendar, and notifications"><span class="scene-ping" aria-hidden="true"></span></div><figcaption>Proactive<span>watch · initiate</span></figcaption></figure>
+            <figure class="application application-math"><div class="scene-art app-art art-math" role="img" aria-label="Mathematical reasoning illustrated by a notebook and floating formulas"><div class="activity-track" aria-hidden="true"><span class="task-chip">Think</span><span class="task-chip">Check</span><span class="task-chip">Proof</span></div></div><figcaption>Math<span class="activity-label">Reasoning</span></figcaption></figure>
+            <figure class="application application-cua"><div class="scene-art app-art art-cua" role="img" aria-label="Computer use illustrated by desktop windows and a cursor"><span class="scene-cursor" aria-hidden="true"></span><div class="activity-track" aria-hidden="true"><span class="task-chip">View</span><span class="task-chip">Click</span><span class="task-chip">Read</span></div></div><figcaption>Computer use<span class="activity-label">Reading screen</span></figcaption></figure>
+            <figure class="application application-code"><div class="scene-art app-art art-code" role="img" aria-label="Coding illustrated by a terminal and branching editor windows"><div class="activity-track" aria-hidden="true"><span class="task-chip">Edit</span><span class="task-chip">Test</span><span class="task-chip">Fork</span></div></div><figcaption>Code<span class="activity-label">Editing</span></figcaption></figure>
+            <figure class="application application-proactive"><div class="scene-art app-art art-proactive" role="img" aria-label="Proactive agents illustrated by a radar, calendar, and notifications"><span class="scene-ping" aria-hidden="true"></span><div class="activity-track" aria-hidden="true"><span class="task-chip">Watch</span><span class="task-chip">Trigger</span><span class="task-chip">Run</span></div></div><figcaption>Proactive<span class="activity-label">Watching</span></figcaption></figure>
           </div>
         </div>
         <div class="scene-gap" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span></div>
@@ -56,7 +59,8 @@
             <figure class="hardware"><div class="scene-art hardware-art art-h200" role="img" aria-label="Concept illustration of an H200 GPU accelerator"></div><figcaption>H200<span>GPU accelerators</span></figcaption></figure>
             <figure class="hardware"><div class="scene-art hardware-art art-tpu" role="img" aria-label="Concept illustration of a TPU accelerator board"></div><figcaption>TPU<span>AI accelerators</span></figcaption></figure>
           </div>
-          <p class="layer-title">The same physical <strong>hardware.</strong></p>
+          <div class="hardware-baseline" aria-hidden="true"><i></i><i></i><i></i></div>
+          <p class="layer-title"><span class="static-badge">STATIC</span> The hardware stays <strong>fixed.</strong></p>
         </div>
         <p class="scene-scope">An illustrated application &amp; hardware landscape</p>
       </div>
@@ -75,7 +79,7 @@
           <div class="reveal-demo-heading"><span>126 coding agents. <strong>One shared cluster.</strong></span><span>36 GB300 GPUs</span></div>
           <div class="demo-player">
           <div class="player-top"><span><i class="record-dot" aria-hidden="true"></i> EXPERIMENT REPLAY</span><span>GLM-5.2 · CLAUDE CODE · 60× PLAYBACK</span></div>
-          <video id="demo-video" controls playsinline preload="none" poster="media/poster-dark.png" aria-label="Dynamo versus Evolving Infra serving 126 concurrent coding agents"><source src="media/evolving-infra-vs-dynamo-cc126-dark.mp4" type="video/mp4"><p>Your browser does not support this video. <a href="media/evolving-infra-vs-dynamo-cc126-dark.mp4">Download the demo.</a></p></video>
+          <video id="demo-video" controls playsinline preload="none" poster="media/poster.png" aria-label="Dynamo versus Evolving Infra serving 126 concurrent coding agents"><source src="media/evolving-infra-vs-dynamo-cc126.mp4" type="video/mp4"><p>Your browser does not support this video. <a href="media/evolving-infra-vs-dynamo-cc126.mp4">Download the demo.</a></p></video>
           <div class="player-bottom"><span>Dynamo <span class="comparison-arrow" aria-hidden="true">→</span> Evolving Infra</span><span>Real traces. One shared comparison window.</span></div>
           </div>
         </div>
