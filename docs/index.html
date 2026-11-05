@@ -13,7 +13,7 @@
   <meta property="og:image" content="https://inference-rsi.com/media/poster.png">
   <meta name="twitter:card" content="summary_large_image">
   <link rel="canonical" href="https://inference-rsi.com/">
-  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg?v=spine-mark">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -22,20 +22,20 @@
   <link rel="stylesheet" href="light.css?v=wave-labels">
   <link rel="stylesheet" href="workload.css?v=logo-cta-fix">
   <link rel="stylesheet" href="affiliations.css?v=logo-names">
+  <link rel="stylesheet" href="reading-view.css?v=follow-scroll">
   <link rel="preload" as="image" href="media/scene/apps-atlas.png">
   <link rel="preload" as="image" href="media/scene/hardware-atlas.png">
   <script src="js/site.js?v=light-motion" defer></script>
   <script src="js/hero.js?v=infra-wording" defer></script>
   <script src="js/workload.js?v=light-motion" defer></script>
+  <script src="js/reading-view.js?v=follow-scroll" defer></script>
 </head>
 <body class="intro-active">
   <a class="skip-link" href="#demo" data-enter>Skip to the demo</a>
   <header class="site-header">
-    <a class="brand" href="#hero" aria-label="Evolving Infra home"><span class="brand-symbol" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span><span>EVOLVING INFRA</span></a>
+    <a class="brand" href="#hero" aria-label="Evolving Infra home"><img class="brand-symbol spine-symbol" src="brand-mark.svg?v=spine-mark" alt="" width="24" height="36"><span>EVOLVING INFRA</span></a>
     <a class="intro-skip" href="#demo" data-enter>Skip intro <span aria-hidden="true">↗</span></a>
-    <button class="menu-toggle" id="menu-toggle" type="button" aria-expanded="false" aria-controls="nav-links">Menu <span aria-hidden="true">＋</span></button>
     <nav class="nav-links" id="nav-links" aria-label="Main navigation">
-      <a href="#demo">Watch the demo</a><a href="#why-evolve">The idea</a>
       <button type="button" data-release="paper">Tech report <span aria-hidden="true">↗</span></button>
       <button class="nav-code" type="button" data-release="code">Code <span aria-hidden="true">↗</span></button>
     </nav>
@@ -157,7 +157,7 @@
     </section>
     </div>
   </main>
-  <footer class="site-footer wrap"><a class="brand" href="#hero"><span class="brand-symbol" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span><span>EVOLVING INFRA</span></a><span>Infrastructure that moves with your agents.</span><a href="#hero">Back to top <span aria-hidden="true">↑</span></a></footer>
+  <footer class="site-footer wrap"><a class="brand" href="#hero"><img class="brand-symbol spine-symbol" src="brand-mark.svg?v=spine-mark" alt="" width="24" height="36"><span>EVOLVING INFRA</span></a><span>Infrastructure that moves with your agents.</span><a href="#hero">Back to top <span aria-hidden="true">↑</span></a></footer>
   <dialog id="release-dialog" aria-labelledby="release-title" aria-describedby="release-message"><button id="release-close" type="button" class="dialog-close" aria-label="Close">×</button><span class="dialog-mark" aria-hidden="true">↗</span><h2 id="release-title">Code release coming soon</h2><p id="release-message">The Evolving Infra implementation will be linked here when it is released.</p><a class="button button-outline" href="#demo" onclick="this.closest('dialog').close()">Watch the demo <span aria-hidden="true">↓</span></a></dialog>
   <noscript><style>#hero-before,.intro-skip,#replay-intro{display:none!important}#hero-after[hidden],#site-content[hidden]{display:block!important}.intro-active .site-header .brand{visibility:visible}.scene-world{opacity:.15;pointer-events:none}.scene-hero{min-height:0!important}.scene-reveal{position:relative;opacity:1!important}.site-footer{display:flex!important}</style></noscript>
 </body>

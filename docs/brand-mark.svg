@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 224" fill="none">
+  <title>Evolving Infra spine mark</title>
+  <g stroke="#a31f34" stroke-width="8" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M64 64V16M64 64C64 49 39 36 14 25M64 64C64 49 89 36 114 25"/>
+    <path d="M64 174V206M64 174C64 188 42 197 19 203M64 174C64 188 86 197 109 203"/>
+  </g>
+  <g fill="#a31f34">
+    <circle cx="14" cy="25" r="7"/>
+    <circle cx="64" cy="16" r="7"/>
+    <circle cx="114" cy="25" r="7"/>
+    <circle cx="64" cy="64" r="7"/>
+    <circle cx="64" cy="174" r="7"/>
+    <circle cx="19" cy="203" r="7"/>
+    <circle cx="64" cy="206" r="7"/>
+    <circle cx="109" cy="203" r="7"/>
+  </g>
+  <g fill="#141414">
+    <path id="vertebra" d="M55 72Q64 76 73 72V79H75C78 79 78 86 75 86H73V90Q64 96 55 90V86H53C50 86 50 79 53 79H55Z"/>
+    <use href="#vertebra" y="24"/>
+    <use href="#vertebra" y="48"/>
+    <use href="#vertebra" y="72"/>
+  </g>
+</svg>

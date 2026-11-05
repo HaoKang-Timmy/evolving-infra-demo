@@ -1,0 +1,87 @@
+/* Only the revealed reading view follows the viewport. The opening keeps its layout. */
+:root { --reading-bar-height: 82px; }
+.brand-symbol.spine-symbol { display: block; width: 24px; height: 36px; object-fit: contain; flex: none; }
+.header-affiliations { display: none; }
+body.content-active { --faint: #56545d; }
+html:has(body.content-active) { scroll-padding-top: calc(var(--reading-bar-height) + 16px); }
+.page-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+  user-select: none;
+}
+.page-backdrop .scene-world {
+  position: absolute;
+  inset: 0;
+  min-height: 0;
+  width: 100%;
+  height: 100%;
+  opacity: .22;
+  filter: blur(1.5px) saturate(.55);
+  transform: scale(1.06);
+}
+.page-backdrop .scene-world::after { opacity: 1; }
+.page-backdrop .hardware-layer { width: calc(100% + 170px); max-width: none; bottom: 45px; }
+.page-backdrop :is(.workload-heading, figcaption, .hardware-heading, .hardware-baseline, .scene-scope, .activity-track) { visibility: hidden; }
+.page-backdrop *, .page-backdrop *::before, .page-backdrop *::after {
+  animation: none !important;
+  transition: none !important;
+}
+body.content-active .site-header {
+  position: fixed;
+  inset: 0 0 auto;
+  z-index: 50;
+  background: rgba(247,245,242,.9);
+  border-bottom: 1px solid rgba(175,165,158,.25);
+  box-shadow: 0 3px 20px rgba(35,25,25,.025);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  height: var(--reading-bar-height);
+  display: grid;
+  grid-template-columns: auto minmax(0,1fr) auto;
+  gap: 28px;
+}
+body.content-active .header-affiliations { display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 4px; width: min(100%,720px); justify-self: center; min-width: 0; }
+.header-affiliations .affiliation-kicker { width: auto; font-size: 7px; line-height: 1.2; white-space: nowrap; }
+.header-affiliations .affiliation-logos { width: 100%; gap: 16px; }
+.header-affiliations .affiliation-logo { height: 30px; }
+body.content-active .nav-links { display: flex; position: static; flex-direction: row; align-items: center; gap: 22px; padding: 0; border: 0; background: transparent; box-shadow: none; }
+body.content-active .nav-links button { white-space: nowrap; }
+body.content-active .scene-reveal { padding-top: max(138px, calc(var(--reading-bar-height) + 38px)); }
+body.content-active main, body.content-active .site-footer { position: relative; z-index: 1; }
+body.content-active .scene-hero { background: transparent; }
+body.content-active .scene-hero > .scene-world { opacity: 0; visibility: hidden; }
+body.content-active #results.proof-section, body.content-active .idea-section { background: transparent; }
+body.content-active .research-section { background: rgba(238,235,230,.7); }
+body.content-active .page-backdrop { animation: reading-backdrop-in .9s ease both; }
+@keyframes reading-backdrop-in { from { opacity: 0; } to { opacity: 1; } }
+@media (max-width:1100px) {
+  :root { --reading-bar-height: 126px; }
+  body.content-active .site-header { grid-template-columns: 1fr auto; grid-template-rows: 40px 1fr; gap: 4px 20px; padding-block: 8px; }
+  body.content-active .header-affiliations { grid-column: 1 / -1; grid-row: 2; width: min(100%,760px); }
+  body.content-active .nav-links { grid-column: 2; grid-row: 1; gap: 18px; }
+  .header-affiliations .affiliation-logos { gap: 24px; }
+}
+@media (max-width:700px) {
+  :root { --reading-bar-height: 146px; }
+  body.content-active .site-header { padding: 9px 18px; grid-template-rows: 38px 1fr; gap: 5px 12px; }
+  body.content-active .site-header .brand { font-size: 9px; gap: 8px; letter-spacing: .08em; }
+  body.content-active .site-header .spine-symbol { width: 20px; height: 30px; }
+  body.content-active .nav-links { gap: 12px; }
+  body.content-active .nav-links button { font-size: 10px; min-height: 36px; }
+  body.content-active .nav-links .nav-code { padding: 7px 10px; border: 1px solid #b7b2ab; }
+  .header-affiliations .affiliation-kicker { font-size: 6.5px; }
+  .header-affiliations .affiliation-logos { grid-template-columns: repeat(3,minmax(0,1fr)); gap: 3px 30px; }
+  .header-affiliations .affiliation-logo { height: 24px; }
+  .header-affiliations .logo-gt img { width: 72px; max-height: 25px; }
+  .header-affiliations .logo-berkeley img { width: 65px; }
+  .page-backdrop .scene-world { opacity: .2; filter: blur(2px) saturate(.5); }
+  .page-backdrop .application-layer { top: 80px; width: calc(100% + 110px); }
+  .page-backdrop .application-row { grid-template-columns: repeat(4,minmax(0,1fr)); gap: 6px; }
+  .page-backdrop .hardware-layer { bottom: 35px; width: calc(100% + 50px); }
+}
+@media (prefers-reduced-motion:reduce) {
+  body.content-active .page-backdrop { animation: none; }
+}

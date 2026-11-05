@@ -30,6 +30,12 @@ The code and report buttons show a release notice until the corresponding URLs a
 `releaseLinks` at the top of `docs/js/site.js`. The website repository is separate from the
 future implementation repository.
 
+After the opening, `js/reading-view.js` keeps a decorative copy of the scene behind the
+scrolling content. The fixed header shows the project spine mark, author affiliations, and
+only the report/code actions. `reading-view.css` scopes this behavior to the revealed page;
+replaying the opening restores its original layout. `brand-mark.svg` and `favicon.svg` share
+the supplied red-and-black spine design.
+
 The opening uses two transparent 2×2 illustration atlases in `docs/media/scene/`, with generation
 prompts alongside them. They are conceptual artwork, not product photographs or a list of validated
 platforms. The demo and result captions state the actual experimental hardware. The upper-layer
