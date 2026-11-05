@@ -51,7 +51,7 @@
     const labels = {
       evolving: [
         ['Engine running', 'K in shared L2', 'Node 3 serves prefill; its reusable KV is accessible through the shared pool.'],
-        ['Engine running; draining work', 'Shared L2 retains K', 'Queued prefills move to other P nodes. Running work drains on Node 3.'],
+        ['Engine running; draining work', 'Shared L2 retains K', 'Each queued request moves to N1 or N2 while N3 finishes its running work.'],
         ['Same engine, now decode', 'Shared L2 retains K', 'The role changes; the host-memory KV remains accessible.'],
         ['Engine running', 'Fetch K while queued', 'Node 1 fetches peer-L2 prefix K while the request waits in its queue.'],
         ['Engine running', 'Reuse K; prefill Δ', 'This request continues to decode through the normal GPU-to-GPU KV transfer.']
@@ -75,8 +75,8 @@
     // later restoration of the original local prefix cache.
     const costDetails = {
       evolving: [
-        ['Queued work reroutes; running work must drain.', 'K resides in shared host memory.'],
-        ['Queued prefills reroute; N3 finishes running work.', 'Shared L2 keeps K through the role change.'],
+        ['Queued work moves to N1 and N2; running work drains.', 'K resides in shared host memory.'],
+        ['Distribute queued work to N1 and N2; drain N3.', 'Shared L2 keeps K through the role change.'],
         ['N3 serves decode after draining; its engine stays alive.', 'N3 switches to D while its shared-L2 prefix remains available.'],
         ['Same engines, new 2P4D split.', 'N1 fetches retained K from peer L2 while queued.'],
         ['The switch still includes reroute and drain.', 'N1 reuses K and prefills new input Δ.']
@@ -137,8 +137,8 @@
       setText(title, stages[step][0]);
       const explanation = step === 1
         ? baseline === 'sglang'
-          ? 'The caller makes SGLang idle before switching. Evolving Infra reroutes queued prefills and drains N3’s running work.'
-          : 'The baseline relaunches N3’s worker. Evolving Infra reroutes queued prefills and finishes in-flight work without a restart.'
+          ? 'SGLang waits for idle. Evolving Infra distributes N3’s queued requests to N1 and N2 while its running work drains.'
+          : 'The baseline relaunches N3. Evolving Infra distributes its queued requests to N1 and N2 while running work finishes.'
         : stages[step][1];
       setText(copy, explanation);
 

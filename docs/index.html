@@ -25,14 +25,14 @@
   <link rel="stylesheet" href="reading-view.css?v=follow-scroll">
   <link rel="stylesheet" href="reading-typography.css?v=compact-content">
   <link rel="stylesheet" href="reading-compact.css?v=compact-content">
-  <link rel="stylesheet" href="role-switch.css?v=decoupled-idea">
+  <link rel="stylesheet" href="role-switch.css?v=reroute-both">
   <link rel="preload" as="image" href="media/scene/apps-atlas.png">
   <link rel="preload" as="image" href="media/scene/hardware-atlas.png">
   <script src="js/site.js?v=light-motion" defer></script>
   <script src="js/hero.js?v=adaptive-copy" defer></script>
   <script src="js/workload.js?v=light-motion" defer></script>
   <script src="js/reading-view.js?v=follow-scroll" defer></script>
-  <script src="js/role-switch.js?v=switch-costs" defer></script>
+  <script src="js/role-switch.js?v=reroute-both" defer></script>
 </head>
 <body class="intro-active">
   <a class="skip-link" href="#demo" data-enter>Skip to the demo</a>
@@ -180,17 +180,18 @@
             <p class="switch-engine" data-engine-state>Engine stays running</p>
             <div class="switch-diagram" aria-hidden="true">
               <div class="switch-node-status"><i></i><span data-node-status>RESTARTING</span></div>
-              <div class="switch-work"><span class="running-chip">Running</span><span class="queued-chip">Queued</span></div>
+              <div class="switch-work"><span class="running-chip">Running</span><span class="queued-pair" title="Queued requests"><span class="queued-token" data-reroute-to="1">Q1</span><span class="queued-token" data-reroute-to="2">Q2</span></span></div>
               <div class="switch-next-request">Next request: <b>K</b> + <strong>Δ</strong></div><span class="switch-request-outcome">CACHE HIT · REUSE K</span>
               <svg class="switch-flows" viewBox="0 0 600 380" preserveAspectRatio="none" aria-hidden="true">
                 <defs><marker id="flow-arrow-evolving" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="currentColor"/></marker></defs>
-                <path class="flow-route flow-queue" d="M250 64C250 29 50 29 50 118" marker-end="url(#flow-arrow-evolving)"/>
+                <path class="flow-route flow-queue" data-reroute-target="1" d="M232 74C232 29 50 29 50 118" marker-end="url(#flow-arrow-evolving)"/>
+                <path class="flow-route flow-queue" data-reroute-target="2" d="M268 74C268 53 150 53 150 118" marker-end="url(#flow-arrow-evolving)"/>
                 <path class="flow-route flow-incoming" d="M300 28C300 63 50 56 50 118" marker-end="url(#flow-arrow-evolving)"/>
                 <path class="flow-route flow-fetch" d="M250 330C250 305 10 330 10 304L10 230Q10 215 50 202" marker-end="url(#flow-arrow-evolving)"/>
                 <path class="flow-route flow-decode" d="M50 118C50 35 250 35 250 118" marker-end="url(#flow-arrow-evolving)"/>
               </svg>
               <span class="switch-compute-label">COMPUTE ALLOCATION</span>
-              <div class="switch-node-grid"><div class="switch-node" data-node="1"><span class="node-id">N1</span><span class="node-phase">P</span><span class="node-kv" aria-hidden="true">K</span><span class="node-delta" aria-hidden="true">Δ</span></div><div class="switch-node" data-node="2"><span class="node-id">N2</span><span class="node-phase">P</span><span class="node-kv" aria-hidden="true">K</span><span class="node-delta" aria-hidden="true">Δ</span></div><div class="switch-node switch-target" data-node="3"><span class="node-id">N3</span><span class="node-phase">P</span><span class="node-kv" aria-hidden="true">K</span><span class="node-delta" aria-hidden="true">Δ</span></div><div class="switch-node is-decode" data-node="4"><span class="node-id">N4</span><span class="node-phase">D</span><span class="node-kv" aria-hidden="true">K</span><span class="node-delta" aria-hidden="true">Δ</span></div><div class="switch-node is-decode" data-node="5"><span class="node-id">N5</span><span class="node-phase">D</span><span class="node-kv" aria-hidden="true">K</span><span class="node-delta" aria-hidden="true">Δ</span></div><div class="switch-node is-decode" data-node="6"><span class="node-id">N6</span><span class="node-phase">D</span><span class="node-kv" aria-hidden="true">K</span><span class="node-delta" aria-hidden="true">Δ</span></div></div>
+              <div class="switch-node-grid"><div class="switch-node" data-node="1"><span class="node-id">N1</span><span class="node-phase">P</span><span class="reroute-received">Q1</span><span class="node-kv" aria-hidden="true">K</span><span class="node-delta" aria-hidden="true">Δ</span></div><div class="switch-node" data-node="2"><span class="node-id">N2</span><span class="node-phase">P</span><span class="reroute-received">Q2</span><span class="node-kv" aria-hidden="true">K</span><span class="node-delta" aria-hidden="true">Δ</span></div><div class="switch-node switch-target" data-node="3"><span class="node-id">N3</span><span class="node-phase">P</span><span class="node-kv" aria-hidden="true">K</span><span class="node-delta" aria-hidden="true">Δ</span></div><div class="switch-node is-decode" data-node="4"><span class="node-id">N4</span><span class="node-phase">D</span><span class="node-kv" aria-hidden="true">K</span><span class="node-delta" aria-hidden="true">Δ</span></div><div class="switch-node is-decode" data-node="5"><span class="node-id">N5</span><span class="node-phase">D</span><span class="node-kv" aria-hidden="true">K</span><span class="node-delta" aria-hidden="true">Δ</span></div><div class="switch-node is-decode" data-node="6"><span class="node-id">N6</span><span class="node-phase">D</span><span class="node-kv" aria-hidden="true">K</span><span class="node-delta" aria-hidden="true">Δ</span></div></div>
               <span class="switch-target-label">N3: prefill → decode</span>
               <div class="switch-layer-divider is-decoupled"><span>DECOUPLED</span></div>
               <div class="switch-memory shared-memory"><span class="memory-label">KV CACHE MANAGEMENT<small>Shared reusable KV · host memory</small></span><div class="host-slots"><div class="host-slot restored-kv"><span class="host-id">N1</span><span class="empty-cache" aria-hidden="true"></span></div><div class="host-slot"><span class="host-id">N2</span><span class="empty-cache" aria-hidden="true"></span></div><div class="host-slot source-kv" data-shared-prefix><span class="host-id">N3</span><span class="cache-id">K</span><span class="kv-blocks" aria-hidden="true"><i></i><i></i><i></i></span></div><div class="host-slot"><span class="host-id">N4</span><span class="empty-cache" aria-hidden="true"></span></div><div class="host-slot"><span class="host-id">N5</span><span class="empty-cache" aria-hidden="true"></span></div><div class="host-slot"><span class="host-id">N6</span><span class="empty-cache" aria-hidden="true"></span></div></div></div>
@@ -199,13 +200,13 @@
             <p class="switch-panel-note" data-panel-note>Each node can read reusable KV from its peers’ host memory.</p>
           </article>
           </div>
-          <p class="switch-legend"><span><b>P</b> Prefill</span><span><b>D</b> Decode</span><span><b class="prefix-key">K</b> Cached prefix</span><span><b>Δ</b> New input</span><span>Six-node schematic · timing is illustrative</span></p>
+          <p class="switch-legend"><span><b>P</b> Prefill</span><span><b>D</b> Decode</span><span><b class="prefix-key">K</b> Cached prefix</span><span><b>Δ</b> New input</span><span><b>Q1 / Q2</b> Queued requests</span><span>Six-node schematic · timing is illustrative</span></p>
           <p class="switch-drain-note"><strong>Default: a restart-based deployment.</strong> Engine capabilities vary by version and configuration. Select SGLang runtime switch for its in-place path. Evolving Infra also drains running work; this animation does not imply an instantaneous switch.</p>
           <details class="switch-scope"><summary>Comparison scope and sources</summary><div>
             <p><strong>SGLang runtime switch:</strong> the audited implementation supports in-place P/D switching after the instance is idle. With prefix caching enabled, it discards the reusable local GPU/host prefix cache and associated state. That is a loss of reusable prefix state, not a claim that every underlying or external KV byte is deleted. <a href="https://github.com/sgl-project/sglang/blob/f3532057e15fb8ede90ce1aeddfb5bd20dfbd4b6/python/sglang/srt/disaggregation/role_switch.py#L239-L294" target="_blank" rel="noopener noreferrer">Pinned implementation ↗</a></p>
             <p><strong>Existing engine:</strong> vLLM, SGLang and TRT-LLM are examples of serving engines. The default animation illustrates restart-based reconfiguration, grounded in the Dynamo/SGLang deployment evaluated in our report; it is not a claim that every configuration of these engines requires a restart. Only the selected worker restarts; the rest of the cluster continues serving.</p>
             <p><strong>vLLM:</strong> KV transfer, multi-turn reuse, and configurations with per-request P/D behavior already exist. This illustration makes no blanket claim that vLLM or SGLang cannot transfer KV or switch roles. The focus is the lifecycle of reusable KV during the specific reconfiguration paths shown. <a href="https://github.com/vllm-project/vllm/issues/43807" target="_blank" rel="noopener noreferrer">vLLM P/D behavior ↗</a> · <a href="https://github.com/vllm-project/vllm/blob/1ab4476ac9d1829426f467f3c04ae2de3f49e8fe/docs/design/nixl_kv_cache_lease.md" target="_blank" rel="noopener noreferrer">Multi-turn KV reuse ↗</a></p>
-            <p><strong>Evolving Infra:</strong> queued prefills are rerouted, in-flight work drains, and N3 changes role without a process restart. Its reusable K stays in shared host memory. Another prefill node can fetch K while queued, compute the new input Δ, and then send request KV to decode through GPU-to-GPU transfer.</p>
+            <p><strong>Evolving Infra:</strong> queued prefills are distributed across the other prefill nodes, N1 and N2, while in-flight work drains on N3, and N3 changes role without a process restart. Its reusable K stays in shared host memory. Another prefill node can fetch K while queued, compute the new input Δ, and then send request KV to decode through GPU-to-GPU transfer.</p>
           </div></details>
         </section>
         </div>

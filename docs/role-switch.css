@@ -70,6 +70,11 @@ body.content-active #why-evolve .idea-decoupling .lead { max-width: none; margin
 .running-chip, .queued-chip { display: block; padding: 3px 7px; border-radius: 3px; font: 11px/1.3 var(--mono); background: #ebe4dc; color: #62565e; }
 .running-chip { transform-origin: left; }
 .queued-chip { margin-top: 4px; background: #f3d9de; color: #a72133; }
+.queued-pair { display: flex; justify-content: center; gap: 6px; margin-top: 4px; }
+.queued-token { display: block; width: 30px; padding: 3px 0; border-radius: 3px; background: #f3d9de; color: #a72133; font: 11px/1.3 var(--mono); }
+.queued-token[data-reroute-to="1"] { --reroute-x: calc(-33.333cqw + 18px); }
+.queued-token[data-reroute-to="2"] { --reroute-x: calc(-16.667cqw - 18px); }
+.reroute-received { position: absolute; bottom: 6px; padding: 1px 4px; border-radius: 2px; color: #fff; background: #b91e36; font: 10px/1.3 var(--mono); opacity: 0; }
 .switch-next-request { position: absolute; top: 0; left: 50%; transform: translate(-50%,8px); padding: 5px 9px; background: #fff; border: 1px solid #d9cfd0; border-radius: 4px; font: 12px var(--mono); white-space: nowrap; opacity: 0; transition: opacity .45s, transform .45s; z-index: 2; }
 .switch-next-request b { color: #c92336; font-weight: 500; }
 .switch-next-request strong { color: #2d2930; font-weight: 500; }
@@ -115,7 +120,8 @@ body.content-active #why-evolve .idea-decoupling .lead { max-width: none; margin
 .switch-demo[data-step="1"] [data-system="baseline"] .switch-target-label { color: #b2132a; font-weight: 600; }
 .switch-demo[data-baseline="restart"][data-step="1"] [data-system="baseline"] .switch-work { opacity: 0; }
 .switch-demo[data-step="1"] .ours .flow-queue { opacity: .85; }
-.switch-demo[data-step="1"] .ours .queued-chip { animation: reroute-queued 2.5s ease-in-out both; }
+.switch-demo[data-step="1"] .ours .queued-token { animation: reroute-queued 2.5s ease-in-out both; }
+.switch-demo[data-step="1"] .ours .reroute-received { opacity: 1; animation: receive-queued 2.5s ease-in-out both; }
 .switch-demo[data-step="1"] .ours .running-chip,
 .switch-demo[data-baseline="sglang"][data-step="1"] [data-system="baseline"] .running-chip { animation: finish-running 2.6s ease both; }
 .switch-demo:is([data-step="2"],[data-step="3"],[data-step="4"]) [data-system="baseline"] .source-kv .kv-blocks,
@@ -148,7 +154,13 @@ body.content-active #why-evolve .idea-decoupling .lead { max-width: none; margin
 @keyframes kv-flow { to { stroke-dashoffset: -20; } }
 @keyframes node-changing { to { transform: rotate(360deg); } }
 @keyframes finish-running { 0%,45% { opacity: 1; } 100% { opacity: .18; } }
-@keyframes reroute-queued { 0%,15% { transform: translateX(0); opacity: 1; } 90%,100% { transform: translateX(-33.333cqw); opacity: 0; } }
+@keyframes reroute-queued {
+  0%,15% { transform: translate(0,0); opacity: 1; }
+  55% { transform: translate(var(--reroute-x),-25px); opacity: 1; }
+  80% { transform: translate(var(--reroute-x),22px); opacity: 1; }
+  95%,100% { transform: translate(var(--reroute-x),54px); opacity: 0; }
+}
+@keyframes receive-queued { 0%,80% { opacity: 0; } 95%,100% { opacity: 1; } }
 
 @media (max-width:1100px) {
   .switch-demo { padding: 23px; }
@@ -202,4 +214,5 @@ body.content-active #why-evolve .idea-decoupling .lead { max-width: none; margin
 }
 @media (prefers-reduced-motion:reduce) {
   .switch-demo *, .switch-demo *::before, .switch-demo *::after { animation: none !important; transition: none !important; }
+  .switch-demo[data-step="1"] .ours .queued-pair { visibility: hidden; }
 }
