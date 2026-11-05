@@ -41,6 +41,18 @@ content view, beside each other on desktop and tightly stacked on phones. `readi
 sets larger reading text without changing the opening scene. The result figures retain the same
 demo-run definitions and values.
 
+The third headline result is list-price token revenue over the scored hour: $459.72430776 for
+Dynamo and $1,082.76857768 for Evolving Infra, a 2.3552563 ratio displayed as 2.36×. It uses the
+same completed requests and token prices as the video renderer; it is not a profit measurement.
+
+The five-stage illustration above the Idea section is implemented in `js/role-switch.js` and
+`role-switch.css`. It compares a specific SGLang runtime role-switch snapshot with Evolving
+Infra, with a separate restart-path option for the report's Dynamo deployment. Controls support
+pause, replay and direct stage selection; desktop autoplay runs once, while reduced-motion
+users advance one stage at a time. The sequence is qualitative, not a timed benchmark. The
+comparison scope includes pinned upstream source links and does not claim that vLLM or SGLang
+universally lack KV transfer or dynamic role assignment.
+
 The opening uses two transparent 2×2 illustration atlases in `docs/media/scene/`, with generation
 prompts alongside them. They are conceptual artwork, not product photographs or a list of validated
 platforms. The demo and result captions state the actual experimental hardware. The upper-layer
