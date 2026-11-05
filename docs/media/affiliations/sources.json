@@ -1,0 +1,42 @@
+{
+  "purpose": "Original institutional marks identifying the authors' affiliations.",
+  "assets": [
+    {
+      "name": "Georgia Institute of Technology",
+      "file": "georgia-tech.png",
+      "source_page": "https://brand.gatech.edu/brand-assets/logos",
+      "source_asset": "https://brand.gatech.edu/sites/default/files/inline-images/GTLogo_RGB.png"
+    },
+    {
+      "name": "University of Illinois Urbana-Champaign",
+      "file": "illinois.svg",
+      "source_page": "https://web.brand.illinois.edu/logos/",
+      "source_asset": "https://cdn.brand.illinois.edu/wordmarks/primary/orange-and-blue.svg"
+    },
+    {
+      "name": "University of California, Berkeley",
+      "file": "berkeley.svg",
+      "source_page": "https://open.berkeley.edu/",
+      "source_asset": "https://open.berkeley.edu/profiles/openberkeley/themes/openberkeley_theme_brand/assets/images/berkeley_wordmark_blue_175x70.svg"
+    },
+    {
+      "name": "Massachusetts Institute of Technology",
+      "file": "mit.svg",
+      "source_page": "https://brand.mit.edu/logos-marks/mit-logo",
+      "source_asset": "Original embedded SVG in the official Brand Guide stylesheet"
+    },
+    {
+      "name": "NVIDIA",
+      "file": "nvidia.svg",
+      "source_page": "https://www.nvidia.com/en-us/about-nvidia/legal-info/logo-brand-usage/",
+      "source_asset": "Original inline SVG from the official page header"
+    },
+    {
+      "name": "OpenAI",
+      "file": "openai.svg",
+      "source_page": "https://openai.com/brand/",
+      "source_asset": "https://cdn.openai.com/brand/OpenAI-Logos-2025.zip",
+      "archive_member": "SVGs/OpenAI-black-wordmark.svg"
+    }
+  ]
+}

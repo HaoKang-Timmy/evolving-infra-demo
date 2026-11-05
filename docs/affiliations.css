@@ -1,0 +1,55 @@
+/* Original institutional marks, presented as author affiliations. */
+.intro-affiliations {
+  position: absolute;
+  top: 22px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(1000px, calc(100% - 280px));
+  display: flex;
+  align-items: center;
+  gap: 25px;
+  z-index: 6;
+}
+.affiliation-kicker {
+  flex: none;
+  width: 64px;
+  color: #77717b;
+  font: 8px/1.6 var(--mono);
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+.affiliation-logos { display: grid; grid-template-columns: repeat(6,minmax(0,1fr)); align-items: center; gap: 25px; flex: 1; min-width: 0; }
+.affiliation-logo { display: flex; align-items: center; justify-content: center; height: 34px; min-width: 0; padding: 2px 0; }
+.affiliation-logo img { display: block; width: auto; height: auto; max-width: 100%; max-height: 29px; object-fit: contain; }
+.logo-gt img { width: 100px; max-height: 36px; }
+.logo-illinois img { max-width: min(100%,112px); }
+.logo-berkeley img { width: 94px; max-height: none; }
+.logo-mit img { max-width: 59px; }
+.logo-openai img { width: 118px; max-height: none; }
+.intro-active .site-header { pointer-events: none; }
+.intro-active .intro-skip { pointer-events: auto; }
+.scene-hero[data-mode=evolving] .intro-affiliations { display: none; }
+@media (max-width:1100px) and (min-width:701px) {
+  .intro-affiliations { width: calc(100% - 220px); gap: 17px; }
+  .affiliation-logos { gap: 18px; }
+  .affiliation-kicker { font-size: 7px; letter-spacing: .03em; }
+  .affiliation-logo img { max-height: 25px; }
+}
+@media (max-width:700px) {
+  .scene-hero { --intro-height: max(960px,100svh); }
+  .intro-affiliations { top: 52px; width: min(450px,calc(100% - 42px)); display: block; }
+  .affiliation-kicker { display: block; width: auto; text-align: center; font-size: 8px; line-height: 1.4; margin-bottom: 9px; }
+  .affiliation-logos { grid-template-columns: repeat(3,minmax(0,1fr)); gap: 9px 30px; }
+  .affiliation-logo { height: 28px; }
+  .affiliation-logo img { max-height: 22px; max-width: 100%; }
+  .logo-gt img { width: 80px; max-height: 29px; }
+  .logo-berkeley img { width: 70px; max-height: none; }
+  .logo-mit img { max-width: 44px; }
+  .logo-openai img { width: 96px; max-height: none; }
+  .application-layer { top: 150px; }
+  .scene-intro { top: 60%; }
+}
+@media (max-width:360px) {
+  .intro-affiliations { width: calc(100% - 36px); }
+  .affiliation-logos { column-gap: 22px; }
+}
