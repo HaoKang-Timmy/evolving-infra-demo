@@ -41,65 +41,65 @@
     let destroyed = false;
 
     const stages = [
-      ['A sustained workload shift', 'Demand shifts toward decode. Both sides start at 3P3D. N3 holds KV-A, the cached state for Context A.'],
+      ['A sustained workload shift', 'Demand shifts toward decode. Both sides start at 3P3D. N3 holds cached KV blocks for R0, R1 and R2.'],
       ['N3 needs time to change', ''],
-      ['New role. Different KV outcomes.', 'N3 now serves decode, giving 2P4D. The baseline loses N3’s local KV-A; Evolving Infra retains KV-A in the shared KV pool.'],
-      ['R3 arrives with Context A', 'R3 carries Context A + new input to N1. The baseline restores KV-A; Evolving Infra fetches KV-A from the shared KV pool while R3 is queued.'],
-      ['Reuse Context A', 'After restoring or fetching KV-A, N1 reuses Context A and prefills R3’s new input. R3 then continues to decode.']
+      ['New role. Different KV outcomes.', 'N3 now serves decode at 2P4D. Its three local KV groups are lost on the left; the shared KV pool preserves all three on the right.'],
+      ['R3 follows R1', 'R3 follows R1 and adds one pending block. N1 restores or fetches R1’s cached KV blocks while R3 waits.'],
+      ['Reuse the cached KV blocks', 'N1 reuses R1’s cached KV blocks and prefills R3’s new block, changing it from pending to filled. R3 then continues to decode.']
     ];
     // Each row is engine state, cache state, and a panel explanation.
     const labels = {
       evolving: [
-        ['N3 running', 'KV-A in shared KV pool', 'N3 serves prefill and stores KV-A for Context A in the shared KV pool.'],
-        ['N3 drains R0', 'KV-A retained', 'Queued R1 goes to N1 and R2 to N2; running R0 finishes on N3.'],
-        ['N3 now serves decode', 'KV-A retained', 'N3 changes role. KV-A stays available in the shared KV pool.'],
-        ['N3 serving decode', 'N1 fetches KV-A', 'R3 carries Context A + new input. N1 fetches KV-A while R3 is queued.'],
-        ['N3 serving decode', 'N1 reuses KV-A', 'N1 reuses KV-A for Context A; R3 then continues to decode.']
+        ['N3 running', 'R0/R1/R2 blocks cached', 'N3 stores all three groups of cached KV blocks in the shared KV pool.'],
+        ['N3 drains R0', 'All three KV groups retained', 'Queued R1 goes to N1 and R2 to N2; running R0 finishes on N3.'],
+        ['N3 now serves decode', 'All three KV groups retained', 'N3 changes role; all three cached KV groups stay available.'],
+        ['N3 serving decode', 'N1 fetches R1’s cached blocks', 'R3 follows R1. N1 fetches R1’s cached KV blocks while R3 waits.'],
+        ['N3 serving decode', 'R1’s blocks reused for R3', 'N1 reuses R1’s cached KV blocks and fills R3’s new block.']
       ],
       sglang: [
-        ['N3 running', 'KV-A cached on N3', 'N3 serves prefill with KV-A stored in its local KV cache.'],
-        ['N3 waits until idle', 'KV-A awaits cache reset', 'The caller stops new arrivals and waits until N3 is fully idle.'],
-        ['N3 now serves decode', 'N3 has lost local KV-A', 'N3 changes to decode and resets its local KV cache without a restart.'],
-        ['N3 serving decode', 'Restore KV-A on N1', 'R3 carries Context A + new input. N1 must restore KV-A.'],
-        ['N3 serving decode', 'KV-A restored on N1', 'KV-A is restored on N1; N1 now prefills R3’s new input.']
+        ['N3 running', 'R0/R1/R2 blocks cached', 'N3 stores all three groups of cached KV blocks in its local KV cache.'],
+        ['N3 waits until idle', 'Local KV blocks await reset', 'The caller stops new arrivals and waits until N3 is fully idle.'],
+        ['N3 now serves decode', 'N3’s local KV blocks lost', 'N3 changes to decode and resets its local KV cache without a restart.'],
+        ['N3 serving decode', 'Restore R1’s blocks on N1', 'R3 follows R1; N1 must reload or recompute R1’s cached KV blocks.'],
+        ['N3 serving decode', 'R1’s blocks restored on N1', 'N1 reuses the restored blocks and prefills R3’s new block.']
       ],
       restart: [
-        ['N3 running', 'KV-A cached on N3', 'N3 serves prefill with KV-A stored in its local KV cache.'],
-        ['N3 restarting', 'N3 has lost local KV-A', 'N3 is restarting; the other nodes keep serving.'],
-        ['N3 now serves decode', 'N3 has lost local KV-A', 'N3 returns as decode with an empty local KV cache.'],
-        ['N3 serving decode', 'Restore KV-A on N1', 'R3 carries Context A + new input. N1 must restore KV-A.'],
-        ['N3 serving decode', 'KV-A restored on N1', 'KV-A is restored on N1; N1 now prefills R3’s new input.']
+        ['N3 running', 'R0/R1/R2 blocks cached', 'N3 stores all three groups of cached KV blocks in its local KV cache.'],
+        ['N3 restarting', 'N3’s local KV blocks lost', 'N3 is restarting; the other nodes keep serving.'],
+        ['N3 now serves decode', 'N3’s local KV blocks lost', 'N3 returns as decode with an empty local KV cache.'],
+        ['N3 serving decode', 'Restore R1’s blocks on N1', 'R3 follows R1; N1 must reload or recompute R1’s cached KV blocks.'],
+        ['N3 serving decode', 'R1’s blocks restored on N1', 'N1 reuses the restored blocks and prefills R3’s new block.']
       ]
     };
     // These cards distinguish the cost of changing roles from the loss and
     // later restoration of the original local prefix cache.
     const costDetails = {
       evolving: [
-        ['Queued requests can reroute; running R0 must finish on N3.', 'KV-A is stored in the shared KV pool.'],
-        ['R1 moves to N1; R2 moves to N2. N3 drains R0.', 'The shared KV pool retains KV-A through the role change.'],
-        ['N3 serves decode after R0 finishes; no engine restart.', 'N3 changes role while KV-A remains available.'],
-        ['N1 handles R3 under the new 2P4D split.', 'N1 fetches KV-A from the shared KV pool while R3 is queued.'],
-        ['The role change included rerouting R1/R2 and draining R0.', 'N1 reuses KV-A for Context A and prefills R3’s new input.']
+        ['Queued requests can reroute; running R0 must finish on N3.', 'N3 stores three cached KV groups in the shared pool.'],
+        ['R1 moves to N1; R2 moves to N2. N3 drains R0.', 'R0/R1/R2 cached KV blocks remain in the shared pool.'],
+        ['N3 serves decode after R0 finishes; no engine restart.', 'All three cached KV groups survive the role change.'],
+        ['N1 handles R3 under the new 2P4D split.', 'N1 fetches R1’s cached KV blocks for R3.'],
+        ['The role change included rerouting R1/R2 and draining R0.', 'N1 reuses R1’s blocks and prefills R3’s pending block.']
       ],
       sglang: [
-        ['N3 must be fully idle before changing role.', 'N3 holds KV-A now; its role change will reset that local cache.'],
-        ['Wait for N3 to become idle, then change its role.', 'N3’s local KV-A will be reset when the role changes.'],
-        ['N3 serves decode after the idle-and-switch sequence.', 'N3’s local KV cache was reset; KV-A is unavailable there.'],
-        ['N3 serves decode while N1 restores KV-A for R3.', 'N1 reloads or recomputes KV-A to serve R3.'],
-        ['N3 is serving decode after the idle-and-switch sequence.', 'N3’s original KV-A was lost; KV-A is restored on N1.']
+        ['N3 must be fully idle before changing role.', 'N3 holds R0/R1/R2 cached KV blocks; switching resets them.'],
+        ['Wait for N3 to become idle, then change its role.', 'N3’s three local KV groups will be reset.'],
+        ['N3 serves decode after the idle-and-switch sequence.', 'N3’s three original cached KV groups are no longer reusable.'],
+        ['N3 serves decode while N1 restores R1’s blocks for R3.', 'N1 reloads or recomputes R1’s cached KV blocks for R3.'],
+        ['N3 is serving decode after the idle-and-switch sequence.', 'N3’s original cache was lost; R1’s blocks are restored on N1.']
       ],
       restart: [
-        ['N3 must stop serving and restart in its new role.', 'N3 holds KV-A now; restarting will clear that local cache.'],
-        ['N3 cannot serve requests while restarting.', 'N3’s local KV-A is lost during the restart.'],
-        ['N3 returns to service as decode.', 'N3 returns without its original local KV-A.'],
-        ['N3 serves decode while N1 restores KV-A for R3.', 'N1 reloads or recomputes KV-A to serve R3.'],
-        ['N3 is serving decode after the restart.', 'N3’s original KV-A was lost; KV-A is restored on N1.']
+        ['N3 must stop serving and restart in its new role.', 'N3’s three cached KV groups will be lost on restart.'],
+        ['N3 cannot serve requests while restarting.', 'N3’s local R0/R1/R2 cached KV blocks are lost.'],
+        ['N3 returns to service as decode.', 'N3 returns without its three original cached KV groups.'],
+        ['N3 serves decode while N1 restores R1’s blocks for R3.', 'N1 reloads or recomputes R1’s cached KV blocks for R3.'],
+        ['N3 is serving decode after the restart.', 'N3’s original cache was lost; R1’s blocks are restored on N1.']
       ]
     };
     const nodeStatuses = {
-      evolving: ['PREFILL', 'REROUTE + DRAIN', 'D · KV-A RETAINED', 'D · KV-A RETAINED', 'D · KV-A REUSED'],
-      sglang: ['PREFILL', 'IDLE → RECONFIGURE', 'D · KV-A LOST', 'D · KV-A LOST', 'D · KV-A RESTORED ON N1'],
-      restart: ['PREFILL', 'RESTARTING', 'D · KV-A LOST', 'D · KV-A LOST', 'D · KV-A RESTORED ON N1']
+      evolving: ['PREFILL', 'REROUTE + DRAIN', 'D · KV BLOCKS RETAINED', 'D · KV BLOCKS RETAINED', 'D · R1 BLOCKS REUSED'],
+      sglang: ['PREFILL', 'IDLE → RECONFIGURE', 'D · LOCAL KV LOST', 'D · LOCAL KV LOST', 'D · R1 BLOCKS ON N1'],
+      restart: ['PREFILL', 'RESTARTING', 'D · LOCAL KV LOST', 'D · LOCAL KV LOST', 'D · R1 BLOCKS ON N1']
     };
 
     if (baselineSelect) {
@@ -169,7 +169,7 @@
           || panel.querySelector('[data-node-status]'), nodeStatuses[path][step]);
         const targetLabel = step === 0 ? 'N3: prefill → decode'
           : step === 1 ? (system === 'baseline' ? 'N3: no new requests during the change' : 'N3: finish running request R0')
-            : system === 'baseline' ? 'N3 now decodes. Local KV-A lost.' : 'N3 now decodes. KV-A retained.';
+            : system === 'baseline' ? 'N3: decode · local KV lost' : 'N3: decode · KV retained';
         setText(panel.querySelector('.switch-target-label'), targetLabel);
       });
       stepButtons.forEach((button) => {

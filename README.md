@@ -51,11 +51,12 @@ management, and the diagram labels the two layers explicitly. Its default "Exist
 reconfiguration, grounded in the report's Dynamo/SGLang deployment. A separate SGLang runtime
 switch option illustrates an idle, in-place switch that releases the local prefix cache. Red
 callouts and node/cache states make switching time and lost reusable KV explicit.
-Names are consistent: N1–N6 are compute nodes, R0–R3 are requests, and KV-A is the
-cached model state for context A. Light stacked input cards represent requests; red
-stacked cache blocks remain in labeled storage. Solid arrows route requests and dashed
-red arrows transfer KV; request R3 carries prompt text, not the KV cache itself. Engine names
-are examples, not a claim that every configuration requires a restart. Controls support
+N1–N6 are compute nodes. Each request is represented directly by its KV block group:
+R0 uses dark blocks, R1 red blocks, and R2 striped gray blocks. The same groups appear
+in storage. R3 continues R1’s context, showing the retained R1 blocks plus an outlined
+new-input block that becomes solid after prefill. No separate request-card symbol is used.
+Solid arrows reroute execution; red dashed arrows read/copy KV while stored copies remain.
+Engine names are examples, not a claim that every configuration requires a restart. Controls support
 pause, replay and direct stage selection; desktop autoplay runs once, while reduced-motion
 users advance one stage at a time. The sequence is qualitative, not a timed benchmark. The
 comparison scope includes pinned upstream source links and does not claim that vLLM or SGLang
