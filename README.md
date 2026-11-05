@@ -55,6 +55,10 @@ N1–N6 are compute nodes. Each request is represented directly by its KV block 
 R0 uses dark blocks, R1 red blocks, and R2 striped gray blocks. The same groups appear
 in storage. R3 continues R1’s context, showing the retained R1 blocks plus an outlined
 new-input block that becomes solid after prefill. No separate request-card symbol is used.
+The storage boxes align with their owning nodes. N3 holds the three original KV groups.
+The baseline shows separate local caches, with R1 restored on N1 after the switch; the
+Evolving Infra side shows per-node host memory with a shared-access rail. Its read arrow
+runs from N3 host memory to N1 GPU, retaining the original groups on N3.
 Solid arrows reroute execution; red dashed arrows read/copy KV while stored copies remain.
 Engine names are examples, not a claim that every configuration requires a restart. Controls support
 pause, replay and direct stage selection; desktop autoplay runs once, while reduced-motion
