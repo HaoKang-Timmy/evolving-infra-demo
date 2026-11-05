@@ -25,14 +25,14 @@
   <link rel="stylesheet" href="reading-view.css?v=follow-scroll">
   <link rel="stylesheet" href="reading-typography.css?v=compact-content">
   <link rel="stylesheet" href="reading-compact.css?v=compact-content">
-  <link rel="stylesheet" href="role-switch.css?v=phase-demo">
+  <link rel="stylesheet" href="role-switch.css?v=switch-costs">
   <link rel="preload" as="image" href="media/scene/apps-atlas.png">
   <link rel="preload" as="image" href="media/scene/hardware-atlas.png">
   <script src="js/site.js?v=light-motion" defer></script>
   <script src="js/hero.js?v=adaptive-copy" defer></script>
   <script src="js/workload.js?v=light-motion" defer></script>
   <script src="js/reading-view.js?v=follow-scroll" defer></script>
-  <script src="js/role-switch.js?v=phase-demo" defer></script>
+  <script src="js/role-switch.js?v=switch-costs" defer></script>
 </head>
 <body class="intro-active">
   <a class="skip-link" href="#demo" data-enter>Skip to the demo</a>
@@ -125,23 +125,29 @@
 
     <section class="role-story" id="role-story" aria-labelledby="switch-demo-title">
       <div class="wrap">
-        <section class="switch-demo" id="role-switch-demo" data-step="0" data-baseline="sglang" data-playing="false" aria-labelledby="switch-demo-title">
-          <div class="switch-demo-heading"><div><p class="eyebrow">SEE THE FREEDOM IN ACTION</p><h3 id="switch-demo-title">Change the role.<br><span class="accent-text">Keep the context.</span></h3></div><div class="switch-controls"><label for="switch-baseline">Compare with</label><select id="switch-baseline"><option value="sglang">SGLang runtime switch</option><option value="restart">Restart path · paper baseline</option></select><div class="switch-playback"><button id="switch-play" type="button" class="button button-primary">Play comparison</button><button id="switch-replay" type="button" class="button button-outline">Replay</button></div></div></div>
+        <section class="switch-demo" id="role-switch-demo" data-step="0" data-baseline="restart" data-playing="false" aria-labelledby="switch-demo-title">
+          <div class="switch-demo-heading"><div><p class="eyebrow">SEE THE FREEDOM IN ACTION</p><h3 id="switch-demo-title">Change the role.<br><span class="accent-text">Keep the context.</span></h3></div><div class="switch-controls"><label for="switch-baseline">Compare with</label><select id="switch-baseline"><option value="restart">Existing engine</option><option value="sglang">SGLang runtime switch</option></select><div class="switch-playback"><button id="switch-play" type="button" class="button button-primary">Play comparison</button><button id="switch-replay" type="button" class="button button-outline">Replay</button></div></div></div>
           <div class="switch-steps" aria-label="Animation stages">
             <button type="button" data-switch-step="0" aria-current="step"><span>1</span>Demand shifts</button>
-            <button type="button" data-switch-step="1"><span>2</span>Prepare</button>
-            <button type="button" data-switch-step="2"><span>3</span>Switch role</button>
+            <button type="button" data-switch-step="1"><span>2</span>Switching</button>
+            <button type="button" data-switch-step="2"><span>3</span>KV outcome</button>
             <button type="button" data-switch-step="3"><span>4</span>Next request</button>
             <button type="button" data-switch-step="4"><span>5</span>Reuse</button>
           </div>
           <div class="switch-explanation"><strong id="switch-step-title" aria-live="polite">A sustained workload shift</strong><p id="switch-step-copy">More decode capacity is needed. The same node, N3, will move from prefill to decode.</p></div>
           <div class="switch-panels">
           <article class="switch-panel" data-system="baseline" aria-label="Comparison deployment">
-            <header class="switch-panel-header"><div><span class="switch-panel-label">COMPARISON</span><h4 id="baseline-title">SGLang runtime switch</h4></div><span class="switch-split" data-split>3P · 3D</span></header>
-            <p class="switch-engine" data-engine-state>Same process; idle required</p>
+            <header class="switch-panel-header"><div><span class="switch-panel-label" data-path-label>RESTART-BASED RECONFIGURATION</span><h4 id="baseline-title">Existing engine</h4></div><span class="switch-split" data-split>3P · 3D</span></header>
+            <p class="switch-engine-family" data-engine-family>Engine examples: vLLM · SGLang · TRT-LLM</p>
+            <div class="switch-consequences" aria-label="Costs of this reconfiguration path">
+              <div class="switch-consequence is-cost"><span class="consequence-index" aria-hidden="true">01</span><strong data-change-cost>Switching takes time</strong><p data-change-detail>N3 cannot accept work while its worker restarts.</p></div>
+              <div class="switch-consequence is-cost"><span class="consequence-index" aria-hidden="true">02</span><strong data-kv-cost>Local KV cache lost</strong><p data-kv-detail>The old prefix must be restored before it can be reused.</p></div>
+            </div>
+            <p class="switch-engine" data-engine-state>Worker running</p>
             <div class="switch-diagram" aria-hidden="true">
+              <div class="switch-node-status"><i></i><span data-node-status>RESTARTING</span></div>
               <div class="switch-work"><span class="running-chip">Running</span><span class="queued-chip">Queued</span></div>
-              <div class="switch-next-request">Next request: <b>K</b> + <strong>Δ</strong></div>
+              <div class="switch-next-request">Next request: <b>K</b> + <strong>Δ</strong></div><span class="switch-request-outcome">CACHE MISS · RESTORE K</span>
               <svg class="switch-flows" viewBox="0 0 600 300" preserveAspectRatio="none" aria-hidden="true">
                 <defs><marker id="flow-arrow-baseline" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="currentColor"/></marker></defs>
                 <path class="flow-route flow-queue" d="M250 64C250 29 50 29 50 98" marker-end="url(#flow-arrow-baseline)"/>
@@ -158,10 +164,16 @@
           </article>
           <article class="switch-panel ours" data-system="evolving" aria-label="Evolving Infra">
             <header class="switch-panel-header"><div><span class="switch-panel-label">DECOUPLED</span><h4>Evolving Infra</h4></div><span class="switch-split" data-split>3P · 3D</span></header>
+            <p class="switch-engine-family">Compute roles decoupled from reusable KV</p>
+            <div class="switch-consequences" aria-label="Evolving Infra behavior">
+              <div class="switch-consequence is-benefit"><span class="consequence-index" aria-hidden="true">01</span><strong data-change-cost>No engine restart</strong><p data-change-detail>Reroute queued work; let running work finish.</p></div>
+              <div class="switch-consequence is-benefit"><span class="consequence-index" aria-hidden="true">02</span><strong data-kv-cost>Reusable KV retained</strong><p data-kv-detail>The same prefix stays accessible in shared host memory.</p></div>
+            </div>
             <p class="switch-engine" data-engine-state>Engine stays running</p>
             <div class="switch-diagram" aria-hidden="true">
+              <div class="switch-node-status"><i></i><span data-node-status>RESTARTING</span></div>
               <div class="switch-work"><span class="running-chip">Running</span><span class="queued-chip">Queued</span></div>
-              <div class="switch-next-request">Next request: <b>K</b> + <strong>Δ</strong></div>
+              <div class="switch-next-request">Next request: <b>K</b> + <strong>Δ</strong></div><span class="switch-request-outcome">CACHE HIT · REUSE K</span>
               <svg class="switch-flows" viewBox="0 0 600 300" preserveAspectRatio="none" aria-hidden="true">
                 <defs><marker id="flow-arrow-evolving" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="currentColor"/></marker></defs>
                 <path class="flow-route flow-queue" d="M250 64C250 29 50 29 50 98" marker-end="url(#flow-arrow-evolving)"/>
@@ -178,10 +190,10 @@
           </article>
           </div>
           <p class="switch-legend"><span><b>P</b> Prefill</span><span><b>D</b> Decode</span><span><b class="prefix-key">K</b> Cached prefix</span><span><b>Δ</b> New input</span><span>Six-node schematic · timing is illustrative</span></p>
-          <p class="switch-drain-note">A switching node may finish its running work. Evolving Infra reroutes queued work and keeps reusable KV available; no engine restart is required.</p>
+          <p class="switch-drain-note"><strong>Default: a restart-based deployment.</strong> Engine capabilities vary by version and configuration. Select SGLang runtime switch for its in-place path. Evolving Infra also drains running work; this animation does not imply an instantaneous switch.</p>
           <details class="switch-scope"><summary>Comparison scope and sources</summary><div>
-            <p><strong>SGLang runtime switch:</strong> the audited implementation supports in-place P/D switching after the instance is idle. With prefix caching enabled, it resets the local prefix cache and associated state. That is a loss of reusable prefix state, not a claim that every underlying or external KV byte is deleted. <a href="https://github.com/sgl-project/sglang/blob/c1240a9fa3cd8cd02040c2007e719ef0be8a8816/python/sglang/srt/disaggregation/role_switch.py#L239-L294" target="_blank" rel="noopener noreferrer">Pinned implementation ↗</a></p>
-            <p><strong>Restart path:</strong> this option illustrates the worker-relaunch path in the Dynamo/SGLang deployment evaluated in our report. Only the selected worker restarts; the rest of the cluster continues serving.</p>
+            <p><strong>SGLang runtime switch:</strong> the audited implementation supports in-place P/D switching after the instance is idle. With prefix caching enabled, it discards the reusable local GPU/host prefix cache and associated state. That is a loss of reusable prefix state, not a claim that every underlying or external KV byte is deleted. <a href="https://github.com/sgl-project/sglang/blob/f3532057e15fb8ede90ce1aeddfb5bd20dfbd4b6/python/sglang/srt/disaggregation/role_switch.py#L239-L294" target="_blank" rel="noopener noreferrer">Pinned implementation ↗</a></p>
+            <p><strong>Existing engine:</strong> vLLM, SGLang and TRT-LLM are examples of serving engines. The default animation illustrates restart-based reconfiguration, grounded in the Dynamo/SGLang deployment evaluated in our report; it is not a claim that every configuration of these engines requires a restart. Only the selected worker restarts; the rest of the cluster continues serving.</p>
             <p><strong>vLLM:</strong> KV transfer, multi-turn reuse, and configurations with per-request P/D behavior already exist. This illustration makes no blanket claim that vLLM or SGLang cannot transfer KV or switch roles. The focus is the lifecycle of reusable KV during the specific reconfiguration paths shown. <a href="https://github.com/vllm-project/vllm/issues/43807" target="_blank" rel="noopener noreferrer">vLLM P/D behavior ↗</a> · <a href="https://github.com/vllm-project/vllm/blob/1ab4476ac9d1829426f467f3c04ae2de3f49e8fe/docs/design/nixl_kv_cache_lease.md" target="_blank" rel="noopener noreferrer">Multi-turn KV reuse ↗</a></p>
             <p><strong>Evolving Infra:</strong> queued prefills are rerouted, in-flight work drains, and N3 changes role without a process restart. Its reusable K stays in shared host memory. Another prefill node can fetch K while queued, compute the new input Δ, and then send request KV to decode through GPU-to-GPU transfer.</p>
           </div></details>

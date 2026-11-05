@@ -46,8 +46,11 @@ Dynamo and $1,082.76857768 for Evolving Infra, a 2.3552563 ratio displayed as 2.
 same completed requests and token prices as the video renderer; it is not a profit measurement.
 
 The five-stage illustration above the Idea section is implemented in `js/role-switch.js` and
-`role-switch.css`. It compares a specific SGLang runtime role-switch snapshot with Evolving
-Infra, with a separate restart-path option for the report's Dynamo deployment. Controls support
+`role-switch.css`. Its default "Existing engine" comparison illustrates restart-based
+reconfiguration, grounded in the report's Dynamo/SGLang deployment. A separate SGLang runtime
+switch option illustrates an idle, in-place switch that releases the local prefix cache. Red
+callouts and node/cache states make switching time and lost reusable KV explicit. Engine names
+are examples, not a claim that every configuration requires a restart. Controls support
 pause, replay and direct stage selection; desktop autoplay runs once, while reduced-motion
 users advance one stage at a time. The sequence is qualitative, not a timed benchmark. The
 comparison scope includes pinned upstream source links and does not claim that vLLM or SGLang
