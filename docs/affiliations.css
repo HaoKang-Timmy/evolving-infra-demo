@@ -25,7 +25,9 @@
 .logo-illinois img { max-width: min(100%,112px); }
 .logo-berkeley img { width: 94px; max-height: none; }
 .logo-mit img { max-width: 59px; }
-.logo-openai img { width: 48px; max-height: none; }
+.logo-openai { gap: 1px; }
+.logo-openai .openai-symbol { width: 40px; max-height: none; flex: 0 0 40px; }
+.logo-openai .openai-wordmark { width: 90px; max-height: none; min-width: 0; flex: 1 1 90px; }
 .intro-active .site-header { pointer-events: none; }
 .intro-active .intro-skip { pointer-events: auto; }
 .scene-hero[data-mode=evolving] .intro-affiliations { display: none; }
@@ -34,7 +36,7 @@
   .affiliation-logos { gap: 18px; }
   .affiliation-kicker { font-size: 7px; letter-spacing: .03em; }
   .affiliation-logo img { max-height: 25px; }
-  .logo-openai img { width: 42px; max-height: none; }
+  .logo-openai .openai-symbol { width: 30px; flex-basis: 30px; }
 }
 @media (max-width:700px) {
   .scene-hero { --intro-height: max(960px,100svh); }
@@ -46,11 +48,12 @@
   .logo-gt img { width: 80px; max-height: 29px; }
   .logo-berkeley img { width: 70px; max-height: none; }
   .logo-mit img { max-width: 44px; }
-  .logo-openai img { width: 42px; max-height: none; }
+  .logo-openai .openai-symbol { width: 32px; flex-basis: 32px; }
   .application-layer { top: 150px; }
   .scene-intro { top: 60%; }
 }
 @media (max-width:360px) {
   .intro-affiliations { width: calc(100% - 36px); }
   .affiliation-logos { column-gap: 22px; }
+  .logo-openai .openai-symbol { width: 28px; flex-basis: 28px; }
 }

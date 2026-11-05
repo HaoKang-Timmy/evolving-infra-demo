@@ -34,6 +34,8 @@
     {
       "name": "OpenAI",
       "file": "openai-blossom.svg",
+      "wordmark_file": "openai.svg",
+      "wordmark_name": "OpenAI-black-wordmark.svg",
       "source_page": "https://openai.com/brand/",
       "source_asset": "https://cdn.openai.com/brand/OpenAI-Logos-2025.zip",
       "archive_member": "OpenAI-logos(new)/SVGs/OpenAI-black-monoblossom.svg"
