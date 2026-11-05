@@ -25,7 +25,7 @@
   <link rel="stylesheet" href="reading-view.css?v=follow-scroll">
   <link rel="stylesheet" href="reading-typography.css?v=compact-content">
   <link rel="stylesheet" href="reading-compact.css?v=compact-content">
-  <link rel="stylesheet" href="role-switch.css?v=switch-costs">
+  <link rel="stylesheet" href="role-switch.css?v=decoupled-idea">
   <link rel="preload" as="image" href="media/scene/apps-atlas.png">
   <link rel="preload" as="image" href="media/scene/hardware-atlas.png">
   <script src="js/site.js?v=light-motion" defer></script>
@@ -123,10 +123,16 @@
       </div>
     </section>
 
-    <section class="role-story" id="role-story" aria-labelledby="switch-demo-title">
+    <section class="idea-section" id="why-evolve" aria-labelledby="idea-heading">
       <div class="wrap">
+        <div class="section-topline" data-reveal><span class="eyebrow">02 / THE IDEA</span><span class="mono-note">DECOUPLING IS THE FIRST STEP.</span></div>
+        <div class="idea-heading idea-decoupling" data-reveal>
+          <h2 id="idea-heading"><span class="accent-text">Decouple</span> compute allocation<br>from KV cache management.</h2>
+          <div><p class="lead">Reallocate compute as workloads change. Keep reusable KV available.</p><p>Change which nodes run prefill and decode independently of where useful context is retained, fetched, and evicted. Decoupling gives infrastructure the freedom to evolve.</p></div>
+        </div>
+        <div class="role-story" id="role-story">
         <section class="switch-demo" id="role-switch-demo" data-step="0" data-baseline="restart" data-playing="false" aria-labelledby="switch-demo-title">
-          <div class="switch-demo-heading"><div><p class="eyebrow">SEE THE FREEDOM IN ACTION</p><h3 id="switch-demo-title">Change the role.<br><span class="accent-text">Keep the context.</span></h3></div><div class="switch-controls"><label for="switch-baseline">Compare with</label><select id="switch-baseline"><option value="restart">Existing engine</option><option value="sglang">SGLang runtime switch</option></select><div class="switch-playback"><button id="switch-play" type="button" class="button button-primary">Play comparison</button><button id="switch-replay" type="button" class="button button-outline">Replay</button></div></div></div>
+          <div class="switch-demo-heading"><div><p class="eyebrow">DECOUPLING IN ACTION</p><h3 id="switch-demo-title">Reallocate compute.<br><span class="accent-text">Keep reusable KV.</span></h3></div><div class="switch-controls"><label for="switch-baseline">Compare with</label><select id="switch-baseline"><option value="restart">Existing engine</option><option value="sglang">SGLang runtime switch</option></select><div class="switch-playback"><button id="switch-play" type="button" class="button button-primary">Play comparison</button><button id="switch-replay" type="button" class="button button-outline">Replay</button></div></div></div>
           <div class="switch-steps" aria-label="Animation stages">
             <button type="button" data-switch-step="0" aria-current="step"><span>1</span>Demand shifts</button>
             <button type="button" data-switch-step="1"><span>2</span>Switching</button>
@@ -148,16 +154,18 @@
               <div class="switch-node-status"><i></i><span data-node-status>RESTARTING</span></div>
               <div class="switch-work"><span class="running-chip">Running</span><span class="queued-chip">Queued</span></div>
               <div class="switch-next-request">Next request: <b>K</b> + <strong>Δ</strong></div><span class="switch-request-outcome">CACHE MISS · RESTORE K</span>
-              <svg class="switch-flows" viewBox="0 0 600 300" preserveAspectRatio="none" aria-hidden="true">
+              <svg class="switch-flows" viewBox="0 0 600 380" preserveAspectRatio="none" aria-hidden="true">
                 <defs><marker id="flow-arrow-baseline" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="currentColor"/></marker></defs>
-                <path class="flow-route flow-queue" d="M250 64C250 29 50 29 50 98" marker-end="url(#flow-arrow-baseline)"/>
-                <path class="flow-route flow-incoming" d="M300 28C300 63 50 56 50 98" marker-end="url(#flow-arrow-baseline)"/>
-                <path class="flow-route flow-fetch" d="M50 244L50 182" marker-end="url(#flow-arrow-baseline)"/>
-                <path class="flow-route flow-decode" d="M50 98C50 35 250 35 250 98" marker-end="url(#flow-arrow-baseline)"/>
+                <path class="flow-route flow-queue" d="M250 64C250 29 50 29 50 118" marker-end="url(#flow-arrow-baseline)"/>
+                <path class="flow-route flow-incoming" d="M300 28C300 63 50 56 50 118" marker-end="url(#flow-arrow-baseline)"/>
+                <path class="flow-route flow-fetch" d="M50 330C50 310 10 330 10 304L10 230Q10 215 50 202" marker-end="url(#flow-arrow-baseline)"/>
+                <path class="flow-route flow-decode" d="M50 118C50 35 250 35 250 118" marker-end="url(#flow-arrow-baseline)"/>
               </svg>
+              <span class="switch-compute-label">COMPUTE ALLOCATION</span>
               <div class="switch-node-grid"><div class="switch-node" data-node="1"><span class="node-id">N1</span><span class="node-phase">P</span><span class="node-kv" aria-hidden="true">K</span><span class="node-delta" aria-hidden="true">Δ</span></div><div class="switch-node" data-node="2"><span class="node-id">N2</span><span class="node-phase">P</span><span class="node-kv" aria-hidden="true">K</span><span class="node-delta" aria-hidden="true">Δ</span></div><div class="switch-node switch-target" data-node="3"><span class="node-id">N3</span><span class="node-phase">P</span><span class="node-kv" aria-hidden="true">K</span><span class="node-delta" aria-hidden="true">Δ</span></div><div class="switch-node is-decode" data-node="4"><span class="node-id">N4</span><span class="node-phase">D</span><span class="node-kv" aria-hidden="true">K</span><span class="node-delta" aria-hidden="true">Δ</span></div><div class="switch-node is-decode" data-node="5"><span class="node-id">N5</span><span class="node-phase">D</span><span class="node-kv" aria-hidden="true">K</span><span class="node-delta" aria-hidden="true">Δ</span></div><div class="switch-node is-decode" data-node="6"><span class="node-id">N6</span><span class="node-phase">D</span><span class="node-kv" aria-hidden="true">K</span><span class="node-delta" aria-hidden="true">Δ</span></div></div>
               <span class="switch-target-label">N3: prefill → decode</span>
-              <div class="switch-memory local-memory"><span class="memory-label">LOCAL PREFIX CACHES</span><div class="host-slots"><div class="host-slot restored-kv"><span class="host-id">N1</span><span class="cache-id">K</span><span class="kv-blocks" aria-hidden="true"><i></i><i></i><i></i></span></div><div class="host-slot"><span class="host-id">N2</span><span class="empty-cache" aria-hidden="true"></span></div><div class="host-slot source-kv" data-local-prefix><span class="host-id">N3</span><span class="cache-id">K</span><span class="kv-blocks" aria-hidden="true"><i></i><i></i><i></i></span></div><div class="host-slot"><span class="host-id">N4</span><span class="empty-cache" aria-hidden="true"></span></div><div class="host-slot"><span class="host-id">N5</span><span class="empty-cache" aria-hidden="true"></span></div><div class="host-slot"><span class="host-id">N6</span><span class="empty-cache" aria-hidden="true"></span></div></div></div>
+              <div class="switch-layer-divider is-coupled"><span>COUPLED</span></div>
+              <div class="switch-memory local-memory"><span class="memory-label">KV CACHE MANAGEMENT<small>Local prefix caches</small></span><div class="host-slots"><div class="host-slot restored-kv"><span class="host-id">N1</span><span class="cache-id">K</span><span class="kv-blocks" aria-hidden="true"><i></i><i></i><i></i></span></div><div class="host-slot"><span class="host-id">N2</span><span class="empty-cache" aria-hidden="true"></span></div><div class="host-slot source-kv" data-local-prefix><span class="host-id">N3</span><span class="cache-id">K</span><span class="kv-blocks" aria-hidden="true"><i></i><i></i><i></i></span></div><div class="host-slot"><span class="host-id">N4</span><span class="empty-cache" aria-hidden="true"></span></div><div class="host-slot"><span class="host-id">N5</span><span class="empty-cache" aria-hidden="true"></span></div><div class="host-slot"><span class="host-id">N6</span><span class="empty-cache" aria-hidden="true"></span></div></div></div>
             </div>
             <div class="switch-cache-status"><span class="cache-dot" aria-hidden="true"></span><strong data-cache-state>Prefix K is reusable</strong></div>
             <p class="switch-panel-note" data-panel-note>The instance must be idle before its role-switch API can run.</p>
@@ -174,16 +182,18 @@
               <div class="switch-node-status"><i></i><span data-node-status>RESTARTING</span></div>
               <div class="switch-work"><span class="running-chip">Running</span><span class="queued-chip">Queued</span></div>
               <div class="switch-next-request">Next request: <b>K</b> + <strong>Δ</strong></div><span class="switch-request-outcome">CACHE HIT · REUSE K</span>
-              <svg class="switch-flows" viewBox="0 0 600 300" preserveAspectRatio="none" aria-hidden="true">
+              <svg class="switch-flows" viewBox="0 0 600 380" preserveAspectRatio="none" aria-hidden="true">
                 <defs><marker id="flow-arrow-evolving" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="currentColor"/></marker></defs>
-                <path class="flow-route flow-queue" d="M250 64C250 29 50 29 50 98" marker-end="url(#flow-arrow-evolving)"/>
-                <path class="flow-route flow-incoming" d="M300 28C300 63 50 56 50 98" marker-end="url(#flow-arrow-evolving)"/>
-                <path class="flow-route flow-fetch" d="M250 245C250 205 50 221 50 182" marker-end="url(#flow-arrow-evolving)"/>
-                <path class="flow-route flow-decode" d="M50 98C50 35 250 35 250 98" marker-end="url(#flow-arrow-evolving)"/>
+                <path class="flow-route flow-queue" d="M250 64C250 29 50 29 50 118" marker-end="url(#flow-arrow-evolving)"/>
+                <path class="flow-route flow-incoming" d="M300 28C300 63 50 56 50 118" marker-end="url(#flow-arrow-evolving)"/>
+                <path class="flow-route flow-fetch" d="M250 330C250 305 10 330 10 304L10 230Q10 215 50 202" marker-end="url(#flow-arrow-evolving)"/>
+                <path class="flow-route flow-decode" d="M50 118C50 35 250 35 250 118" marker-end="url(#flow-arrow-evolving)"/>
               </svg>
+              <span class="switch-compute-label">COMPUTE ALLOCATION</span>
               <div class="switch-node-grid"><div class="switch-node" data-node="1"><span class="node-id">N1</span><span class="node-phase">P</span><span class="node-kv" aria-hidden="true">K</span><span class="node-delta" aria-hidden="true">Δ</span></div><div class="switch-node" data-node="2"><span class="node-id">N2</span><span class="node-phase">P</span><span class="node-kv" aria-hidden="true">K</span><span class="node-delta" aria-hidden="true">Δ</span></div><div class="switch-node switch-target" data-node="3"><span class="node-id">N3</span><span class="node-phase">P</span><span class="node-kv" aria-hidden="true">K</span><span class="node-delta" aria-hidden="true">Δ</span></div><div class="switch-node is-decode" data-node="4"><span class="node-id">N4</span><span class="node-phase">D</span><span class="node-kv" aria-hidden="true">K</span><span class="node-delta" aria-hidden="true">Δ</span></div><div class="switch-node is-decode" data-node="5"><span class="node-id">N5</span><span class="node-phase">D</span><span class="node-kv" aria-hidden="true">K</span><span class="node-delta" aria-hidden="true">Δ</span></div><div class="switch-node is-decode" data-node="6"><span class="node-id">N6</span><span class="node-phase">D</span><span class="node-kv" aria-hidden="true">K</span><span class="node-delta" aria-hidden="true">Δ</span></div></div>
               <span class="switch-target-label">N3: prefill → decode</span>
-              <div class="switch-memory shared-memory"><span class="memory-label">SHARED HOST MEMORY</span><div class="host-slots"><div class="host-slot restored-kv"><span class="host-id">N1</span><span class="empty-cache" aria-hidden="true"></span></div><div class="host-slot"><span class="host-id">N2</span><span class="empty-cache" aria-hidden="true"></span></div><div class="host-slot source-kv" data-shared-prefix><span class="host-id">N3</span><span class="cache-id">K</span><span class="kv-blocks" aria-hidden="true"><i></i><i></i><i></i></span></div><div class="host-slot"><span class="host-id">N4</span><span class="empty-cache" aria-hidden="true"></span></div><div class="host-slot"><span class="host-id">N5</span><span class="empty-cache" aria-hidden="true"></span></div><div class="host-slot"><span class="host-id">N6</span><span class="empty-cache" aria-hidden="true"></span></div></div></div>
+              <div class="switch-layer-divider is-decoupled"><span>DECOUPLED</span></div>
+              <div class="switch-memory shared-memory"><span class="memory-label">KV CACHE MANAGEMENT<small>Shared reusable KV · host memory</small></span><div class="host-slots"><div class="host-slot restored-kv"><span class="host-id">N1</span><span class="empty-cache" aria-hidden="true"></span></div><div class="host-slot"><span class="host-id">N2</span><span class="empty-cache" aria-hidden="true"></span></div><div class="host-slot source-kv" data-shared-prefix><span class="host-id">N3</span><span class="cache-id">K</span><span class="kv-blocks" aria-hidden="true"><i></i><i></i><i></i></span></div><div class="host-slot"><span class="host-id">N4</span><span class="empty-cache" aria-hidden="true"></span></div><div class="host-slot"><span class="host-id">N5</span><span class="empty-cache" aria-hidden="true"></span></div><div class="host-slot"><span class="host-id">N6</span><span class="empty-cache" aria-hidden="true"></span></div></div></div>
             </div>
             <div class="switch-cache-status"><span class="cache-dot" aria-hidden="true"></span><strong data-cache-state>Prefix K is reusable</strong></div>
             <p class="switch-panel-note" data-panel-note>Each node can read reusable KV from its peers’ host memory.</p>
@@ -198,13 +208,7 @@
             <p><strong>Evolving Infra:</strong> queued prefills are rerouted, in-flight work drains, and N3 changes role without a process restart. Its reusable K stays in shared host memory. Another prefill node can fetch K while queued, compute the new input Δ, and then send request KV to decode through GPU-to-GPU transfer.</p>
           </div></details>
         </section>
-      </div>
-    </section>
-
-    <section class="idea-section" id="why-evolve" aria-labelledby="idea-heading">
-      <div class="wrap">
-        <div class="section-topline" data-reveal><span class="eyebrow">02 / THE IDEA</span><span class="mono-note">GIVE THE SYSTEM ROOM TO MOVE.</span></div>
-        <div class="idea-heading" data-reveal><h2 id="idea-heading">Freedom is the<br><span class="accent-text">first step.</span></h2><div><p class="lead">A system can only adapt along the dimensions it can change.</p><p>When compute roles, KV placement, and request routing are tightly coupled, adjusting one disrupts the others. Evolving Infra separates compute allocation from KV cache management, opening the space for runtime adaptation.</p></div></div>
+        </div>
         <div class="mechanisms">
           <article class="mechanism" data-reveal><span class="mechanism-index">01</span><h3>Unlock<br>the freedom.</h3><p>Symmetric engines let every node serve prefill or decode without a restart. A shared host-memory KV pool keeps reusable context accessible when compute roles change.</p><span class="mechanism-tag">DECOUPLED INFRASTRUCTURE</span></article>
           <article class="mechanism" data-reveal><span class="mechanism-index">02</span><h3>Understand<br>the work.</h3><p>The planner learns prefill and decode costs online, accounting for cached context. It reallocates nodes when a workload shift persists, without offline profiling.</p><span class="mechanism-tag">WORKLOAD-AWARE PLANNING</span></article>

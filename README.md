@@ -45,8 +45,9 @@ The third headline result is list-price token revenue over the scored hour: $459
 Dynamo and $1,082.76857768 for Evolving Infra, a 2.3552563 ratio displayed as 2.36×. It uses the
 same completed requests and token prices as the video renderer; it is not a profit measurement.
 
-The five-stage illustration above the Idea section is implemented in `js/role-switch.js` and
-`role-switch.css`. Its default "Existing engine" comparison illustrates restart-based
+The five-stage illustration inside the Idea section is implemented in `js/role-switch.js` and
+`role-switch.css`. The section leads with decoupling compute allocation from KV cache
+management, and the diagram labels the two layers explicitly. Its default "Existing engine" comparison illustrates restart-based
 reconfiguration, grounded in the report's Dynamo/SGLang deployment. A separate SGLang runtime
 switch option illustrates an idle, in-place switch that releases the local prefix cache. Red
 callouts and node/cache states make switching time and lost reusable KV explicit. Engine names

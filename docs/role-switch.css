@@ -1,7 +1,10 @@
 /* A stateful, qualitative illustration of role reassignment and prefix reuse. */
-.role-story { padding: 56px 0 64px; border-top: 1px solid var(--line); }
+.idea-heading.idea-decoupling { display: block; max-width: none; margin-bottom: 38px; }
+.idea-decoupling h2 { font-size: clamp(34px,4.4vw,62px); line-height: 1.12; letter-spacing: -.045em; }
+.idea-heading.idea-decoupling > div { display: grid; grid-template-columns: 1fr 1fr; align-items: start; gap: 56px; max-width: none; margin-top: 25px; }
+body.content-active #why-evolve .idea-decoupling .lead { max-width: none; margin-bottom: 0; }
+.role-story { margin-bottom: 64px; }
 .role-story .switch-demo { margin-bottom: 0; }
-.role-story + .idea-section { padding-top: 74px; }
 .switch-demo { margin: 0 0 64px; padding: 30px; background: #fffdfaf2; border: 1px solid #d7d2cc; border-radius: 12px; }
 .switch-demo-heading { display: flex; align-items: center; justify-content: space-between; gap: 30px; margin-bottom: 25px; }
 .switch-demo-heading h3 { font-size: 32px; font-weight: 500; line-height: 1.14; letter-spacing: -.04em; margin-top: 10px; }
@@ -37,14 +40,22 @@
 .switch-consequence.is-benefit .consequence-index { color: #7b6d75; }
 .switch-split { flex: none; font: 11px/1.5 var(--mono); text-align: right; color: #655c65; }
 .switch-engine { min-height: 34px; font-size: 13px; color: #6b626b; margin-top: 17px; line-height: 1.5; }
-.switch-diagram { position: relative; height: 300px; container-type: inline-size; }
+.switch-diagram { position: relative; height: 380px; container-type: inline-size; }
+.switch-compute-label { position: absolute; top: 94px; left: 0; z-index: 1; background: #f8f6f2; padding-right: 7px; color: #544a52; font: 11px/1.4 var(--mono); letter-spacing: .035em; }
+.ours .switch-compute-label { background: #fffafa; }
+.switch-layer-divider { position: absolute; top: 238px; left: 0; right: 0; display: flex; align-items: center; gap: 12px; color: #76646b; }
+.switch-layer-divider::before, .switch-layer-divider::after { content: ''; flex: 1; border-top: 1px solid #c7b7bb; }
+.switch-layer-divider span { padding: 4px 9px; background: #eee8e6; border-radius: 3px; font: 11px/1.2 var(--mono); letter-spacing: .08em; }
+.switch-layer-divider.is-decoupled { color: #b2132a; }
+.switch-layer-divider.is-decoupled::before, .switch-layer-divider.is-decoupled::after { border-top: 1px dashed #c94d61; }
+.switch-layer-divider.is-decoupled span { background: #fbe5e9; border: 1px solid #d88d9a; padding: 3px 9px; }
 .switch-node-status { position: absolute; top: 0; left: 50%; transform: translateX(-50%); display: flex; align-items: center; gap: 8px; width: max-content; max-width: 100%; padding: 7px 11px; border: 1px solid #d82440; border-radius: 4px; color: #b2132a; background: #fff0f2; font: 600 12px var(--mono); opacity: 0; }
 .switch-node-status i { width: 12px; height: 12px; border: 2px solid #deb4bc; border-top-color: #b2132a; border-radius: 50%; animation: node-changing 1.1s linear infinite; flex: none; }
 .ours .switch-node-status { border-color: #b5a8ab; color: #51444b; background: #fffcfa; }
 .ours .switch-node-status i { border-top-color: #51444b; }
 .switch-request-outcome { position: absolute; top: 46px; left: 50%; transform: translateX(-50%); z-index: 2; padding: 5px 8px; white-space: nowrap; color: #b2132a; background: #fff0f2; font: 600 11px var(--mono); opacity: 0; }
 .ours .switch-request-outcome { background: #fffafa; color: #3e343b; }
-.switch-node-grid { position: absolute; top: 98px; left: 0; right: 0; display: grid; grid-template-columns: repeat(6,minmax(0,1fr)); gap: 8px; height: 84px; }
+.switch-node-grid { position: absolute; top: 118px; left: 0; right: 0; display: grid; grid-template-columns: repeat(6,minmax(0,1fr)); gap: 8px; height: 84px; }
 .switch-node { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; background: #3f3c43; color: #fff; border: 1px solid #39363e; border-radius: 5px; transition: background .6s, color .6s, border-color .6s, opacity .6s; }
 .switch-node.is-decode { background: #d9d6d2; color: #343038; border-color: #a9a39d; }
 .switch-node.switch-target { outline: 2px solid #8c7b81; outline-offset: 3px; }
@@ -54,7 +65,7 @@
 .node-kv, .node-delta { position: absolute; bottom: 6px; display: grid; place-items: center; height: 16px; width: 18px; border-radius: 2px; font: 11px var(--mono); opacity: 0; transform: translateY(4px); transition: opacity .5s, transform .5s; }
 .node-kv { left: 5px; background: #c92336; color: white; }
 .node-delta { right: 5px; background: #efebe6; color: #28232b; }
-.switch-target-label { position: absolute; top: 190px; left: 0; right: 0; text-align: center; font: 11px var(--mono); color: #766b73; }
+.switch-target-label { position: absolute; top: 210px; left: 0; right: 0; text-align: center; font: 11px var(--mono); color: #766b73; }
 .switch-work { position: absolute; top: 40px; left: calc(41.6667% - 40px); width: 80px; z-index: 2; text-align: center; transition: opacity .4s; }
 .running-chip, .queued-chip { display: block; padding: 3px 7px; border-radius: 3px; font: 11px/1.3 var(--mono); background: #ebe4dc; color: #62565e; }
 .running-chip { transform-origin: left; }
@@ -66,8 +77,9 @@
 .ours .switch-flows { color: #c92336; }
 .flow-route { fill: none; stroke: currentColor; stroke-width: 1.8; vector-effect: non-scaling-stroke; opacity: 0; transition: opacity .5s; }
 .flow-fetch, .flow-queue, .flow-decode { stroke-dasharray: 5 5; }
-.switch-memory { position: absolute; top: 225px; left: 0; right: 0; height: 58px; }
-.memory-label { position: absolute; top: -18px; left: 0; right: 0; text-align: center; font: 11px var(--mono); letter-spacing: .04em; color: #746a71; }
+.switch-memory { position: absolute; top: 310px; left: 0; right: 0; height: 58px; }
+.memory-label { position: absolute; top: -39px; left: 0; right: 0; text-align: center; font: 11px/1.4 var(--mono); letter-spacing: .035em; color: #544a52; }
+.memory-label small { display: block; font: 11px/1.6 var(--display); letter-spacing: 0; color: #746a71; }
 .host-slots { height: 100%; display: grid; grid-template-columns: repeat(6,minmax(0,1fr)); gap: 8px; }
 .host-slot { position: relative; height: 100%; border: 1px solid #d9d2ca; border-radius: 3px; background: #eeeae4; }
 .shared-memory { border: 1px solid #c98590; border-radius: 4px; background: #fae8eb; }
@@ -151,8 +163,9 @@
   .kv-blocks i { width: 9px; }
 }
 @media (max-width:760px) {
-  .role-story { padding: 35px 0 42px; }
-  .role-story + .idea-section { padding-top: 45px; }
+  .idea-heading.idea-decoupling { margin-bottom: 30px; }
+  .idea-heading.idea-decoupling > div { grid-template-columns: 1fr; gap: 12px; margin-top: 22px; }
+  .role-story { margin-bottom: 42px; }
   .switch-demo { padding: 20px 15px; margin-inline: -5px; }
   .switch-demo-heading { display: block; }
   .switch-demo-heading h3 { font-size: 29px; }
@@ -174,6 +187,7 @@
   .switch-legend { gap: 8px 15px; }
 }
 @media (max-width:380px) {
+  .idea-decoupling h2 { font-size: 32px; }
   .switch-demo { padding-inline: 11px; }
   .switch-panel { padding-inline: 9px; }
   .switch-node-grid, .host-slots, .shared-memory .host-slots { gap: 4px; }
