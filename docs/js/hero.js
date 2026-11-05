@@ -102,7 +102,7 @@
       if (content) content.hidden = !evolving;
       if (document.body) document.body.classList.toggle('intro-active', !evolving);
       hero.setAttribute('aria-label', evolving
-        ? 'Evolving Infra: infrastructure that moves with your agents'
+        ? 'Evolving Infra: infrastructure that adapts to your agents'
         : 'Dynamic agents and limited infrastructure flexibility');
       hero.removeAttribute('aria-labelledby');
 
