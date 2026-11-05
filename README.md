@@ -60,8 +60,9 @@ The baseline shows separate local caches, with R1 restored on N1 after the switc
 Evolving Infra side shows per-node host memory with a shared-access rail. Its read arrow
 runs from N3 host memory to N1 GPU, retaining the original groups on N3.
 Solid arrows reroute execution; red dashed arrows read/copy KV while stored copies remain.
-Engine names are examples, not a claim that every configuration requires a restart. Controls support
-pause, replay and direct stage selection; desktop autoplay runs once, while reduced-motion
+Engine names are examples, not a claim that every configuration requires a restart. The compact stage keeps the desktop animation within one viewport beneath the fixed header;
+detailed explanations and sources are in the following disclosure. Controls support
+pause, replay and direct stage selection; desktop playback loops, while reduced-motion
 users advance one stage at a time. The sequence is qualitative, not a timed benchmark. The
 comparison scope includes pinned upstream source links and does not claim that vLLM or SGLang
 universally lack KV transfer or dynamic role assignment.

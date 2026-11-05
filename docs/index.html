@@ -25,14 +25,14 @@
   <link rel="stylesheet" href="reading-view.css?v=follow-scroll">
   <link rel="stylesheet" href="reading-typography.css?v=compact-content">
   <link rel="stylesheet" href="reading-compact.css?v=compact-content">
-  <link rel="stylesheet" href="role-switch.css?v=node-kv-placement">
+  <link rel="stylesheet" href="role-switch.css?v=compact-motion">
   <link rel="preload" as="image" href="media/scene/apps-atlas.png">
   <link rel="preload" as="image" href="media/scene/hardware-atlas.png">
   <script src="js/site.js?v=light-motion" defer></script>
   <script src="js/hero.js?v=adaptive-copy" defer></script>
   <script src="js/workload.js?v=light-motion" defer></script>
   <script src="js/reading-view.js?v=follow-scroll" defer></script>
-  <script src="js/role-switch.js?v=node-kv-placement" defer></script>
+  <script src="js/role-switch.js?v=compact-motion" defer></script>
 </head>
 <body class="intro-active">
   <a class="skip-link" href="#demo" data-enter>Skip to the demo</a>
@@ -132,12 +132,8 @@
         </div>
         <div class="role-story" id="role-story">
         <section class="switch-demo" id="role-switch-demo" data-step="0" data-baseline="restart" data-playing="false" aria-labelledby="switch-demo-title">
-          <div class="switch-demo-heading"><div><p class="eyebrow">DECOUPLING IN ACTION</p><h3 id="switch-demo-title">Reallocate compute.<br><span class="accent-text">Keep reusable KV.</span></h3></div><div class="switch-controls"><label for="switch-baseline">Compare with</label><select id="switch-baseline"><option value="restart">Existing engine</option><option value="sglang">SGLang runtime switch</option></select><div class="switch-playback"><button id="switch-play" type="button" class="button button-primary">Play comparison</button><button id="switch-replay" type="button" class="button button-outline">Replay</button></div></div></div>
-          <div class="switch-object-key" aria-label="How requests are represented">
-            <div><span class="object-node" aria-hidden="true">N</span><span><strong>Compute node</strong><small>N1–N6 · prefill or decode</small></span></div>
-            <div><span class="object-blocks kv-r1" aria-hidden="true"><span class="kv-sequence"><i></i><i></i><i></i></span></span><span><strong>Request = KV blocks</strong><small>R0 / R1 / R2 · matching groups in storage</small></span></div>
-            <div><span class="object-pending kv-r1" aria-hidden="true"><span class="kv-sequence"><i class="is-new"></i></span></span><span><strong>New input</strong><small>Outlined block · KV not computed yet</small></span></div>
-          </div>
+          <div class="switch-stage">
+          <div class="switch-demo-heading"><div><p class="eyebrow">DECOUPLING IN ACTION</p><h3 id="switch-demo-title">Move compute. <span class="accent-text">Keep KV.</span></h3></div><div class="switch-controls"><label for="switch-baseline">Compare with</label><select id="switch-baseline"><option value="restart">Existing engine</option><option value="sglang">SGLang runtime switch</option></select><div class="switch-playback"><button id="switch-play" type="button" class="button button-primary">Play comparison</button><button id="switch-replay" type="button" class="button button-outline">Replay</button></div></div></div>
           <div class="switch-steps" aria-label="Animation stages">
             <button type="button" data-switch-step="0" aria-current="step"><span>1</span>Demand shifts</button>
             <button type="button" data-switch-step="1"><span>2</span>Switching</button>
@@ -145,78 +141,85 @@
             <button type="button" data-switch-step="3"><span>4</span>Next request</button>
             <button type="button" data-switch-step="4"><span>5</span>Reuse</button>
           </div>
-          <div class="switch-explanation"><strong id="switch-step-title" aria-live="polite">A sustained workload shift</strong><p id="switch-step-copy">More decode capacity is needed. The same node, N3, will move from prefill to decode.</p></div>
+          <div class="switch-explanation"><strong id="switch-step-title" aria-live="polite">A sustained workload shift</strong></div>
           <div class="switch-panels">
           <article class="switch-panel" data-system="baseline" aria-label="Comparison deployment">
             <header class="switch-panel-header"><div><span class="switch-panel-label" data-path-label>RESTART-BASED RECONFIGURATION</span><h4 id="baseline-title">Existing engine</h4></div><span class="switch-split" data-split>3P · 3D</span></header>
             <p class="switch-engine-family" data-engine-family>Engine examples: vLLM · SGLang · TRT-LLM</p>
             <div class="switch-consequences" aria-label="Costs of this reconfiguration path">
-              <div class="switch-consequence is-cost"><span class="consequence-index" aria-hidden="true">01</span><strong data-change-cost>Switching takes time</strong><p data-change-detail>N3 cannot accept work while its worker restarts.</p></div>
-              <div class="switch-consequence is-cost"><span class="consequence-index" aria-hidden="true">02</span><strong data-kv-cost>Local KV cache lost</strong><p data-kv-detail>The old prefix must be restored before it can be reused.</p></div>
+              <div class="switch-consequence is-cost"><strong data-change-cost>Switching takes time</strong></div>
+              <div class="switch-consequence is-cost"><strong data-kv-cost>Local KV cache lost</strong></div>
             </div>
-            <p class="switch-engine" data-engine-state>N3 is running</p>
+
             <div class="switch-diagram" aria-hidden="true">
               <div class="switch-node-status"><i></i><span data-node-status>RESTARTING</span></div>
               <div class="switch-work"><span class="kv-request kv-r0 running-chip" ><b>R0</b><span class="kv-sequence"><i></i><i></i><i></i></span></span><span class="queued-pair" title="Queued requests"><span class="kv-request kv-r1 queued-token" data-reroute-to="1"><b>R1</b><span class="kv-sequence"><i></i><i></i><i></i></span></span><span class="kv-request kv-r2 queued-token" data-reroute-to="2"><b>R2</b><span class="kv-sequence"><i></i><i></i><i></i></span></span></span></div>
               <div class="switch-next-request kv-r1"><strong>R3 · continues R1</strong><span class="kv-sequence"><i></i><i></i><i></i><i class="is-new"></i></span></div><span class="switch-request-outcome">RESTORE LOCALLY ON N1</span>
-              <svg class="switch-flows" viewBox="0 0 600 532" preserveAspectRatio="none" aria-hidden="true">
+              <svg class="switch-flows" viewBox="0 0 600 322" preserveAspectRatio="none" aria-hidden="true">
                 <defs><marker id="flow-arrow-baseline" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#65545f"/></marker><marker id="flow-kv-arrow-baseline" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#c92336"/></marker></defs>
-                <path class="flow-route flow-queue" data-reroute-target="1" d="M250 84C250 29 50 29 50 130" marker-end="url(#flow-arrow-baseline)"/>
-                <path class="flow-route flow-queue" data-reroute-target="2" d="M250 84C250 53 150 53 150 130" marker-end="url(#flow-arrow-baseline)"/>
-                <path class="flow-route flow-incoming" d="M300 59C300 93 50 77 50 130" marker-end="url(#flow-arrow-baseline)"/>
-                <path class="flow-route flow-decode" d="M50 130C50 35 250 35 250 130" marker-end="url(#flow-kv-arrow-baseline)"/>
+                <path class="flow-route flow-queue" data-reroute-target="1" d="M250 47C250 3 50 3 50 72" marker-end="url(#flow-arrow-baseline)"/>
+                <path class="flow-route flow-queue" data-reroute-target="2" d="M250 47C250 25 150 25 150 72" marker-end="url(#flow-arrow-baseline)"/>
+                <path class="flow-route flow-incoming" d="M300 45C300 64 50 50 50 72" marker-end="url(#flow-arrow-baseline)"/>
+                <path class="flow-route flow-decode" d="M50 72C50 6 250 6 250 72" marker-end="url(#flow-kv-arrow-baseline)"/>
               </svg>
-              <span class="switch-compute-label">COMPUTE ALLOCATION · GPU</span>
+              <span class="switch-compute-label">GPU COMPUTE</span>
               <div class="switch-node-grid"><div class="switch-node" data-node="1"><span class="node-id">N1</span><span class="node-phase">P</span><span class="kv-request kv-r1 kv-mini node-kv" ><b>R1 KV</b><span class="kv-sequence"><i></i><i></i><i></i></span></span></div><div class="switch-node" data-node="2"><span class="node-id">N2</span><span class="node-phase">P</span></div><div class="switch-node switch-target" data-node="3"><span class="node-id">N3</span><span class="node-phase">P</span><span class="kv-request kv-r1 kv-mini decode-request" ><b>R3</b><span class="kv-sequence"><i></i><i></i><i></i><i class="is-new"></i></span></span></div><div class="switch-node is-decode" data-node="4"><span class="node-id">N4</span><span class="node-phase">D</span></div><div class="switch-node is-decode" data-node="5"><span class="node-id">N5</span><span class="node-phase">D</span></div><div class="switch-node is-decode" data-node="6"><span class="node-id">N6</span><span class="node-phase">D</span></div></div>
               <span class="switch-target-label">N3: prefill → decode</span>
               <div class="switch-layer-divider is-coupled"><span>COUPLED</span></div>
               <div class="switch-memory local-memory">
-                <span class="memory-label">KV CACHE MANAGEMENT<small>Independent local caches</small></span>
+                <span class="memory-label">KV STORAGE<small>Independent local caches</small></span>
                 <div class="memory-node-grid"><div class="node-storage" data-storage-node="1"><span class="storage-node-label"><b>N1</b><small>LOCAL</small></span><span class="storage-empty" aria-hidden="true">—</span><div class="restored-cache"><span class="kv-request kv-r1 stored-request "><b>R1</b><span class="kv-sequence"><i></i><i></i><i></i></span></span></div></div><div class="node-storage" data-storage-node="2"><span class="storage-node-label"><b>N2</b><small>LOCAL</small></span><span class="storage-empty" aria-hidden="true">—</span></div><div class="node-storage source-kv" data-storage-node="3" data-local-prefix><span class="storage-node-label"><b>N3</b><small>LOCAL</small></span><div class="stored-requests"><span class="kv-request kv-r0 stored-request "><b>R0</b><span class="kv-sequence"><i></i><i></i><i></i></span></span><span class="kv-request kv-r1 stored-request "><b>R1</b><span class="kv-sequence"><i></i><i></i><i></i></span></span><span class="kv-request kv-r2 stored-request "><b>R2</b><span class="kv-sequence"><i></i><i></i><i></i></span></span></div></div><div class="node-storage" data-storage-node="4"><span class="storage-node-label"><b>N4</b><small>LOCAL</small></span><span class="storage-empty" aria-hidden="true">—</span></div><div class="node-storage" data-storage-node="5"><span class="storage-node-label"><b>N5</b><small>LOCAL</small></span><span class="storage-empty" aria-hidden="true">—</span></div><div class="node-storage" data-storage-node="6"><span class="storage-node-label"><b>N6</b><small>LOCAL</small></span><span class="storage-empty" aria-hidden="true">—</span></div></div>
               </div>
               <span class="local-access-note">Separate caches · tied to each node</span>
             </div>
             <div class="switch-cache-status"><span class="cache-dot" aria-hidden="true"></span><strong data-cache-state>Cached KV blocks remain reusable</strong></div>
-            <p class="switch-panel-note" data-panel-note>The instance must be idle before its role-switch API can run.</p>
+
           </article>
           <article class="switch-panel ours" data-system="evolving" aria-label="Evolving Infra">
             <header class="switch-panel-header"><div><span class="switch-panel-label">DECOUPLED</span><h4>Evolving Infra</h4></div><span class="switch-split" data-split>3P · 3D</span></header>
             <p class="switch-engine-family">Compute roles decoupled from reusable KV</p>
             <div class="switch-consequences" aria-label="Evolving Infra behavior">
-              <div class="switch-consequence is-benefit"><span class="consequence-index" aria-hidden="true">01</span><strong data-change-cost>No engine restart</strong><p data-change-detail>Reroute queued work; let running work finish.</p></div>
-              <div class="switch-consequence is-benefit"><span class="consequence-index" aria-hidden="true">02</span><strong data-kv-cost>Reusable KV retained</strong><p data-kv-detail>The same prefix stays accessible in shared host memory.</p></div>
+              <div class="switch-consequence is-benefit"><strong data-change-cost>No engine restart</strong></div>
+              <div class="switch-consequence is-benefit"><strong data-kv-cost>Reusable KV retained</strong></div>
             </div>
-            <p class="switch-engine" data-engine-state>N3 stays running</p>
+
             <div class="switch-diagram" aria-hidden="true">
               <div class="switch-node-status"><i></i><span data-node-status>RESTARTING</span></div>
               <div class="switch-work"><span class="kv-request kv-r0 running-chip" ><b>R0</b><span class="kv-sequence"><i></i><i></i><i></i></span></span><span class="queued-pair" title="Queued requests"><span class="kv-request kv-r1 queued-token" data-reroute-to="1"><b>R1</b><span class="kv-sequence"><i></i><i></i><i></i></span></span><span class="kv-request kv-r2 queued-token" data-reroute-to="2"><b>R2</b><span class="kv-sequence"><i></i><i></i><i></i></span></span></span></div>
               <div class="switch-next-request kv-r1"><strong>R3 · continues R1</strong><span class="kv-sequence"><i></i><i></i><i></i><i class="is-new"></i></span></div><span class="switch-request-outcome">READ COPY: N3 → N1</span>
-              <svg class="switch-flows" viewBox="0 0 600 532" preserveAspectRatio="none" aria-hidden="true">
+              <svg class="switch-flows" viewBox="0 0 600 322" preserveAspectRatio="none" aria-hidden="true">
                 <defs><marker id="flow-arrow-evolving" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#65545f"/></marker><marker id="flow-kv-arrow-evolving" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#c92336"/></marker></defs>
-                <path class="flow-route flow-queue" data-reroute-target="1" d="M250 84C250 29 50 29 50 130" marker-end="url(#flow-arrow-evolving)"/>
-                <path class="flow-route flow-queue" data-reroute-target="2" d="M250 84C250 53 150 53 150 130" marker-end="url(#flow-arrow-evolving)"/>
-                <path class="flow-route flow-incoming" d="M300 59C300 93 50 77 50 130" marker-end="url(#flow-arrow-evolving)"/>
-                <path class="flow-route flow-fetch" d="M250 418L200 418L200 242C200 225 80 230 50 214" marker-end="url(#flow-kv-arrow-evolving)"/>
-                <path class="flow-route flow-decode" d="M50 130C50 35 250 35 250 130" marker-end="url(#flow-kv-arrow-evolving)"/>
+                <path class="flow-route flow-queue" data-reroute-target="1" d="M250 47C250 3 50 3 50 72" marker-end="url(#flow-arrow-evolving)"/>
+                <path class="flow-route flow-queue" data-reroute-target="2" d="M250 47C250 25 150 25 150 72" marker-end="url(#flow-arrow-evolving)"/>
+                <path class="flow-route flow-incoming" d="M300 45C300 64 50 50 50 72" marker-end="url(#flow-arrow-evolving)"/>
+                <path class="flow-route flow-fetch" d="M250 238L200 238L200 161C200 150 80 153 50 138" marker-end="url(#flow-kv-arrow-evolving)"/>
+                <path class="flow-route flow-decode" d="M50 72C50 6 250 6 250 72" marker-end="url(#flow-kv-arrow-evolving)"/>
               </svg>
-              <span class="switch-compute-label">COMPUTE ALLOCATION · GPU</span>
+              <span class="switch-compute-label">GPU COMPUTE</span>
               <div class="switch-node-grid"><div class="switch-node" data-node="1"><span class="node-id">N1</span><span class="node-phase">P</span><span class="kv-request kv-r1 kv-mini reroute-received" ><b>R1</b><span class="kv-sequence"><i></i><i></i><i></i></span></span><span class="kv-request kv-r1 kv-mini node-kv" ><b>R1 KV</b><span class="kv-sequence"><i></i><i></i><i></i></span></span></div><div class="switch-node" data-node="2"><span class="node-id">N2</span><span class="node-phase">P</span><span class="kv-request kv-r2 kv-mini reroute-received" ><b>R2</b><span class="kv-sequence"><i></i><i></i><i></i></span></span></div><div class="switch-node switch-target" data-node="3"><span class="node-id">N3</span><span class="node-phase">P</span><span class="kv-request kv-r1 kv-mini decode-request" ><b>R3</b><span class="kv-sequence"><i></i><i></i><i></i><i class="is-new"></i></span></span></div><div class="switch-node is-decode" data-node="4"><span class="node-id">N4</span><span class="node-phase">D</span></div><div class="switch-node is-decode" data-node="5"><span class="node-id">N5</span><span class="node-phase">D</span></div><div class="switch-node is-decode" data-node="6"><span class="node-id">N6</span><span class="node-phase">D</span></div></div>
               <span class="switch-target-label">N3: prefill → decode</span>
               <div class="switch-layer-divider is-decoupled"><span><img src="fig/decoupled-link.svg" alt="" aria-hidden="true">DECOUPLED</span></div>
               <div class="switch-memory shared-memory">
-                <span class="memory-label">KV CACHE MANAGEMENT<small>Host memory on each node</small></span>
+                <span class="memory-label">KV STORAGE<small>Host memory on each node</small></span>
                 <div class="memory-node-grid"><div class="node-storage" data-storage-node="1"><span class="storage-node-label"><b>N1</b><small>HOST</small></span><span class="storage-empty" aria-hidden="true">—</span></div><div class="node-storage" data-storage-node="2"><span class="storage-node-label"><b>N2</b><small>HOST</small></span><span class="storage-empty" aria-hidden="true">—</span></div><div class="node-storage source-kv" data-storage-node="3" data-shared-prefix><span class="storage-node-label"><b>N3</b><small>HOST</small></span><div class="stored-requests"><span class="kv-request kv-r0 stored-request "><b>R0</b><span class="kv-sequence"><i></i><i></i><i></i></span></span><span class="kv-request kv-r1 stored-request "><b>R1</b><span class="kv-sequence"><i></i><i></i><i></i></span></span><span class="kv-request kv-r2 stored-request "><b>R2</b><span class="kv-sequence"><i></i><i></i><i></i></span></span></div></div><div class="node-storage" data-storage-node="4"><span class="storage-node-label"><b>N4</b><small>HOST</small></span><span class="storage-empty" aria-hidden="true">—</span></div><div class="node-storage" data-storage-node="5"><span class="storage-node-label"><b>N5</b><small>HOST</small></span><span class="storage-empty" aria-hidden="true">—</span></div><div class="node-storage" data-storage-node="6"><span class="storage-node-label"><b>N6</b><small>HOST</small></span><span class="storage-empty" aria-hidden="true">—</span></div></div>
               </div>
               <span class="shared-access-rail">Shared access · per-node storage</span>
             </div>
             <div class="switch-cache-status"><span class="cache-dot" aria-hidden="true"></span><strong data-cache-state>Cached KV blocks remain reusable</strong></div>
-            <p class="switch-panel-note" data-panel-note>Each node can read reusable KV from its peers’ host memory.</p>
+
           </article>
           </div>
-          <p class="switch-legend"><span><b>P</b> Prefill</span><span><b>D</b> Decode</span><span class="request-line-key"><i aria-hidden="true"></i> Request routing</span><span class="kv-line-key"><i aria-hidden="true"></i> KV transfer</span><span>Requests shown by their KV blocks · timing is illustrative</span></p>
-          <p class="switch-block-note">Each request is shown as its KV block group. Each storage box belongs to the node directly above it. On the right, N1 reads a copy from N3’s host memory; the original blocks stay on N3.</p>
-          <p class="switch-drain-note"><strong>Default: a restart-based deployment.</strong> Engine capabilities vary by version and configuration. Select SGLang runtime switch for its in-place path. Evolving Infra also drains running work; this animation does not imply an instantaneous switch.</p>
-          <details class="switch-scope"><summary>Comparison scope and sources</summary><div>
+          <p class="switch-legend"><span><b>P</b> Prefill · <b>D</b> Decode</span><span>Blocks = request KV</span><span class="pending-key"><i aria-hidden="true"></i> Pending prefill</span><span class="kv-line-key"><i aria-hidden="true"></i> KV copy</span><span>Illustrative timing</span></p>
+
+
+          </div>
+          <details class="switch-scope"><summary>How it works · comparison scope and sources</summary><div>
+          <div class="switch-object-key" aria-label="How requests are represented">
+            <div><span class="object-node" aria-hidden="true">N</span><span><strong>Compute node</strong><small>N1–N6 · prefill or decode</small></span></div>
+            <div><span class="object-blocks kv-r1" aria-hidden="true"><span class="kv-sequence"><i></i><i></i><i></i></span></span><span><strong>Request = KV blocks</strong><small>R0 / R1 / R2 · matching groups in storage</small></span></div>
+            <div><span class="object-pending kv-r1" aria-hidden="true"><span class="kv-sequence"><i class="is-new"></i></span></span><span><strong>New input</strong><small>Outlined block · KV not computed yet</small></span></div>
+          </div>
+<div class="switch-detail-current"><p class="eyebrow">CURRENT STAGE</p><p id="switch-step-copy">More decode capacity is needed. The same node, N3, will move from prefill to decode.</p><div class="switch-detail-systems"><div data-detail-system="baseline"><h4>Comparison path</h4><p class="switch-engine" data-engine-state>N3 is running</p><p data-change-detail>N3 cannot accept work while its worker restarts.</p><p data-kv-detail>The old prefix must be restored before it can be reused.</p><p class="switch-panel-note" data-panel-note>The instance must be idle before its role-switch API can run.</p></div><div data-detail-system="evolving"><h4>Evolving Infra</h4><p class="switch-engine" data-engine-state>N3 stays running</p><p data-change-detail>Reroute queued work; let running work finish.</p><p data-kv-detail>The same prefix stays accessible in shared host memory.</p><p class="switch-panel-note" data-panel-note>Each node can read reusable KV from its peers’ host memory.</p></div></div></div><p class="switch-block-note">Each request is shown as its KV block group. Each storage box belongs to the node directly above it. On the right, N1 reads a copy from N3’s host memory; the original blocks stay on N3.</p><p class="switch-drain-note"><strong>Default: a restart-based deployment.</strong> Engine capabilities vary by version and configuration. Select SGLang runtime switch for its in-place path. Evolving Infra also drains running work; this animation does not imply an instantaneous switch.</p>
             <p><strong>SGLang runtime switch:</strong> the audited implementation supports in-place P/D switching after the instance is idle. With prefix caching enabled, it discards the reusable local GPU/host prefix cache and associated state. That is a loss of reusable prefix state, not a claim that every underlying or external KV byte is deleted. <a href="https://github.com/sgl-project/sglang/blob/f3532057e15fb8ede90ce1aeddfb5bd20dfbd4b6/python/sglang/srt/disaggregation/role_switch.py#L239-L294" target="_blank" rel="noopener noreferrer">Pinned implementation ↗</a></p>
             <p><strong>Existing engine:</strong> vLLM, SGLang and TRT-LLM are examples of serving engines. The default animation illustrates restart-based reconfiguration, grounded in the Dynamo/SGLang deployment evaluated in our report; it is not a claim that every configuration of these engines requires a restart. Only the selected worker restarts; the rest of the cluster continues serving.</p>
             <p><strong>vLLM:</strong> KV transfer, multi-turn reuse, and configurations with per-request P/D behavior already exist. This illustration makes no blanket claim that vLLM or SGLang cannot transfer KV or switch roles. The focus is the lifecycle of reusable KV during the specific reconfiguration paths shown. <a href="https://github.com/vllm-project/vllm/issues/43807" target="_blank" rel="noopener noreferrer">vLLM P/D behavior ↗</a> · <a href="https://github.com/vllm-project/vllm/blob/1ab4476ac9d1829426f467f3c04ae2de3f49e8fe/docs/design/nixl_kv_cache_lease.md" target="_blank" rel="noopener noreferrer">Multi-turn KV reuse ↗</a></p>

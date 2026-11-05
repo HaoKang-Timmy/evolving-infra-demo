@@ -15,10 +15,15 @@
     const title = document.getElementById('switch-step-title');
     const copy = document.getElementById('switch-step-copy');
     const baselineTitle = document.getElementById('baseline-title');
+    const stage = section.querySelector('.switch-stage') || section;
     const stepButtons = Array.from(section.querySelectorAll('[data-switch-step]'));
     const panels = {
       baseline: section.querySelector('.switch-panel[data-system="baseline"]'),
       evolving: section.querySelector('.switch-panel[data-system="evolving"]')
+    };
+    const detailPanels = {
+      baseline: section.querySelector('[data-detail-system="baseline"]'),
+      evolving: section.querySelector('[data-detail-system="evolving"]')
     };
     const motion = typeof window.matchMedia === 'function'
       ? window.matchMedia('(prefers-reduced-motion: reduce)')
@@ -26,7 +31,7 @@
     const desktop = typeof window.matchMedia === 'function'
       ? window.matchMedia('(min-width: 820px)')
       : null;
-    const stageDuration = 3200;
+    const stageDurations = [2800, 3200, 2800, 3200, 3200];
     const lastStep = 4;
     const removers = [];
     let step = Math.min(lastStep, Math.max(0, parseInt(section.dataset.step, 10) || 0));
@@ -38,19 +43,20 @@
     let visibleRatio = 0;
     let autoConsumed = false;
     let autoPlayed = false;
+    let cycleCount = 0;
     let destroyed = false;
 
     const stages = [
-      ['A sustained workload shift', 'Both sides start at 3P3D. R0/R1/R2 KV blocks are on N3: in its local cache on the left, and its host memory on the right.'],
-      ['N3 needs time to change', ''],
-      ['New role. Different KV outcomes.', 'N3 now serves decode at 2P4D. Its local cache is lost on the left; all three KV groups stay in N3 host memory on the right.'],
-      ['R3 follows R1', 'N1 serves R3, which follows R1. The baseline restores or recomputes R1’s blocks on N1; Evolving Infra reads a copy from N3 host memory.'],
-      ['Reuse the cached KV blocks', 'N1 fills R3’s new block. R1’s blocks are restored in N1 local cache on the left; on the right, N1 uses a copy and N3 keeps the originals.']
+      ['Decode demand rises; N3 is selected to switch.', 'Both sides start at 3P3D. R0/R1/R2 KV blocks are on N3: in its local cache on the left, and its host memory on the right.'],
+      ['Evolving Infra: R1 → N1 / R2 → N2; N3 finishes R0.', ''],
+      ['N3 switches P → D. Evolving Infra keeps KV on N3.', 'N3 now serves decode at 2P4D. Its local cache is lost on the left; all three KV groups stay in N3 host memory on the right.'],
+      ['Evolving Infra: N1 reads a copy from N3; the originals stay.', 'N1 serves R3, which follows R1. The baseline restores or recomputes R1’s blocks on N1; Evolving Infra reads a copy from N3 host memory.'],
+      ['N1 reuses R1’s blocks and prefills R3’s new block.', 'N1 fills R3’s new block. R1’s blocks are restored in N1 local cache on the left; on the right, N1 uses a copy and N3 keeps the originals.']
     ];
     // Each row is engine state, cache state, and a panel explanation.
     const labels = {
       evolving: [
-        ['N3 running', 'Cached KV in N3 host memory', 'R0/R1/R2 cached KV blocks all reside in N3 host memory.'],
+        ['N3 running', 'KV stored on N3', 'R0/R1/R2 cached KV blocks all reside in N3 host memory.'],
         ['N3 drains R0', 'KV stays on N3', 'Queued R1 goes to N1 and R2 to N2; running R0 finishes on N3.'],
         ['N3 now serves decode', 'KV stays on N3', 'N3 changes role; all three KV groups remain in its host memory.'],
         ['N3 serving decode', 'N1 reads a copy from N3', 'N1 reads R1’s blocks from N3 host memory into its GPU.'],
@@ -59,16 +65,16 @@
       sglang: [
         ['N3 running', 'R0/R1/R2 cached on N3', 'N3’s local cache holds all three groups of cached KV blocks.'],
         ['N3 waits until idle', 'N3 local cache awaits reset', 'The caller stops new arrivals and waits until N3 is fully idle.'],
-        ['N3 now serves decode', 'N3’s local KV blocks lost', 'N3 changes to decode and resets its local KV cache without a restart.'],
+        ['N3 now serves decode', 'N3 local KV reset', 'N3 changes to decode and resets its local KV cache without a restart.'],
         ['N3 serving decode', 'Restore/recompute on N1', 'N1 restores or recomputes R1’s blocks for R3; N3’s old local groups stay lost.'],
-        ['N3 serving decode', 'R1 restored in N1 local cache', 'R1’s blocks are restored on N1. N3’s original local KV groups remain lost.']
+        ['N3 serving decode', 'R1 restored on N1', 'R1’s blocks are restored on N1. N3’s original local KV groups remain lost.']
       ],
       restart: [
         ['N3 running', 'R0/R1/R2 cached on N3', 'N3’s local cache holds all three groups of cached KV blocks.'],
-        ['N3 restarting', 'N3’s local KV blocks lost', 'N3 is restarting; the other nodes keep serving.'],
-        ['N3 now serves decode', 'N3’s local KV blocks lost', 'N3 returns as decode with an empty local KV cache.'],
+        ['N3 restarting', 'N3 local KV lost', 'N3 is restarting; the other nodes keep serving.'],
+        ['N3 now serves decode', 'N3 local KV lost', 'N3 returns as decode with an empty local KV cache.'],
         ['N3 serving decode', 'Restore/recompute on N1', 'N1 restores or recomputes R1’s blocks for R3; N3’s old local groups stay lost.'],
-        ['N3 serving decode', 'R1 restored in N1 local cache', 'R1’s blocks are restored on N1. N3’s original local KV groups remain lost.']
+        ['N3 serving decode', 'R1 restored on N1', 'R1’s blocks are restored on N1. N3’s original local KV groups remain lost.']
       ]
     };
     // These cards distinguish the cost of changing roles from the loss and
@@ -132,6 +138,7 @@
     function render() {
       section.dataset.step = String(step);
       section.dataset.baseline = baseline;
+      section.style.setProperty('--stage-duration', `${stageDurations[step]}ms`);
       if (baselineSelect) baselineSelect.value = baseline;
       setText(baselineTitle, baseline === 'sglang' ? 'SGLang runtime switch' : 'Existing engine');
       setText(title, stages[step][0]);
@@ -147,6 +154,7 @@
         const path = system === 'evolving' ? 'evolving' : baseline;
         const row = labels[path][step];
         const costs = costDetails[path][step];
+        const detail = detailPanels[system] || panel;
         if (system === 'baseline') {
           setText(panel.querySelector('[data-engine-family]'), baseline === 'restart'
             ? 'Engine examples: vLLM · SGLang · TRT-LLM'
@@ -155,13 +163,15 @@
             ? 'Restart-based reconfiguration'
             : 'Idle → role switch → KV cache reset');
         }
-        setText(panel.querySelector('[data-engine-state]'), row[0]);
+        setText(detail.querySelector('[data-engine-state]'), row[0]);
         setText(panel.querySelector('[data-cache-state]'), row[1]);
-        setText(panel.querySelector('[data-panel-note]'), row[2]);
-        setText(panel.querySelector('[data-change-cost]'), system === 'baseline' ? 'Switching takes time' : 'No engine restart');
-        setText(panel.querySelector('[data-change-detail]'), costs[0]);
-        setText(panel.querySelector('[data-kv-cost]'), system === 'baseline' ? 'Local KV cache lost' : 'Reusable KV retained');
-        setText(panel.querySelector('[data-kv-detail]'), costs[1]);
+        setText(detail.querySelector('[data-panel-note]'), row[2]);
+        setText(panel.querySelector('[data-change-cost]'), system === 'evolving'
+          ? 'No restart' : baseline === 'restart' ? 'Restart delay' : 'Idle + reconfigure');
+        setText(detail.querySelector('[data-change-detail]'), costs[0]);
+        setText(panel.querySelector('[data-kv-cost]'), system === 'evolving'
+          ? 'KV retained' : baseline === 'restart' ? 'Local KV lost' : 'Local KV reset');
+        setText(detail.querySelector('[data-kv-detail]'), costs[1]);
         setText(panel.querySelector('[data-split]'), step === 1 ? 'N3 → D' : step === 0 ? '3P · 3D' : '2P · 4D');
         const phase = step === 0 ? 'P' : step === 1 ? (system === 'baseline' ? '…' : 'P') : 'D';
         setText(panel.querySelector('.switch-node[data-node="3"] .node-phase'), phase);
@@ -183,7 +193,7 @@
     }
 
     function snapshot() {
-      return { step, baseline, playing, visible, visibleRatio, reducedMotion: reducedMotion(), autoPlayed, autoConsumed, destroyed };
+      return { step, baseline, playing, visible, visibleRatio, reducedMotion: reducedMotion(), autoPlayed, autoConsumed, cycleCount, destroyed };
     }
 
     function stop(consumeAuto = false) {
@@ -201,10 +211,14 @@
         stop(true);
         return;
       }
-      step = Math.min(step + 1, lastStep);
-      if (step === lastStep) playing = false;
+      if (step === lastStep) {
+        step = 0;
+        cycleCount += 1;
+      } else {
+        step += 1;
+      }
       render();
-      if (playing) timer = window.setTimeout(advance, stageDuration);
+      if (playing) timer = window.setTimeout(advance, stageDurations[step]);
     }
 
     function startTimed() {
@@ -212,7 +226,7 @@
       if (step === lastStep) step = 0;
       playing = true;
       render();
-      timer = window.setTimeout(advance, stageDuration);
+      timer = window.setTimeout(advance, stageDurations[step]);
     }
 
     function play() {
@@ -266,7 +280,7 @@
     }
 
     function measureVisibility() {
-      const rect = section.getBoundingClientRect();
+      const rect = stage.getBoundingClientRect();
       const width = Math.max(0, Math.min(rect.right, window.innerWidth) - Math.max(rect.left, 0));
       const height = Math.max(0, Math.min(rect.bottom, window.innerHeight) - Math.max(rect.top, 0));
       visibleRatio = rect.width > 0 && rect.height > 0 ? width * height / (rect.width * rect.height) : 0;
@@ -329,13 +343,13 @@
     if ('IntersectionObserver' in window) {
       observer = new IntersectionObserver((entries) => {
         entries.forEach((entry) => {
-          if (entry.target !== section) return;
+          if (entry.target !== stage) return;
           visibleRatio = entry.intersectionRatio;
           visible = entry.isIntersecting && visibleRatio > 0;
         });
         reactToVisibility();
       }, { threshold: [0, 0.45] });
-      observer.observe(section);
+      observer.observe(stage);
     } else {
       listen(window, 'scroll', measureVisibility, { passive: true });
       listen(window, 'resize', measureVisibility, { passive: true });
