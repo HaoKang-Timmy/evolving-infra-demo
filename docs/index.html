@@ -18,9 +18,9 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="site.css">
-  <link rel="stylesheet" href="scene.css?v=light-motion">
-  <link rel="stylesheet" href="light.css?v=light-motion">
-  <link rel="stylesheet" href="workload.css?v=light-motion">
+  <link rel="stylesheet" href="scene.css?v=wave-labels">
+  <link rel="stylesheet" href="light.css?v=wave-labels">
+  <link rel="stylesheet" href="workload.css?v=wave-labels">
   <link rel="preload" as="image" href="media/scene/apps-atlas.png">
   <link rel="preload" as="image" href="media/scene/hardware-atlas.png">
   <script src="js/site.js?v=light-motion" defer></script>
@@ -44,7 +44,8 @@
       <div class="scene-world">
         <div class="scene-grain" aria-hidden="true"></div>
         <div class="application-layer">
-          <div class="workload-heading"><span class="motion-badge"><i aria-hidden="true"></i>DYNAMIC</span><p class="layer-title">The work keeps <strong>changing.</strong></p><p id="workload-moment">Deep reasoning</p></div>
+          <div class="workload-wave-field" aria-hidden="true"><img class="workload-wave-flow" src="fig/workload-waves.svg" alt=""></div>
+          <div class="workload-heading"><span class="motion-badge"><i aria-hidden="true"></i>AGENTS</span><p class="layer-title"><span class="dynamic-word">Diverse</span> and <span class="dynamic-word">dynamic</span> workloads.</p><p id="workload-moment">Deep reasoning</p></div>
           <div class="application-row">
             <figure class="application application-math"><div class="scene-art app-art art-math" role="img" aria-label="Mathematical reasoning illustrated by a notebook and floating formulas"><div class="activity-track" aria-hidden="true"><span class="task-chip">Think</span><span class="task-chip">Check</span><span class="task-chip">Proof</span></div></div><figcaption>Math<span class="activity-label">Reasoning</span></figcaption></figure>
             <figure class="application application-cua"><div class="scene-art app-art art-cua" role="img" aria-label="Computer use illustrated by desktop windows and a cursor"><span class="scene-cursor" aria-hidden="true"></span><div class="activity-track" aria-hidden="true"><span class="task-chip">View</span><span class="task-chip">Click</span><span class="task-chip">Read</span></div></div><figcaption>Computer use<span class="activity-label">Reading screen</span></figcaption></figure>
@@ -54,25 +55,26 @@
         </div>
         <div class="scene-gap" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span></div>
         <div class="hardware-layer">
+          <div class="hardware-line-field" aria-hidden="true"><img src="fig/hardware-lines.svg" alt=""></div>
           <div class="hardware-row">
             <figure class="hardware"><div class="scene-art hardware-art art-gb300" role="img" aria-label="Concept illustration of a GB300 compute rack"></div><figcaption>GB300<span>GPU systems</span></figcaption></figure>
             <figure class="hardware"><div class="scene-art hardware-art art-h200" role="img" aria-label="Concept illustration of an H200 GPU accelerator"></div><figcaption>H200<span>GPU accelerators</span></figcaption></figure>
             <figure class="hardware"><div class="scene-art hardware-art art-tpu" role="img" aria-label="Concept illustration of a TPU accelerator board"></div><figcaption>TPU<span>AI accelerators</span></figcaption></figure>
           </div>
           <div class="hardware-baseline" aria-hidden="true"><i></i><i></i><i></i></div>
-          <p class="layer-title"><span class="static-badge">STATIC</span> The hardware stays <strong>fixed.</strong></p>
+          <p class="layer-title"><span class="static-badge">FIXED</span> The same physical <strong>hardware.</strong></p>
         </div>
         <p class="scene-scope">An illustrated application &amp; hardware landscape</p>
       </div>
       <div class="scene-intro" id="hero-before">
-        <p>Can infrastructure evolve, too?</p>
-        <button id="evolve-trigger" class="scene-enter" type="button"><span class="enter-disc" aria-hidden="true">↗</span><span>Let it evolve</span></button>
+        <p>How to capture <span class="dynamic-word">diverse</span> and <span class="dynamic-word">dynamic</span> agent workload <span class="fixed-phrase">with fixed hardware?</span></p>
+        <button id="evolve-trigger" class="scene-enter" type="button"><span class="enter-disc" aria-hidden="true">↗</span><span>Let it <span class="dynamic-word">evolve</span></span></button>
       </div>
       <div class="scene-reveal" id="hero-after" hidden>
         <div class="reveal-heading">
           <p class="eyebrow">SAME HARDWARE. MORE FREEDOM.</p>
-          <h1 id="revealed-title" tabindex="-1">Evolving <span>Infra.</span></h1>
-          <p class="reveal-description">Infrastructure that moves with your agents.</p>
+          <h1 id="revealed-title" tabindex="-1"><span class="evolving-word">Evolving</span> <span class="infra-word">Infra.</span></h1>
+          <p class="reveal-description">Infrastructure that <span class="dynamic-word">moves</span> with your agents.</p>
           <button class="replay-intro" id="replay-intro" type="button"><span aria-hidden="true">↶</span> Replay the opening</button>
         </div>
         <div class="reveal-demo" id="demo">

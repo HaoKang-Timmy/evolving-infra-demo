@@ -1,4 +1,16 @@
 /* Motion carries the contrast: changing work above, fixed physical anchors below. */
+.dynamic-word { color: var(--red); font-weight: 500; }
+.reveal-heading h1 .evolving-word { color: var(--red); }
+.reveal-heading h1 .infra-word { color: var(--fg); }
+.application-layer, .hardware-layer { isolation: isolate; }
+.workload-wave-field, .hardware-line-field { position: absolute; z-index: -1; pointer-events: none; overflow: hidden; left: -6%; right: -6%; height: 180px; mask-image: linear-gradient(90deg, transparent, #000 9%, #000 91%, transparent); }
+.workload-wave-field { top: 77px; }
+.workload-wave-field .workload-wave-flow { display: block; width: 200%; max-width: none; height: 100%; animation: workload-sine-flow 14s linear infinite; }
+.hardware-line-field { top: 12px; }
+.hardware-line-field img { display: block; width: 100%; height: 100%; }
+.scene-intro > p { max-width: 680px; margin-inline: auto; text-wrap: balance; }
+.fixed-phrase { white-space: nowrap; }
+@keyframes workload-sine-flow { from { transform: translateX(0); } to { transform: translateX(-50%); } }
 .workload-heading { display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 6px 13px; }
 .motion-badge, .static-badge { display: inline-flex; align-items: center; justify-content: center; gap: 6px; font: 500 9px/1.4 var(--mono); letter-spacing: .09em; padding: 5px 8px; border-radius: 3px; }
 .motion-badge { color: var(--red); background: #f9e6e8; }
@@ -74,6 +86,8 @@
   .task-chip:nth-child(2) { right: -3%; }
 }
 @media (max-width:700px) {
+  .workload-wave-field { top: 68px; height: 250px; left: -3%; right: -3%; }
+  .hardware-line-field { top: 0; height: 115px; left: -3%; right: -3%; }
   .workload-heading { gap: 5px 8px; }
   .motion-badge, .static-badge { font-size: 8px; padding: 4px 6px; }
   .workload-heading .layer-title { font-size: 14px; }
@@ -90,7 +104,8 @@
   .task-chip::before { width: 3px; height: 3px; }
   .application figcaption .activity-label { font-size: 9px; min-height: 15px; }
   .activity-label::after { margin-top: 3px; }
-  .scene-intro { top: 57%; }
+  .scene-intro { top: 59%; }
+  .scene-intro > p { max-width: 330px; font-size: 18px; line-height: 1.45; }
   .hardware-baseline { margin-top: 13px; }
   .hardware-layer .layer-title { font-size: 13px; margin-top: 13px; }
   .hardware-art::after { height: 9px; }
