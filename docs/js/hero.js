@@ -109,7 +109,7 @@
       if (options.announce !== false && announcement) {
         announcement.textContent = evolving
           ? 'Evolving Infra. The project, demo, and results are now available.'
-          : 'Opening illustration restored. Activate Let it evolve to continue.';
+          : 'Opening illustration restored. Activate Let infra evolve to continue.';
       }
       if (options.focus !== false || hidingFocus) {
         focusWithoutScrolling(evolving ? title || after || hero : trigger || before || hero);
