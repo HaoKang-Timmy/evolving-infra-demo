@@ -1,959 +1,130 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Evolving Infra</title>
-<meta name="description" content="Evolving Infra: agent-adaptive LLM serving that decouples compute allocation from KV cache management.">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=Saira:wdth,wght@100..125,500..800&display=swap">
-<style>
-  /* Layout: a dark machine-room research post. One 1080px column, tabbed evidence panels
-     like the ThunderAgent page, paper figures on white plates, a live node strip in the hero. */
-  :root {
-    --bg: #121113;
-    --bg-deep: #0c0b0d;
-    --panel: #1a181b;
-    --panel-2: #221f23;
-    --line: #2f2b30;
-    --fg: #ece8e9;
-    /* dark mode follows the MIT brand colors (brand.mit.edu/color): Bright Red, Light Silver Gray, Silver Gray */
-    --muted: #b8c2cc;
-    --faint: #8b959e;
-    --accent: #ff1423;
-    --accent-strong: #ff1423;
-    --accent-tint: rgba(255, 20, 35, 0.12);
-    --glow: rgba(255, 20, 35, 0.32);
-    --grid: rgba(255, 255, 255, 0.032);
-    --chip-p: #3b373c;
-    --chip-p-edge: #8b959e;
-    --chip-p-fg: #ffffff;
-    --chip-d: #cdcdcd;
-    --chip-d-edge: #8c8c8c;
-    --chip-d-fg: #1a1a1a;
-    --dyn: #b8c2cc;
-    --static: #8b959e;
-    --ours: #ff1423;
-    --v-wait: #ff6b5e;
-    --v-gen: #00ad00;
-    --v-tool: #8b959e;
-    --v-done: #ffeb00;
-    --track: rgba(255, 255, 255, 0.06);
-    --plate: #ffffff;
-    --plate-edge: #2f2b30;
-    --plate-ink: #1a1a1a;
-    --plate-muted: #5e5e5e;
-    --fig-dyn: #cdcdcd;
-    --fig-ours: #a31f34;
-    --fig-gray: #8c8c8c;
-    --display: "Saira", "Arial Narrow", system-ui, sans-serif;
-    --body: "IBM Plex Sans", "Helvetica Neue", Arial, sans-serif;
-    --mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
-    color-scheme: dark;
-  }
-  @media (prefers-color-scheme: light) {
-    :root:not([data-theme="dark"]) {
-      --bg: #f4f3f3; --bg-deep: #eae8e8; --panel: #ffffff; --panel-2: #f8f7f7; --line: #dcd8d9;
-      --fg: #1a1a1a; --muted: #5a5557; --faint: #8c8689; --accent: #a31f34; --accent-strong: #c42a42;
-      --accent-tint: rgba(163, 31, 52, 0.07); --glow: rgba(163, 31, 52, 0.16); --grid: rgba(26, 26, 26, 0.04);
-      --chip-p: #2b2b2b; --chip-p-edge: #1a1a1a; --chip-p-fg: #ffffff; --chip-d: #cdcdcd; --chip-d-edge: #5e5e5e;
-      --chip-d-fg: #1a1a1a; --dyn: #c4c0c1; --static: #6b6668; --ours: #a31f34; --track: rgba(26, 26, 26, 0.06);
-      --plate-edge: #dcd8d9; --v-wait: #d43f35; --v-gen: #2e8b4a; --v-tool: #8b959e; --v-done: #b58500;
-      color-scheme: light;
-    }
-  }
-  :root[data-theme="light"] {
-    --bg: #f4f3f3; --bg-deep: #eae8e8; --panel: #ffffff; --panel-2: #f8f7f7; --line: #dcd8d9;
-    --fg: #1a1a1a; --muted: #5a5557; --faint: #8c8689; --accent: #a31f34; --accent-strong: #c42a42;
-    --accent-tint: rgba(163, 31, 52, 0.07); --glow: rgba(163, 31, 52, 0.16); --grid: rgba(26, 26, 26, 0.04);
-    --chip-p: #2b2b2b; --chip-p-edge: #1a1a1a; --chip-p-fg: #ffffff; --chip-d: #cdcdcd; --chip-d-edge: #5e5e5e;
-    --chip-d-fg: #1a1a1a; --dyn: #c4c0c1; --static: #6b6668; --ours: #a31f34; --track: rgba(26, 26, 26, 0.06);
-    --plate-edge: #dcd8d9; --v-wait: #d43f35; --v-gen: #2e8b4a; --v-tool: #8b959e; --v-done: #b58500;
-    color-scheme: light;
-  }
-
-  *, *::before, *::after { box-sizing: border-box; }
-  [hidden] { display: none !important; }
-  img { max-width: 100%; }
-  html { scroll-behavior: smooth; }
-  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
-  body {
-    margin: 0;
-    background-color: var(--bg);
-    background-image: linear-gradient(var(--grid) 1px, transparent 1px), linear-gradient(90deg, var(--grid) 1px, transparent 1px);
-    background-size: 56px 56px;
-    color: var(--fg);
-    font-family: var(--body);
-    font-size: 16px;
-    line-height: 1.62;
-    -webkit-font-smoothing: antialiased;
-  }
-  body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 30; background: var(--bg); }
-  a { color: var(--accent); text-underline-offset: 3px; }
-  a:hover { color: var(--accent-strong); }
-  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 3px; }
-  sup { font-size: 0.68em; line-height: 0; }
-  .wrap {
-    max-width: 1112px; margin-inline: auto;
-    padding-left: max(16px, env(safe-area-inset-left, 0px));
-    padding-right: max(16px, env(safe-area-inset-right, 0px));
-  }
-
-  /* Navigation */
-  .nav { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20; background: color-mix(in srgb, var(--bg) 90%, transparent);
-         backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border-bottom: 1px solid var(--line); }
-  .nav .wrap { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding-block: 10px; }
-  .brand { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--fg); }
-  .brand:hover { color: var(--fg); }
-  .brand-mark { display: grid; grid-template-columns: repeat(3, 9px); gap: 2px; }
-  .brand-mark i { display: block; height: 14px; border-radius: 2px; border: 1px solid var(--chip-d-edge); background: var(--chip-d); }
-  .brand-mark i:first-child { background: var(--chip-p); border-color: var(--chip-p-edge); }
-  .brand-mark i:last-child { background: var(--accent); border-color: var(--accent); }
-  .brand-name { font-family: var(--display); font-stretch: 118%; font-weight: 700; font-size: 1.02rem; letter-spacing: 0.04em; text-transform: uppercase; }
-  .nav-links { display: flex; align-items: center; gap: 22px; }
-  .nav-links a { color: var(--muted); text-decoration: none; font-family: var(--mono); font-size: 0.8rem; letter-spacing: 0.06em; text-transform: uppercase; }
-  .nav-links a:hover { color: var(--fg); }
-  .theme-btn { background: none; border: 1px solid var(--line); color: var(--muted); border-radius: 6px; height: 32px; padding: 0 10px;
-               font: 500 0.75rem var(--mono); letter-spacing: 0.06em; text-transform: uppercase; cursor: pointer; }
-  .theme-btn:hover { color: var(--fg); border-color: var(--faint); }
-  @media (max-width: 760px) { .nav-links a { display: none; } }
-
-  /* Hero */
-  .hero { padding-block: 56px 40px; }
-  .hero-grid { display: grid; grid-template-columns: minmax(0, 1.08fr) minmax(0, 1fr); gap: 40px; align-items: center; }
-  @media (max-width: 920px) { .hero-grid { grid-template-columns: minmax(0, 1fr); gap: 28px; } }
-  .eyebrow { font-family: var(--mono); font-size: 0.78rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); margin: 0 0 10px; }
-  .wordmark { font-family: var(--display); font-stretch: 125%; font-weight: 800; text-transform: uppercase; line-height: 0.92;
-              font-size: clamp(2.7rem, 7.4vw, 5.4rem); letter-spacing: 0.005em; margin: 0; text-wrap: balance; }
-  .wordmark span { display: block; }
-  .wordmark .hot { color: var(--accent); text-shadow: 0 0 28px var(--glow); }
-  .lede { font-size: 1.14rem; line-height: 1.55; color: var(--fg); max-width: 34em; margin: 20px 0 0; }
-  .authors { margin: 22px 0 0; font-size: 0.98rem; line-height: 1.7; max-width: 40em; }
-  .authors .au { white-space: nowrap; }
-  .affils { margin: 6px 0 0; color: var(--muted); font-size: 0.84rem; line-height: 1.6; max-width: 46em; }
-  .cta { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 22px; }
-  .btn { display: inline-flex; align-items: center; gap: 8px; min-height: 40px; padding: 0 16px; border-radius: 6px; border: 1px solid var(--line);
-         background: var(--panel); color: var(--fg); text-decoration: none; font: 600 0.88rem var(--body); }
-  .btn:hover { border-color: var(--faint); color: var(--fg); }
-  .btn.primary { background: var(--accent); border-color: var(--accent); color: #ffffff; }
-  .btn.primary:hover { background: var(--accent-strong); border-color: var(--accent-strong); color: #ffffff; }
-  .btn.soon { color: var(--faint); border-style: dashed; cursor: default; }
-  .btn small { font: 500 0.72rem var(--mono); letter-spacing: 0.04em; color: var(--faint); }
-
-  /* Live node strip */
-  .cluster { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 18px; min-width: 0; }
-  .cl-bar { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; }
-  .cl-name { font: 500 0.76rem var(--mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
-  .cl-split { font-family: var(--display); font-stretch: 118%; font-weight: 700; font-size: 1.5rem; font-variant-numeric: tabular-nums; }
-  .cl-mix { margin: 2px 0 14px; font-size: 0.86rem; color: var(--muted); min-height: 1.4em; }
-  .cl-nodes { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(9, minmax(0, 1fr)); gap: 6px; }
-  .node { position: relative; border-radius: 6px; border: 1px solid var(--chip-p-edge); background: var(--chip-p); color: var(--chip-p-fg);
-          padding: 7px 0 8px; display: grid; justify-items: center; gap: 6px; transition: background-color 0.6s ease, color 0.6s ease, border-color 0.6s ease, box-shadow 0.4s ease; }
-  .node.d { background: var(--chip-d); color: var(--chip-d-fg); border-color: var(--chip-d-edge); }
-  .node-role { font: 700 0.95rem var(--display); font-stretch: 110%; }
-  .node-gpus { display: grid; grid-template-columns: repeat(2, 8px); gap: 3px; }
-  .node-gpus i { width: 8px; height: 8px; border-radius: 2px; border: 1px solid currentColor; opacity: 0.55; }
-  .node.flip { box-shadow: 0 0 0 2px var(--accent), 0 0 22px var(--glow); }
-  @media (max-width: 520px) { .node-gpus { display: none; } .cl-nodes { gap: 4px; } }
-  .cl-pool { margin-top: 14px; border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; background: var(--panel-2); }
-  .pool-name { display: block; font: 500 0.72rem var(--mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
-  .pool-blocks { display: flex; flex-wrap: wrap; gap: 5px; }
-  .kv { width: 22px; height: 22px; border-radius: 4px; display: grid; place-items: center; font: 600 0.72rem var(--mono);
-        background: var(--chip-d); color: var(--chip-d-fg); border: 1px solid var(--chip-d-edge); }
-  .kv.hot { background: var(--accent); border-color: var(--accent); color: #ffffff; }
-  .kv.zero { background: transparent; color: var(--faint); border: 1px dashed var(--faint); }
-  .cl-note { margin: 12px 0 0; font-size: 0.86rem; color: var(--muted); min-height: 2.9em; }
-  .cl-note b { color: var(--fg); font-weight: 600; }
-
-  /* Stat callouts */
-  .stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-top: 40px; }
-  @media (max-width: 860px) { .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-  .stat { border: 1px solid var(--line); border-radius: 10px; background: var(--panel); padding: 16px 18px; min-width: 0; }
-  .stat b { display: block; font-family: var(--display); font-stretch: 112%; font-weight: 800; font-size: clamp(1.9rem, 4vw, 2.6rem);
-            line-height: 1.05; color: var(--accent); font-variant-numeric: tabular-nums; }
-  .stat span { display: block; margin-top: 6px; font-size: 0.9rem; line-height: 1.4; }
-  .stat small { display: block; margin-top: 4px; color: var(--muted); font-size: 0.78rem; }
-  .stats-note { margin: 10px 0 0; color: var(--muted); font-size: 0.82rem; }
-
-  /* Sections */
-  section.band { padding-block: 72px; border-top: 1px solid var(--line); scroll-margin-top: 56px; }
-  .sec-head { margin-bottom: 26px; }
-  .sec-head h2 { font-family: var(--display); font-stretch: 115%; font-weight: 750; font-size: clamp(1.7rem, 3.6vw, 2.35rem); line-height: 1.12;
-                 margin: 0; text-wrap: balance; }
-  .sec-head p:not(.eyebrow) { margin: 14px 0 0; color: var(--muted); font-size: 1.04rem; }
-  .sub { margin-top: 56px; scroll-margin-top: 64px; }
-  .sub h3 { font-family: var(--display); font-stretch: 112%; font-weight: 700; font-size: 1.32rem; margin: 0 0 6px; text-wrap: balance;
-            display: flex; gap: 12px; align-items: baseline; }
-  .sub h3 .num { font: 600 0.82rem var(--mono); color: var(--accent); letter-spacing: 0.06em; }
-  .sub > p { margin: 0 0 18px; color: var(--muted); }
-  .prose p { margin: 0 0 14px; }
-  .prose p:last-child { margin-bottom: 0; }
-
-  /* Tabs (ThunderAgent-style panels) */
-  .tabs { min-width: 0; }
-  .tablist { display: flex; overflow-x: auto; border-bottom: 1px solid var(--line); scrollbar-width: thin; }
-  .tab { flex: 1 0 auto; background: none; border: 0; border-bottom: 2px solid transparent; margin-bottom: -1px; padding: 14px 18px;
-         color: var(--muted); font: 650 0.98rem var(--display); font-stretch: 110%; letter-spacing: 0.02em; text-transform: uppercase; cursor: pointer; white-space: nowrap; }
-  .tab:hover { color: var(--fg); }
-  .tab[aria-selected="true"] { color: var(--fg); border-bottom-color: var(--accent); background: var(--panel); }
-  .panel { background: var(--panel); border: 1px solid var(--line); border-top: 0; border-radius: 0 0 10px 10px; padding: 26px; min-width: 0; }
-  @media (max-width: 600px) { .panel { padding: 18px 14px; } .tablist { flex-wrap: wrap; overflow-x: visible; }
-    .tab { flex: 1 1 auto; padding: 12px 12px; font-size: 0.86rem; } }
-  .panel h4 { font-family: var(--display); font-stretch: 108%; font-weight: 700; font-size: 1.12rem; margin: 0 0 10px; text-wrap: balance; }
-  .panel-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 28px; align-items: start; }
-  @media (max-width: 860px) { .panel-grid { grid-template-columns: minmax(0, 1fr); } }
-  .points { margin: 0; padding-left: 1.15em; display: grid; gap: 8px; }
-  .points li::marker { color: var(--accent); }
-  .muted { color: var(--muted); }
-  .small { font-size: 0.86rem; }
-  .num { font-family: var(--mono); font-variant-numeric: tabular-nums; }
-
-  /* Video */
-  .video { display: block; width: 100%; max-width: 100%; aspect-ratio: 16 / 9; background: #000000; border-radius: 8px; border: 1px solid var(--line); }
-  .demo-stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin-top: 16px; }
-  @media (max-width: 860px) { .demo-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-  @media (max-width: 520px) { .demo-stats { grid-template-columns: minmax(0, 1fr); } }
-  .dstat { border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; background: var(--panel-2); min-width: 0; }
-  .dstat b { display: block; font: 600 1.12rem var(--mono); font-variant-numeric: tabular-nums; }
-  .dstat b em { font-style: normal; color: var(--accent); }
-  .dstat span { display: block; color: var(--muted); font-size: 0.82rem; margin-top: 2px; }
-  .dstat strong { display: block; margin-top: 4px; font: 600 0.8rem var(--mono); color: var(--accent); }
-  .legend-row { display: flex; flex-wrap: wrap; gap: 6px 16px; margin: 14px 0 0; font-size: 0.86rem; color: var(--muted); }
-  .legend-row span { display: inline-flex; align-items: center; gap: 6px; }
-  .vi { width: 18px; height: 18px; fill: currentColor; flex: none; }
-  .sw { width: 12px; height: 12px; border-radius: 2px; display: inline-block; border: 1px solid rgba(128, 128, 128, 0.55); }
-
-  /* Native bar charts */
-  .hbars { display: grid; gap: 22px; }
-  .hb-head { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; flex-wrap: wrap; margin-bottom: 8px; }
-  .hb-title { font-weight: 600; font-size: 0.95rem; }
-  .hb-ratio { font: 600 0.84rem var(--mono); color: var(--accent); }
-  .hb-row { display: grid; grid-template-columns: 10.5rem minmax(0, 1fr) 4.6rem; align-items: center; gap: 10px; margin-top: 6px; }
-  @media (max-width: 600px) { .hb-row { grid-template-columns: 7.2rem minmax(0, 1fr) 4.2rem; gap: 8px; } }
-  .hb-label { color: var(--muted); font-size: 0.84rem; line-height: 1.25; }
-  .hb-label.ours { color: var(--fg); font-weight: 600; }
-  .hb-track { height: 18px; background: var(--track); border-radius: 3px; overflow: hidden; }
-  .hb-fill { display: block; height: 100%; width: calc(var(--v) * 100%); background: var(--dyn); border-radius: 3px; }
-  .hb-fill.static { background: var(--static); }
-  .hb-fill.ours { background: var(--ours); }
-  .hb-val { font: 500 0.84rem var(--mono); font-variant-numeric: tabular-nums; text-align: right; }
-  .hb-note { margin: 10px 0 0; color: var(--muted); font-size: 0.82rem; }
-
-  /* Tables */
-  .table-scroll { overflow-x: auto; }
-  table.data { width: 100%; border-collapse: collapse; font-size: 0.92rem; }
-  table.data th, table.data td { padding: 10px 12px; border-bottom: 1px solid var(--line); text-align: right; }
-  table.data td:not(:first-child) { white-space: nowrap; }
-  @media (max-width: 600px) { table.data { font-size: 0.84rem; } table.data th, table.data td { padding: 8px 6px; } }
-  table.data th:first-child, table.data td:first-child { text-align: left; }
-  table.data thead th { font: 500 0.74rem var(--mono); letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
-  table.data td { font-family: var(--mono); font-variant-numeric: tabular-nums; }
-  table.data td:first-child { font-family: var(--body); }
-  table.data tr.ours td { background: var(--accent-tint); font-weight: 600; }
-  table.data tr.ours td:first-child { color: var(--accent); }
-
-  /* Split strips */
-  .splits { display: grid; gap: 12px; }
-  .split-row { display: grid; grid-template-columns: 8.4rem auto 3.4rem minmax(0, 1fr) 4.8rem; align-items: center; gap: 10px; }
-  @media (max-width: 640px) {
-    .split-row { grid-template-columns: auto minmax(0, 1fr) auto; grid-template-areas: "name name val" "strip split split"; row-gap: 6px; }
-    .split-row .sr-name { grid-area: name; } .split-row .strip { grid-area: strip; } .split-row .sr-split { grid-area: split; }
-    .split-row .hb-track { display: none; } .split-row .hb-val { grid-area: val; white-space: nowrap; }
-  }
-  .sr-name { font-size: 0.86rem; color: var(--muted); }
-  .sr-name.ours { color: var(--fg); font-weight: 600; }
-  .strip { display: grid; grid-template-columns: repeat(9, 9px); gap: 2px; }
-  .strip i { height: 18px; border-radius: 2px; background: var(--chip-p); border: 1px solid var(--chip-p-edge); }
-  .strip i.d { background: var(--chip-d); border-color: var(--chip-d-edge); }
-  .sr-split { font: 600 0.84rem var(--mono); }
-
-  /* Figure plates: paper figures keep their white page in both themes */
-  .plate { margin: 0; background: var(--plate); color: var(--plate-ink); border: 1px solid var(--plate-edge); border-radius: 10px; padding: 16px; min-width: 0; }
-  .plate img { display: block; width: 100%; height: auto; }
-  .plate figcaption, .figcap { margin-top: 10px; font-size: 0.84rem; line-height: 1.5; color: var(--plate-muted); }
-  .figcap { color: var(--muted); }
-  .plate .lg { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px 18px; font-size: 0.82rem; color: var(--plate-ink); margin-bottom: 10px; }
-  .plate .lg span { display: inline-flex; align-items: center; gap: 6px; }
-  .plate .lg .box { width: 12px; height: 12px; border-radius: 2px; display: inline-block; border: 1px solid rgba(0, 0, 0, 0.35); }
-  .plate img.arch { max-width: 920px; margin-inline: auto; }
-  .trio { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
-  @media (max-width: 860px) { .trio { grid-template-columns: minmax(0, 1fr); } .trio .plate { max-width: 460px; } }
-  .trio .plate figcaption b { color: var(--plate-ink); }
-  /* Columns keep the SVG width ratio, so panels in the same row get the same height. */
-  .eval-cols { display: flex; gap: 10px; }
-  .eval-col { flex: 139.68 1 0; min-width: 0; }
-  .eval-col.wide { flex: 169.92 1 0; }
-  .eval-col .colhead { height: 2.7em; display: flex; align-items: flex-end; justify-content: center; text-align: center;
-                       font-weight: 600; font-size: 0.84rem; line-height: 1.3; color: var(--plate-ink); padding: 0 0 4px 8%; }
-  .eval-col.wide .colhead { padding-left: 22%; }
-  .eval-col .rowlab { display: none; font-size: 0.76rem; color: var(--plate-muted); margin: 8px 0 2px; }
-  @media (max-width: 640px) {
-    .eval-cols { flex-direction: column; gap: 20px; }
-    .eval-col, .eval-col.wide { flex: none; width: 100%; }
-    .eval-col .colhead, .eval-col.wide .colhead { height: auto; justify-content: flex-start; padding: 0; font-size: 0.9rem; }
-    .eval-col .rowlab { display: block; }
-  }
-  .dir-grid { display: grid; grid-template-columns: 98fr 143fr 98fr 98fr; gap: 16px; align-items: start; }
-  .dir-grid figure { margin: 0; }
-  .dir-grid figcaption { text-align: center; margin-top: 6px; font-size: 0.8rem; color: var(--plate-ink); }
-  @media (max-width: 640px) { .dir-grid { grid-template-columns: minmax(0, 1fr); justify-items: center; gap: 18px; }
-    .dir-grid figure { width: 100%; max-width: 210px; } .dir-grid figure:nth-child(2) { max-width: 100%; } }
-  .dir-key { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px 16px; font-size: 0.8rem; color: var(--plate-ink); margin-bottom: 14px; }
-  .dir-key span { display: inline-flex; align-items: center; gap: 6px; }
-  .dir-key .blk { width: 18px; height: 11px; border-radius: 2px; border: 1px solid #1a1a1a; display: inline-block; }
-  .narrow-plate { max-width: 420px; }
-
-  /* Cards */
-  .cards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin-top: 18px; }
-  @media (max-width: 860px) { .cards { grid-template-columns: minmax(0, 1fr); } }
-  .card { border: 1px solid var(--line); border-radius: 10px; background: var(--panel); padding: 18px; min-width: 0; }
-  .card .tag { font: 600 0.72rem var(--mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); }
-  .card h4 { font-family: var(--display); font-stretch: 108%; font-weight: 700; font-size: 1.1rem; margin: 6px 0 8px; }
-  .card p { margin: 0; color: var(--muted); font-size: 0.93rem; }
-
-  /* Math */
-  .math { margin: 14px 0; padding: 12px 16px; border-left: 0; border-radius: 8px; background: var(--panel-2); border: 1px solid var(--line); overflow-x: auto; }
-  .math.inline { display: inline; padding: 0; margin: 0; background: none; border: 0; }
-  .math code, .math.raw { font: 500 0.86rem var(--mono); color: var(--muted); }
-  math { font-size: 1.12em; }
-  @media (max-width: 600px) { math { font-size: 1em; } .math { padding: 10px 12px; } }
-  .math math[display="block"] { margin: 0; }
-  /* Multi-line formulas: Chromium ignores MathML columnalign, so align the cells with CSS. */
-  .math mtd { padding-left: 0; padding-right: 0; }
-  .math mtd:nth-child(odd) { text-align: right; }
-  .math mtd:nth-child(even) { text-align: left; }
-
-  /* Citation and footer */
-  .cite-box { border: 1px dashed var(--faint); border-radius: 10px; padding: 18px 20px; background: var(--panel); }
-  .cite-box p { margin: 0 0 10px; }
-  .cite-box p:last-child { margin: 0; }
-  footer { border-top: 1px solid var(--line); padding-block: 28px 40px; }
-  footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; align-items: center; color: var(--muted); font-size: 0.86rem; }
-
-  /* Right-side table of contents (wide screens only) */
-  .toc { position: fixed; top: 50%; transform: translateY(-50%); right: max(16px, env(safe-area-inset-right, 0px)); width: 168px; z-index: 10; display: none; }
-  @media (min-width: 1480px) { .toc { display: block; } }
-  .toc a { display: flex; align-items: center; gap: 10px; padding: 6px 0; color: var(--faint); text-decoration: none; font: 500 0.76rem var(--mono); letter-spacing: 0.04em; }
-  .toc a::before { content: ""; width: 7px; height: 7px; border-radius: 50%; border: 1px solid currentColor; flex: none; }
-  .toc a.sub-item { padding-left: 14px; font-size: 0.72rem; }
-  .toc a:hover { color: var(--fg); }
-  .toc a.active { color: var(--accent); }
-  .toc a.active::before { background: var(--accent); box-shadow: 0 0 10px var(--glow); }
-
-  @media (prefers-reduced-motion: reduce) { .node { transition: none; } }
-</style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0b0c0e">
+  <title>Evolving Infra — Infrastructure that moves with your agents</title>
+  <meta name="description" content="Agents evolve. Infrastructure should, too. Evolving Infra unlocks the freedom to adapt compute and KV cache management to changing agent workloads.">
+  <meta property="og:title" content="Evolving Infra — Let infrastructure evolve.">
+  <meta property="og:description" content="Same hardware. More freedom. Watch 126 coding agents finish more than twice as many sessions on the same 36 GB300 GPUs.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://inference-rsi.com/">
+  <meta property="og:image" content="https://inference-rsi.com/media/poster-dark.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="canonical" href="https://inference-rsi.com/">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="site.css">
+  <script src="js/site.js" defer></script>
+  <script src="js/hero.js" defer></script>
 </head>
 <body>
-<nav class="nav" aria-label="Page">
-  <div class="wrap">
-    <a class="brand" href="#top"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span><span class="brand-name">Evolving Infra</span></a>
-    <div class="nav-links">
-      <a href="#results">Results</a>
-      <a href="#architecture">Architecture</a>
-      <a href="#challenges">Challenges</a>
-      <a href="#design">Design</a>
-      <a href="#citation">Cite</a>
-      <button class="theme-btn" id="theme-btn" type="button" aria-label="Switch between dark and light theme">Theme</button>
-    </div>
-  </div>
-</nav>
-
-<header class="hero" id="top">
-  <div class="wrap">
-    <div class="hero-grid">
-      <div>
-        <p class="eyebrow">Agent-adaptive LLM serving</p>
-        <h1 class="wordmark"><span>Evolving</span><span class="hot">Infra</span></h1>
-        <p class="lede">A serving system that adapts to agent workload at runtime.</p>
-        <p class="authors">
-          <span class="au">Hao Kang<sup>1*</sup></span>, <span class="au">Weili Xu<sup>2*</sup></span>, <span class="au">Ziyang Li<sup>*</sup></span>,
-          <span class="au">Zheng Du<sup>1*</sup></span>, <span class="au">Hanchen Li<sup>3</sup></span>, <span class="au">Tian Xia<sup>3</sup></span>,
-          <span class="au">Song Bian<sup>4</sup></span>, <span class="au">Tushar Krishna<sup>1</sup></span>, <span class="au">Huizi Mao<sup>5</sup></span>,
-          <span class="au">Ion Stoica<sup>3</sup></span>, <span class="au">Song Han<sup>6</sup></span>
-        </p>
-        <p class="affils"><sup>1</sup>Georgia Institute of Technology · <sup>2</sup>University of Illinois Urbana-Champaign · <sup>3</sup>University of California, Berkeley · <sup>4</sup>NVIDIA · <sup>5</sup>OpenAI · <sup>6</sup>Massachusetts Institute of Technology · <sup>*</sup>Equal contribution</p>
-        <div class="cta">
-          <a class="btn primary" href="#results">Watch the demo</a>
-          <span class="btn soon" aria-disabled="true">Paper <small>arXiv soon</small></span>
-          <a class="btn" href="#citation">Cite</a>
+  <a class="skip-link" href="#demo">Skip to the demo</a>
+  <header class="site-header">
+    <a class="brand" href="#hero" aria-label="Evolving Infra home"><span class="brand-symbol" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span><span>EVOLVING INFRA</span></a>
+    <button class="menu-toggle" id="menu-toggle" type="button" aria-expanded="false" aria-controls="nav-links">Menu <span aria-hidden="true">＋</span></button>
+    <nav class="nav-links" id="nav-links" aria-label="Main navigation">
+      <a href="#demo">Watch the demo</a><a href="#why-evolve">The idea</a>
+      <button type="button" data-release="paper">Tech report <span aria-hidden="true">↗</span></button>
+      <button class="nav-code" type="button" data-release="code">Code <span aria-hidden="true">↗</span></button>
+    </nav>
+  </header>
+  <main>
+    <section class="hero" id="hero" data-mode="rigid" aria-labelledby="hero-heading">
+      <div class="hero-glow" aria-hidden="true"></div>
+      <div class="hero-inner wrap">
+        <div class="hero-copy">
+          <div id="hero-before">
+            <p class="eyebrow"><span class="status-dot" aria-hidden="true"></span> THE WORKLOAD KEEPS CHANGING</p>
+            <h1 class="hero-title" id="hero-heading">Agents evolve.<br><span>Infra should.</span></h1>
+            <p class="hero-description">Agents reason, code, act, and start new work.<br class="desktop-break"> Their infrastructure should move with them.</p>
+          </div>
+          <div id="hero-after" hidden>
+            <p class="eyebrow"><span class="status-dot" aria-hidden="true"></span> FREEDOM TO ADAPT</p>
+            <h1 class="hero-title evolved-title">Evolving<br><span>Infra.</span></h1>
+            <p class="hero-description">Same hardware. More freedom.<br>Infrastructure that adapts as agents work.</p>
+          </div>
+          <div class="hero-actions">
+            <button class="button button-primary evolve-trigger" id="evolve-trigger" type="button">Let it evolve <span aria-hidden="true">↗</span></button>
+            <a class="hero-demo-link" id="hero-demo-link" href="#demo">See the difference <span aria-hidden="true">↓</span></a>
+          </div>
+          <p class="hero-micro">Unlock the degrees of freedom.</p>
+          <p class="sr-only" id="hero-announcement" aria-live="polite"></p>
+        </div>
+        <div class="hero-scene">
+          <div class="scene-caption"><span>CHANGING WORKLOADS</span><span class="scene-caption-line" aria-hidden="true"></span><span>THE SAME HARDWARE</span></div>
+          <div class="canvas-shell"><canvas id="infra-canvas" role="img" aria-label="Concept animation: computer-use, math, coding, and proactive agents send different workloads to the same GPU nodes. Activate Evolving Infra to see compute roles and request routes adapt while KV remains available.">Evolving Infra lets the same GPU nodes switch between prefill and decode while preserving reusable context in shared memory.</canvas></div>
+          <div class="scene-footer"><p id="infra-status">Different demands. Limited freedom to adapt.</p><span>CONCEPT ILLUSTRATION</span></div>
         </div>
       </div>
+      <a class="scroll-cue" href="#demo"><span>SCROLL TO SEE IT WORK</span><span class="scroll-line" aria-hidden="true"></span></a>
+    </section>
 
-      <div class="cluster" id="cluster" role="img" aria-label="Nine GPU nodes, each serving prefill or decode. The prefill and decode split changes as nodes switch phase in place, while the shared host-memory KV pool keeps its blocks.">
-        <div class="cl-bar">
-          <span class="cl-name">36 GB300 GPUs · 9 nodes</span>
-          <span class="cl-split"><span id="cl-p">6</span>P · <span id="cl-d">3</span>D</span>
+    <section class="proof-section" id="demo" aria-labelledby="demo-heading">
+      <div class="wrap">
+        <div class="section-topline" data-reveal><span class="eyebrow">01 / SEE THE DIFFERENCE</span><span class="mono-note">SAME MODEL. SAME WORKLOAD. SAME GPUs.</span></div>
+        <div class="proof-heading" data-reveal><h2 id="demo-heading">Less waiting.<br><span class="accent-text">More work done.</span></h2><p>126 coding agents. 36 GB300 GPUs.<br>One hour of serving, side by side.</p></div>
+        <div class="demo-player" data-reveal>
+          <div class="player-top"><span><i class="record-dot" aria-hidden="true"></i> EXPERIMENT REPLAY</span><span>GLM-5.2 · CLAUDE CODE · 60× PLAYBACK</span></div>
+          <video id="demo-video" controls playsinline preload="none" poster="media/poster-dark.png" aria-label="Dynamo versus Evolving Infra serving 126 concurrent coding agents"><source src="media/evolving-infra-vs-dynamo-cc126-dark.mp4" type="video/mp4"><p>Your browser does not support this video. <a href="media/evolving-infra-vs-dynamo-cc126-dark.mp4">Download the demo.</a></p></video>
+          <div class="player-bottom"><span>Dynamo <span class="comparison-arrow" aria-hidden="true">→</span> Evolving Infra</span><span>Real traces. One shared comparison window.</span></div>
         </div>
-        <p class="cl-mix" id="cl-mix">Starting split in the paper's runs</p>
-        <ol class="cl-nodes" aria-hidden="true">
-          <li class="node"><span class="node-role">P</span><span class="node-gpus"><i></i><i></i><i></i><i></i></span></li>
-          <li class="node"><span class="node-role">P</span><span class="node-gpus"><i></i><i></i><i></i><i></i></span></li>
-          <li class="node"><span class="node-role">P</span><span class="node-gpus"><i></i><i></i><i></i><i></i></span></li>
-          <li class="node"><span class="node-role">P</span><span class="node-gpus"><i></i><i></i><i></i><i></i></span></li>
-          <li class="node"><span class="node-role">P</span><span class="node-gpus"><i></i><i></i><i></i><i></i></span></li>
-          <li class="node"><span class="node-role">P</span><span class="node-gpus"><i></i><i></i><i></i><i></i></span></li>
-          <li class="node d"><span class="node-role">D</span><span class="node-gpus"><i></i><i></i><i></i><i></i></span></li>
-          <li class="node d"><span class="node-role">D</span><span class="node-gpus"><i></i><i></i><i></i><i></i></span></li>
-          <li class="node d"><span class="node-role">D</span><span class="node-gpus"><i></i><i></i><i></i><i></i></span></li>
-        </ol>
-        <div class="cl-pool" aria-hidden="true">
-          <span class="pool-name">Shared host-memory KV pool · branches per block</span>
-          <span class="pool-blocks">
-            <span class="kv">4</span><span class="kv">4</span><span class="kv hot">3</span><span class="kv">3</span><span class="kv">3</span><span class="kv">2</span><span class="kv">2</span><span class="kv">2</span><span class="kv hot">2</span><span class="kv">1</span><span class="kv">1</span><span class="kv">1</span><span class="kv hot">1</span><span class="kv">1</span><span class="kv zero">0</span><span class="kv zero">0</span>
-          </span>
+        <div class="results" aria-label="Results from the demo runs" data-reveal>
+          <article class="result"><span class="result-number">4.2<span>×</span></span><h3>Lower mean<br>request latency</h3><p><span>54.4 s</span><i aria-hidden="true">→</i><strong>13.0 s</strong></p><span class="result-label">END-TO-END</span></article>
+          <article class="result"><span class="result-number">11.7<span>×</span></span><h3>Lower P95<br>time to first token</h3><p><span>228.4 s</span><i aria-hidden="true">→</i><strong>19.6 s</strong></p><span class="result-label">TAIL LATENCY</span></article>
+          <article class="result"><span class="result-number">2.25<span>×</span></span><h3>As many agent<br>sessions completed</h3><p><span>52</span><i aria-hidden="true">→</i><strong>117</strong></p><span class="result-label">IN ONE HOUR</span></article>
         </div>
-        <p class="cl-note" id="cl-note">P = prefill, D = decode. A phase switch changes only which requests the router sends to a node. Blocks marked <b>0</b> belong to no active agent branch and are evicted first.</p>
+        <p class="measurement-note">Compared with Dynamo in the demo runs: GLM-5.2, 126 concurrent Claude Code agents, and the same 36 GB300 GPUs. Scored over one hour after a 30-minute warmup. E2E measures individual LLM requests.</p>
+        <div class="try-row" data-reveal><div><span class="eyebrow">BUILD FOR WHAT COMES NEXT</span><p>Your agents are evolving.<br>Your infrastructure can, too.</p></div><div class="try-action"><button class="button button-primary button-large" type="button" data-release="code" aria-describedby="code-release-note">Try it!! <span aria-hidden="true">↗</span></button><span id="code-release-note">Open-source code coming soon</span></div></div>
       </div>
-    </div>
+    </section>
 
-    <div class="stats">
-      <div class="stat"><b>4.1×</b><span>lower mean end-to-end latency</span><small>vs Dynamo</small></div>
-      <div class="stat"><b>14×</b><span>lower P95 time to first token</span><small>vs Dynamo</small></div>
-      <div class="stat"><b>2.7×</b><span>higher throughput</span><small>vs Dynamo</small></div>
-      <div class="stat"><b>6.2 s</b><span>per phase switch, with no restart</span><small>Dynamo relaunch: 681 s</small></div>
-    </div>
-    <p class="stats-note">Evaluated across coding, math, and computer-use agents, serving GLM-5.2 and Kimi K2.6 on 36 GB300 GPUs.</p>
-  </div>
-</header>
-
-<main>
-  <section class="band" id="results">
-    <div class="wrap">
-      <div class="sec-head">
-        <p class="eyebrow">Section 1</p>
-        <h2>Fast, adaptive, and lossless</h2>
-        <p>We compare Evolving Infra with Dynamo on nine nodes of 4 GB300 GPUs each. Both systems start from 6 prefill and 3 decode nodes.</p>
-      </div>
-
-      <div class="tabs" data-tabs>
-        <div class="tablist" role="tablist" aria-label="Results">
-          <button class="tab" role="tab" id="t-demo" aria-controls="p-demo" aria-selected="true">Live demo</button>
-          <button class="tab" role="tab" id="t-fast" aria-controls="p-fast" aria-selected="false" tabindex="-1">Faster</button>
-          <button class="tab" role="tab" id="t-adapt" aria-controls="p-adapt" aria-selected="false" tabindex="-1">Adaptive</button>
-          <button class="tab" role="tab" id="t-lossless" aria-controls="p-lossless" aria-selected="false" tabindex="-1">Lossless switching</button>
+    <section class="idea-section" id="why-evolve" aria-labelledby="idea-heading">
+      <div class="wrap">
+        <div class="section-topline" data-reveal><span class="eyebrow">02 / THE IDEA</span><span class="mono-note">GIVE THE SYSTEM ROOM TO MOVE.</span></div>
+        <div class="idea-heading" data-reveal><h2 id="idea-heading">Freedom is the<br><span class="accent-text">first step.</span></h2><div><p class="lead">A system can only adapt along the dimensions it can change.</p><p>When compute roles, KV placement, and request routing are tightly coupled, adjusting one disrupts the others. Evolving Infra separates compute allocation from KV cache management, opening the space for runtime adaptation.</p></div></div>
+        <div class="freedom-visual" data-reveal role="img" aria-label="Compute roles can be reassigned independently while shared KV context remains available.">
+          <div class="freedom-row"><span class="rail-label">COMPUTE<br><small>Free to reassign</small></span><div class="role-rail"><span>P</span><span>P</span><span class="role-shift">P <i>↔</i> D</span><span>D</span><span>D</span></div><span class="rail-end">ADAPT</span></div>
+          <div class="freedom-divider"><span></span><strong>DECOUPLE</strong><span></span></div>
+          <div class="freedom-row"><span class="rail-label">CONTEXT<br><small>Kept accessible</small></span><div class="context-rail" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div><span class="rail-end">PRESERVE</span></div>
         </div>
-
-        <div class="panel" role="tabpanel" id="p-demo" aria-labelledby="t-demo">
-          <h4>Serving 126 coding agents concurrently</h4>
-          <video class="video" id="demo-video" controls muted playsinline preload="metadata" poster="media/poster-dark.png">
-            <source src="media/evolving-infra-vs-dynamo-cc126-dark.mp4" type="video/mp4">
-          </video>
-          <div class="legend-row" aria-label="Icons in the video">
-            <span><svg class="vi" style="color:var(--v-wait)" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 2.01L6 8.01L9.99 12L6 16.03L6 21.98L18 21.98L18 15.98L14.02 12L18 8.01L18 2.01L6 2.01ZM15.99 16.5L15.99 20.01L8.02 20.01L8.02 16.5L12 12.51L15.99 16.5Z"/></svg>waiting for the model</span>
-            <span><svg class="vi" style="color:var(--v-gen)" viewBox="0 0 24 24" aria-hidden="true"><path d="M18.99 9L20.25 6.23L23.02 5.01L20.25 3.75L18.99 0.98L17.77 3.75L15 5.01L17.77 6.23L18.99 9ZM11.49 9.51L9 3.98L6.52 9.51L0.99 12L6.52 14.48L9 20.01L11.49 14.48L17.02 12L11.49 9.51ZM18.99 15L17.77 17.76L15 18.98L17.77 20.25L18.99 23.01L20.25 20.25L23.02 18.98L20.25 17.76L18.99 15Z"/></svg>generating</span>
-            <span><svg class="vi" style="color:var(--v-tool)" viewBox="0 0 24 24" aria-hidden="true"><path d="M22.69 18.98Q23.02 19.17 22.99 19.62Q22.97 20.06 22.59 20.39L20.3 22.69Q19.59 23.39 18.89 22.69L9.8 13.59Q8.11 14.3 6.21 13.9Q4.31 13.5 2.91 12.09Q1.41 10.59 1.03 8.53Q0.66 6.47 1.59 4.69L6 9L9 6L4.69 1.69Q6.47 0.84 8.53 1.17Q10.59 1.5 12.09 3Q13.5 4.41 13.9 6.3Q14.3 8.2 13.59 9.89L22.69 18.98Z"/></svg>tool call or idle</span>
-            <span><svg class="vi" style="color:var(--v-done)" viewBox="0 0 24 24" aria-hidden="true"><path d="M9.99 17.01L18.99 8.01L17.58 6.56L9.99 14.16L6.42 10.59L5.02 12L9.99 17.01ZM4.95 4.95Q7.88 2.01 12 2.01Q16.12 2.01 19.05 4.95Q21.99 7.88 21.99 12Q21.99 16.12 19.05 19.05Q16.12 21.98 12 21.98Q7.88 21.98 4.95 19.05Q2.02 16.12 2.02 12Q2.02 7.88 4.95 4.95Z"/></svg>agent finished</span>
-          </div>
-          <div class="demo-stats">
-            <div class="dstat"><b>52 → <em>117</em></b><span>agents finished in 60 min</span><strong>2.25× more</strong></div>
-            <div class="dstat"><b>$460 → <em>$1,083</em></b><span>revenue in 60 min</span><strong>2.36× higher</strong></div>
-            <div class="dstat"><b>$0.060 → <em>$0.051</em></b><span>user cost per agent step</span><strong>15% lower</strong></div>
-            <div class="dstat"><b>228 s → <em>20 s</em></b><span>P95 time to first token</span><strong>11.7× lower</strong></div>
-          </div>
-          <p class="hb-note">Dynamo is on the left and Evolving Infra on the right. Both serve the same Claude Code workload with GLM-5.2 on the same 36 GB300 GPUs, and the video shows 60 minutes at 60× speed. Each window shows what its agent did for most of the last 30 seconds. The numbers above come from the two runs in the video. Revenue and user cost use the GLM-5.2 list price: $1.40 per 1M input tokens ($0.26 if cached) and $4.40 per 1M output tokens. User cost per agent step is revenue divided by completed LLM calls.</p>
+        <div class="mechanisms">
+          <article class="mechanism" data-reveal><span class="mechanism-index">01</span><h3>Unlock<br>the freedom.</h3><p>Symmetric engines let every node serve prefill or decode without a restart. A shared host-memory KV pool keeps reusable context accessible when compute roles change.</p><span class="mechanism-tag">DECOUPLED INFRASTRUCTURE</span></article>
+          <article class="mechanism" data-reveal><span class="mechanism-index">02</span><h3>Understand<br>the work.</h3><p>The planner learns prefill and decode costs online, accounting for cached context. It reallocates nodes when a workload shift persists, without offline profiling.</p><span class="mechanism-tag">WORKLOAD-AWARE PLANNING</span></article>
+          <article class="mechanism" data-reveal><span class="mechanism-index">03</span><h3>Move compute.<br>Keep context.</h3><p>The router balances load and fetches KV while requests wait. A branch-aware directory follows context changes, retaining useful KV and evicting unreferenced copies first.</p><span class="mechanism-tag">AGENT-AWARE KV MANAGEMENT</span></article>
         </div>
-
-        <div class="panel" role="tabpanel" id="p-fast" aria-labelledby="t-fast" hidden>
-          <div class="panel-grid">
-            <div>
-              <h4>Lower mean latency on every agent workload</h4>
-              <div class="hbars" role="img" aria-label="Claude Code with 90 concurrent agents. Mean end-to-end latency: Dynamo 32.2 seconds, Evolving Infra 7.87 seconds. P95 time to first token: Dynamo 142 seconds, Evolving Infra 10.2 seconds.">
-                <div>
-                  <div class="hb-head"><span class="hb-title">Mean end-to-end latency</span><span class="hb-ratio">4.1× lower</span></div>
-                  <div class="hb-row"><span class="hb-label">Dynamo</span><span class="hb-track"><span class="hb-fill" style="--v:1"></span></span><span class="hb-val">32.2 s</span></div>
-                  <div class="hb-row"><span class="hb-label ours">Evolving Infra</span><span class="hb-track"><span class="hb-fill ours" style="--v:0.244"></span></span><span class="hb-val">7.87 s</span></div>
-                </div>
-                <div>
-                  <div class="hb-head"><span class="hb-title">P95 time to first token</span><span class="hb-ratio">14× lower</span></div>
-                  <div class="hb-row"><span class="hb-label">Dynamo</span><span class="hb-track"><span class="hb-fill" style="--v:1"></span></span><span class="hb-val">142 s</span></div>
-                  <div class="hb-row"><span class="hb-label ours">Evolving Infra</span><span class="hb-track"><span class="hb-fill ours" style="--v:0.072"></span></span><span class="hb-val">10.2 s</span></div>
-                </div>
-              </div>
-              <p class="hb-note">Claude Code traces with 90 concurrent agents, GLM-5.2.</p>
+        <details class="technical-detail" id="architecture"><summary><span><span class="detail-index">A</span> See the architecture</span><span class="detail-plus" aria-hidden="true">+</span></summary><div class="detail-content"><p>One router assigns prefill and decode work to symmetric engines. The host memory of all nodes forms a shared KV pool, and a cluster-wide directory tracks the active branches that reference each copy.</p><figure class="paper-figure architecture-figure"><img src="fig/arch.svg" alt="Evolving Infra architecture: compute roles change independently of a shared host-memory KV pool, whose blocks record active branch references." loading="lazy"><figcaption>Dashed arrows: compute adaptation. Solid arrows: KV movement. Cached state remains accessible across phase changes.</figcaption></figure></div></details>
+        <details class="technical-detail" id="evidence">
+          <summary><span><span class="detail-index">B</span> Explore the evidence</span><span class="detail-plus" aria-hidden="true">+</span></summary>
+          <div class="detail-content">
+            <div class="evidence-heading"><h3>When the agent mix shifts,<br>the system follows.</h3><p>Across a three-hour shift from math to computer-use agents, Evolving Infra reaches 2.1× Dynamo’s throughput and 28% more than the best static split.</p></div>
+            <figure class="paper-figure"><img src="fig/eval-shift-split.svg" alt="Over 180 minutes, Evolving Infra adapts the prefill/decode split as the workload shifts from Putnam to OSWorld." loading="lazy"><figcaption>Putnam → mixed → OSWorld, Kimi K2.6 on 36 GB300 GPUs. Best static and per-window reference splits are profiled under SGLang.</figcaption></figure>
+            <div class="evidence-heading"><h3>Across coding, math,<br>and computer use.</h3><p>In the paper’s stationary benchmarks, mean request latency improves by up to 4.1× and P95 TTFT by up to 14× over Dynamo. These are separate benchmark runs from the demo above.</p></div>
+            <div class="benchmark-grid">
+              <figure class="paper-figure"><h4>Putnam · GLM-5.2</h4><img src="fig/eval-single-putnam-e2e.svg" alt="Mean end-to-end request latency on Putnam at 224, 256, and 288 concurrent agents." loading="lazy"><img src="fig/eval-single-putnam-ttft.svg" alt="P95 TTFT on Putnam, including settings where Evolving Infra prioritizes decode throughput at the cost of higher TTFT." loading="lazy"></figure>
+              <figure class="paper-figure"><h4>Claude Code · GLM-5.2</h4><img src="fig/eval-single-cc-e2e.svg" alt="Mean end-to-end request latency on Claude Code at 90, 108, and 126 agents." loading="lazy"><img src="fig/eval-single-cc-ttft.svg" alt="P95 TTFT on Claude Code, with a maximum reduction of about 14 times." loading="lazy"></figure>
+              <figure class="paper-figure"><h4>OSWorld · Kimi K2.6</h4><img src="fig/eval-single-osworld-e2e.svg" alt="Mean end-to-end request latency on OSWorld at 128, 144, and 160 agents." loading="lazy"><img src="fig/eval-single-osworld-ttft.svg" alt="P95 TTFT on OSWorld." loading="lazy"></figure>
             </div>
-            <div>
-              <h4>Across all three workloads, vs Dynamo</h4>
-              <ul class="points">
-                <li><span class="num">1.10–2.73×</span> the throughput.</li>
-                <li>Mean end-to-end latency <span class="num">3.80–4.12×</span> lower on Claude Code, <span class="num">2.34–2.69×</span> on OSWorld, and <span class="num">1.15–1.23×</span> on Putnam.</li>
-                <li>P95 time to first token <span class="num">3.25–13.92×</span> lower on Claude Code and OSWorld.</li>
-                <li><span class="num">81–95%</span> less lost KV reuse.</li>
-                <li>On the decode-heavy Putnam workload, the planner keeps only one or two prefill nodes. This raises P95 time to first token at 224 and 288 agents, and lowers the mean end-to-end latency.</li>
-              </ul>
-            </div>
+            <p class="evidence-note">Gray: Dynamo. Red: Evolving Infra. Upper panels show mean request E2E, lower panels P95 TTFT. The planner can trade TTFT for decode throughput: Putnam has higher P95 TTFT at 224 and 288 agents while mean request latency improves.</p>
           </div>
-          <figure class="plate" style="margin-top:26px">
-            <div class="lg"><span><i class="box" style="background:var(--fig-dyn)"></i>Dynamo</span><span><i class="box" style="background:var(--fig-ours)"></i>Evolving Infra (ours)</span></div>
-            <div class="eval-cols">
-              <div class="eval-col wide">
-                <div class="colhead">Putnam · GLM-5.2</div>
-                <span class="rowlab">Lost KV reuse (%)</span><img src="fig/eval-single-putnam-reuse.svg" alt="Putnam: lost KV reuse in percent, Dynamo against Evolving Infra at 224, 256 and 288 agents" loading="lazy">
-                <span class="rowlab">Mean end-to-end latency (s)</span><img src="fig/eval-single-putnam-e2e.svg" alt="Putnam: mean end-to-end latency in seconds" loading="lazy">
-                <span class="rowlab">P95 time to first token (s)</span><img src="fig/eval-single-putnam-ttft.svg" alt="Putnam: P95 time to first token in seconds" loading="lazy">
-              </div>
-              <div class="eval-col">
-                <div class="colhead">Claude Code · GLM-5.2</div>
-                <span class="rowlab">Lost KV reuse (%)</span><img src="fig/eval-single-cc-reuse.svg" alt="Claude Code: lost KV reuse in percent at 90, 108 and 126 agents" loading="lazy">
-                <span class="rowlab">Mean end-to-end latency (s)</span><img src="fig/eval-single-cc-e2e.svg" alt="Claude Code: mean end-to-end latency, Dynamo 32.2, 37.7 and 54.4 seconds against 7.87, 9.91 and 13.2 seconds" loading="lazy">
-                <span class="rowlab">P95 time to first token (s)</span><img src="fig/eval-single-cc-ttft.svg" alt="Claude Code: P95 time to first token, Dynamo 142, 117 and 228 seconds against 10.2, 13.6 and 21.4 seconds" loading="lazy">
-              </div>
-              <div class="eval-col">
-                <div class="colhead">OSWorld · Kimi K2.6</div>
-                <span class="rowlab">Lost KV reuse (%)</span><img src="fig/eval-single-osworld-reuse.svg" alt="OSWorld: lost KV reuse in percent at 128, 144 and 160 agents" loading="lazy">
-                <span class="rowlab">Mean end-to-end latency (s)</span><img src="fig/eval-single-osworld-e2e.svg" alt="OSWorld: mean end-to-end latency in seconds" loading="lazy">
-                <span class="rowlab">P95 time to first token (s)</span><img src="fig/eval-single-osworld-ttft.svg" alt="OSWorld: P95 time to first token in seconds" loading="lazy">
-              </div>
-            </div>
-            <figcaption>For each workload, from top to bottom: lost KV reuse (%), mean end-to-end latency (s), and P95 time to first token (s) at three concurrency levels. Lost KV reuse is 1 − h/h*, where h is the KV hit rate and h* is the hit rate with an unlimited KV cache shared by all nodes and no phase switch. In each panel, an arrow marks the largest gap.</figcaption>
-          </figure>
-        </div>
-
-        <div class="panel" role="tabpanel" id="p-adapt" aria-labelledby="t-adapt" hidden>
-          <div class="panel-grid">
-            <div>
-              <h4>Follows a shifting agent mix</h4>
-              <div class="prose">
-                <p>The cluster serves 288 Putnam math agents for one hour, then 144 Putnam and 72 OSWorld agents, then 144 OSWorld computer-use agents. Demand moves toward prefill. The model is Kimi K2.6.</p>
-                <p>Evolving Infra tracks the best split of each 10-minute window and settles at 8P1D in the OSWorld phase. The Dynamo planner keeps fewer prefill nodes than the best split for most of the run. Evolving Infra reaches <span class="num">2.1×</span> the throughput of Dynamo and <span class="num">28%</span> more than the best static split.</p>
-              </div>
-            </div>
-            <div class="hbars" role="img" aria-label="Shifting agent mix. Mean end-to-end latency: Dynamo 83.1 seconds, best static split 5P4D 51.5 seconds, Evolving Infra 38.7 seconds. P95 time to first token: Dynamo 130 seconds, best static 68.4 seconds, Evolving Infra 36.3 seconds.">
-              <div>
-                <div class="hb-head"><span class="hb-title">Mean end-to-end latency</span><span class="hb-ratio">2.15× · 1.33× lower</span></div>
-                <div class="hb-row"><span class="hb-label">Dynamo</span><span class="hb-track"><span class="hb-fill" style="--v:1"></span></span><span class="hb-val">83.1 s</span></div>
-                <div class="hb-row"><span class="hb-label">Best static (5P4D)</span><span class="hb-track"><span class="hb-fill static" style="--v:0.620"></span></span><span class="hb-val">51.5 s</span></div>
-                <div class="hb-row"><span class="hb-label ours">Evolving Infra</span><span class="hb-track"><span class="hb-fill ours" style="--v:0.466"></span></span><span class="hb-val">38.7 s</span></div>
-              </div>
-              <div>
-                <div class="hb-head"><span class="hb-title">P95 time to first token</span><span class="hb-ratio">3.58× · 1.88× lower</span></div>
-                <div class="hb-row"><span class="hb-label">Dynamo</span><span class="hb-track"><span class="hb-fill" style="--v:1"></span></span><span class="hb-val">130 s</span></div>
-                <div class="hb-row"><span class="hb-label">Best static (5P4D)</span><span class="hb-track"><span class="hb-fill static" style="--v:0.526"></span></span><span class="hb-val">68.4 s</span></div>
-                <div class="hb-row"><span class="hb-label ours">Evolving Infra</span><span class="hb-track"><span class="hb-fill ours" style="--v:0.279"></span></span><span class="hb-val">36.3 s</span></div>
-              </div>
-              <p class="hb-note">Ratios compare Evolving Infra with Dynamo and with the best static split, over the whole three-hour run.</p>
-            </div>
-          </div>
-          <figure class="plate" style="margin-top:24px; max-width:760px">
-            <div class="lg">
-              <span><svg width="26" height="10" aria-hidden="true"><line x1="0" y1="5" x2="26" y2="5" stroke="#000000" stroke-width="3.2"/></svg>Best split per 10 min</span>
-              <span><svg width="26" height="10" aria-hidden="true"><line x1="0" y1="5" x2="26" y2="5" stroke="#000000" stroke-width="2" stroke-dasharray="5 3"/></svg>Best static (5P4D)</span>
-              <span><svg width="26" height="10" aria-hidden="true"><line x1="0" y1="5" x2="26" y2="5" stroke="#8c8c8c" stroke-width="2"/></svg>Dynamo</span>
-              <span><svg width="26" height="10" aria-hidden="true"><line x1="0" y1="5" x2="26" y2="5" stroke="#a31f34" stroke-width="2.4"/></svg>Evolving Infra (ours)</span>
-            </div>
-            <img src="fig/eval-shift-split.svg" alt="Prefill and decode split over 180 minutes. The best split moves from 3P6D to 7P2D; Evolving Infra follows it up to 8P1D; Dynamo stays between 1P8D and 4P5D for most of the run." loading="lazy">
-            <figcaption>The split of each system over time. The best split per window and the best static split are profiled under SGLang. The Dynamo line is dotted while one of its nodes relaunches and only eight nodes serve requests.</figcaption>
-          </figure>
-        </div>
-
-        <div class="panel" role="tabpanel" id="p-lossless" aria-labelledby="t-lossless" hidden>
-          <div class="panel-grid">
-            <div>
-              <h4>Phase switches cost almost nothing</h4>
-              <ul class="points">
-                <li>A phase switch takes <span class="num">6.2 s</span> on average, over 100× shorter than a Dynamo relaunch, and the switching node keeps its KV.</li>
-                <li>Evolving Infra switches <span class="num">2.0</span> times per run. The Dynamo planner switches <span class="num">3.6</span> times and is off the best static split for <span class="num">41–100%</span> of the measured hour.</li>
-                <li>No offline profiling. Profiling the three-hour Claude Code trace on 256 GPUs would take <span class="num">10,752</span> GPU-hours, even with a binary search, and must be repeated for each agent workload.</li>
-                <li>Under open-loop arrivals, the planner gives prefill more nodes as agents arrive faster and sustains twice the arrival rate of the best static split.</li>
-              </ul>
-            </div>
-            <div class="hbars" role="img" aria-label="Claude Code with 126 agents. Mean end-to-end latency from four initial splits: 3P6D 11.2 seconds, 4P5D 11.3, 5P4D 11.4, 6P3D 11.4. Throughput at split 4P5D: best static SGLang 4.57 requests per second, Evolving Infra without phase-split adaptation 6.27, Evolving Infra 6.25.">
-              <div>
-                <div class="hb-head"><span class="hb-title">Mean E2E latency by initial split</span><span class="hb-ratio">within 1.8%</span></div>
-                <div class="hb-row"><span class="hb-label">Start at 3P6D</span><span class="hb-track"><span class="hb-fill ours" style="--v:0.982"></span></span><span class="hb-val">11.2 s</span></div>
-                <div class="hb-row"><span class="hb-label">Start at 4P5D</span><span class="hb-track"><span class="hb-fill ours" style="--v:0.991"></span></span><span class="hb-val">11.3 s</span></div>
-                <div class="hb-row"><span class="hb-label">Start at 5P4D</span><span class="hb-track"><span class="hb-fill ours" style="--v:1"></span></span><span class="hb-val">11.4 s</span></div>
-                <div class="hb-row"><span class="hb-label">Start at 6P3D</span><span class="hb-track"><span class="hb-fill ours" style="--v:1"></span></span><span class="hb-val">11.4 s</span></div>
-              </div>
-              <div>
-                <div class="hb-head"><span class="hb-title">Throughput at the best static split, 4P5D</span><span class="hb-ratio">1.37×</span></div>
-                <div class="hb-row"><span class="hb-label">SGLang, static</span><span class="hb-track"><span class="hb-fill static" style="--v:0.729"></span></span><span class="hb-val">4.57/s</span></div>
-                <div class="hb-row"><span class="hb-label">Ours, fixed split</span><span class="hb-track"><span class="hb-fill" style="--v:1"></span></span><span class="hb-val">6.27/s</span></div>
-                <div class="hb-row"><span class="hb-label ours">Evolving Infra</span><span class="hb-track"><span class="hb-fill ours" style="--v:0.997"></span></span><span class="hb-val">6.25/s</span></div>
-              </div>
-              <p class="hb-note">Claude Code with 126 agents. All four starts converge to 4P5D. At a fixed split, the infrastructure and KV-reuse-aware routing and eviction give 1.37× the throughput of SGLang; asynchronous KV fetching alone gives 1.12×. Turning on online phase-split adaptation changes throughput by 0.3%.</p>
-            </div>
-          </div>
-        </div>
+        </details>
       </div>
-    </div>
-  </section>
-
-  <section class="band" id="architecture">
-    <div class="wrap">
-      <div class="sec-head">
-        <p class="eyebrow">Section 2</p>
-        <h2>Architecture overview</h2>
-        <p>Evolving Infra separates where computation runs from where KV lives. One router sends prefill and decode requests to symmetric engines. All nodes pool their host memory into one KV pool, and a cluster-wide directory counts the agent branches that still reference each KV block.</p>
+    </section>
+    <section class="research-section" id="research" aria-labelledby="research-heading">
+      <div class="wrap">
+        <div class="research-header" data-reveal><div><p class="eyebrow">THE RESEARCH BEHIND THE SYSTEM</p><h2 id="research-heading">Built for<br>evolving workloads.</h2></div><button class="button button-outline" type="button" data-release="paper">Technical report <span aria-hidden="true">↗</span></button></div>
+        <p class="paper-title">Evolving Infra: Decoupling Compute Allocation and KV Cache Management for Agent-Adaptive LLM Serving</p>
+        <p class="authors">Hao Kang<sup>1*</sup>, Weili Xu<sup>2*</sup>, Ziyang Li<sup>*</sup>, Zheng Du<sup>1*</sup>, Hanchen Li<sup>3</sup>, Tian Xia<sup>3</sup>, Song Bian<sup>4</sup>, Tushar Krishna<sup>1</sup>, Huizi Mao<sup>5</sup>, Ion Stoica<sup>3</sup>, Song Han<sup>6</sup></p>
+        <div class="affiliations"><span><sup>1</sup> Georgia Tech</span><span><sup>2</sup> UIUC</span><span><sup>3</sup> UC Berkeley</span><span><sup>4</sup> NVIDIA</span><span><sup>5</sup> OpenAI</span><span><sup>6</sup> MIT</span></div>
+        <p class="research-note">* Equal contribution. Technical report and BibTeX coming soon.</p>
       </div>
-        <figure class="plate">
-          <img class="arch" src="fig/arch.svg" alt="Architecture: a request enters the router, which sends prefill to a dark prefill node and decode to a light decode node. A dashed red arrow moves one node from prefill to decode without a restart. Red arrows pull KV blocks from the shared host memory into nodes. Each KV block shows how many agent branches reference it; a block with count 0 is evicted first." width="294" height="111">
-          <figcaption>Dashed red: compute adaptation, a node changes phase without a restart. Solid red: memory adaptation, nodes pull KV from the shared host memory of their peers. Each KV block shows the number of active agent branches that reference it; blocks with count 0 go first when memory is full.</figcaption>
-        </figure>
-      <div class="cards">
-        <div class="card"><span class="tag">Compute</span><h4>Symmetric engines</h4><p>Every node runs one engine that serves both prefill and decode in a single scheduling loop. To switch a node, the router changes the type of request it sends there. Nothing restarts.</p></div>
-        <div class="card"><span class="tag">KV storage</span><h4>Shared host-memory KV pool</h4><p>Each node writes its KV through to host memory, and the host memory of all nodes forms one pool. A prefill node pulls reusable KV from a peer over RDMA while the request waits in its queue.</p></div>
-        <div class="card"><span class="tag">KV tracking</span><h4>Agent-aware KV directory</h4><p>The router keeps a cluster-wide prefix tree of KV placement. For each KV block, it counts the active agent branches that reference it, so the cluster knows which KV no agent will reuse.</p></div>
-      </div>
-    </div>
-  </section>
-
-  <section class="band" id="challenges">
-    <div class="wrap">
-      <div class="sec-head">
-        <p class="eyebrow">Section 3</p>
-        <h2>Agentic serving challenges</h2>
-        <p>Agents solve tasks through repeated model calls and tool calls. Their harnesses fork contexts, spawn sub-agents, and compact histories. Agent traffic therefore varies across agents, over time, and within each agent.</p>
-      </div>
-      <div class="trio">
-        <figure class="plate"><img src="fig/fig1-agent-diversity.svg" alt="Prefill tokens, decode tokens and steps per task for Putnam, Claude Code and OSWorld agents, with best static splits 2P7D, 4P5D and 6P3D" width="156" height="130" loading="lazy"><figcaption><b>Diverse agents.</b> Putnam, Claude Code, and OSWorld agents differ in uncached prefill tokens, decode tokens, and steps per task. Their best static splits range from 2P7D to 6P3D.</figcaption></figure>
-        <figure class="plate"><img src="fig/fig2-adaptive.svg" alt="Best split per 10-minute window over three hours as the mix shifts from Putnam to OSWorld, against the best static split 5P4D" width="156" height="130" loading="lazy"><figcaption><b>Shifting mix.</b> As the mix shifts from Putnam to OSWorld, the best split per 10-minute window changes nine times, from 3P6D to 7P2D. The best static split, 5P4D, loses up to 24% of throughput in a phase.</figcaption></figure>
-        <figure class="plate"><img src="fig/fig3-context-reuse.svg" alt="Wait before the next request and its KV reuse after a tool call, a compaction and a sub-agent call in Claude Code" width="156" height="130" loading="lazy"><figcaption><b>Context management.</b> In Claude Code, the request after a sub-agent arrives 359 s later, yet 98% of its prompt matches cached KV. The request after a compaction arrives 12 s later, and only 14% matches.</figcaption></figure>
-      </div>
-
-      <div class="sub">
-        <h3>Three problems in today's prefill–decode serving</h3>
-        <p>Measured on the same nine nodes with GLM-5.2 and 90 concurrent Claude Code agents. Dynamo runs its planner with the SGLang Model Gateway; Arrow is reimplemented on SGLang. Both planners start from 6P3D, and each node runs HiCache with LRU eviction.</p>
-        <div class="tabs" data-tabs>
-          <div class="tablist" role="tablist" aria-label="Challenges">
-            <button class="tab" role="tab" id="t-ch1" aria-controls="p-ch1" aria-selected="true">Costly phase switches</button>
-            <button class="tab" role="tab" id="t-ch2" aria-controls="p-ch2" aria-selected="false" tabindex="-1">Misestimated compute</button>
-            <button class="tab" role="tab" id="t-ch3" aria-controls="p-ch3" aria-selected="false" tabindex="-1">Misjudged KV reuse</button>
-          </div>
-          <div class="panel" role="tabpanel" id="p-ch1" aria-labelledby="t-ch1">
-            <div class="panel-grid">
-              <div class="prose">
-                <p>Engines fix their phase at launch and index cached KV in local state. Every phase switch therefore costs time, KV reuse, or both.</p>
-                <p>The Dynamo planner relaunches the worker of a node at every switch. A switch takes 681 s on average, and the node serves no requests in that time. Arrow switches nodes in place, but the KV of a switched node becomes unreachable for prefill. Over 34 switches, Arrow misses 55.5% of the cache hits it could have had.</p>
-              </div>
-              <div class="table-scroll">
-                <table class="data">
-                  <thead><tr><th>Planner</th><th>Time per switch</th><th>Switches</th><th>Lost KV reuse</th></tr></thead>
-                  <tbody>
-                    <tr><td>Dynamo planner</td><td>681 s</td><td>4</td><td>5.1%</td></tr>
-                    <tr><td>Arrow</td><td>≈0 s</td><td>34</td><td>55.5%</td></tr>
-                    <tr class="ours"><td>Evolving Infra</td><td>0.7 s</td><td>1</td><td>0.3%</td></tr>
-                  </tbody>
-                </table>
-                <p class="hb-note">Lost KV reuse is 1 − h/h*, against an unlimited KV cache shared by all nodes with no phase switch.</p>
-              </div>
-            </div>
-          </div>
-          <div class="panel" role="tabpanel" id="p-ch2" aria-labelledby="t-ch2" hidden>
-            <div class="panel-grid">
-              <div class="prose">
-                <p>Online planners size the split from coarse signals. Arrow predicts prefill time from the full input length, so it counts cached prefixes as work. It also reacts to short bursts, such as several sub-agents that start together. Arrow drifts from 6P3D to 8P1D and switches 34 times.</p>
-                <p>The Dynamo planner follows queue depth and KV utilization. Long agent contexts keep decode KV utilization high, and it drifts to 2P7D. The Dynamo planner and Arrow deliver 49% and 65% less throughput than the best static split, 4P5D.</p>
-              </div>
-              <div>
-                <div class="splits" role="img" aria-label="Final split and throughput. Dynamo planner: 2P7D, 2.5 requests per second. Arrow: 8P1D, 1.7. Evolving Infra: 3P6D, 5.4.">
-                  <div class="split-row"><span class="sr-name">Dynamo planner</span><span class="strip"><i></i><i></i><i class="d"></i><i class="d"></i><i class="d"></i><i class="d"></i><i class="d"></i><i class="d"></i><i class="d"></i></span><span class="sr-split">2P7D</span><span class="hb-track"><span class="hb-fill" style="--v:0.463"></span></span><span class="hb-val">2.5 req/s</span></div>
-                  <div class="split-row"><span class="sr-name">Arrow</span><span class="strip"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i class="d"></i></span><span class="sr-split">8P1D</span><span class="hb-track"><span class="hb-fill" style="--v:0.315"></span></span><span class="hb-val">1.7 req/s</span></div>
-                  <div class="split-row"><span class="sr-name ours">Evolving Infra</span><span class="strip"><i></i><i></i><i></i><i class="d"></i><i class="d"></i><i class="d"></i><i class="d"></i><i class="d"></i><i class="d"></i></span><span class="sr-split">3P6D</span><span class="hb-track"><span class="hb-fill ours" style="--v:1"></span></span><span class="hb-val">5.4 req/s</span></div>
-                </div>
-                <p class="hb-note">Final split after one hour (dark: prefill, light: decode) and throughput. Evolving Infra reaches over twice the throughput of either planner.</p>
-              </div>
-            </div>
-          </div>
-          <div class="panel" role="tabpanel" id="p-ch3" aria-labelledby="t-ch3" hidden>
-            <div class="panel-grid">
-              <div class="prose">
-                <p>Routers misjudge agent KV reuse in both directions. The cache-aware and sticky policies of the SGLang Model Gateway keep an agent and its forked branches on the few prefill nodes that hold their prefixes, and P95 time to first token reaches 27 s and 34 s. The load-aware Dynamo KV router sends requests to nodes without their prefixes, which recompute them: 65 s. A shared memory pool avoids the recomputation, but each request must fetch its prefix before prefill starts: 95 s.</p>
-                <p>Eviction misjudges reuse too. HiCache evicts the least recently used KV. It keeps histories that compaction replaced and evicts the KV of branches that wait for tools. On Claude Code, these evictions cause 34–46% of the KV reuse that Dynamo loses.</p>
-              </div>
-              <figure class="plate narrow-plate"><img src="fig/motiv-routing.svg" alt="P95 time to first token and mean end-to-end latency for cache-aware routing, sticky routing, the Dynamo router, and the Dynamo router with a memory pool" width="156" height="130" loading="lazy"><figcaption>P95 time to first token and mean end-to-end latency (s) by routing policy. "+ memory pool" adds shared host memory to Dynamo.</figcaption></figure>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section class="band" id="design">
-    <div class="wrap">
-      <div class="sec-head">
-        <p class="eyebrow">Section 4</p>
-        <h2>Our method and design</h2>
-        <p>Two limitations cause these problems. Compute allocation and KV cache management are coupled, so a phase switch strands or discards KV. And the planner, router, and memory pool act on coarse signals, such as queue depth, input length, and access recency, that do not show what agents do. Evolving Infra removes the coupling, then adapts both sides to agents.</p>
-      </div>
-
-      <div class="sub" id="design-infra">
-        <h3><span class="num">4.1</span>Decoupled compute and KV cache</h3>
-        <p>The infrastructure lets a node change phase without a relaunch and keeps all KV readable by every node in either phase.</p>
-        <div class="tabs" data-tabs>
-          <div class="tablist" role="tablist" aria-label="Decoupled infrastructure">
-            <button class="tab" role="tab" id="t-d1" aria-controls="p-d1" aria-selected="true">Symmetric engine</button>
-            <button class="tab" role="tab" id="t-d2" aria-controls="p-d2" aria-selected="false" tabindex="-1">Shared KV pool</button>
-            <button class="tab" role="tab" id="t-d3" aria-controls="p-d3" aria-selected="false" tabindex="-1">Agent-aware directory</button>
-          </div>
-          <div class="panel" role="tabpanel" id="p-d1" aria-labelledby="t-d1">
-            <div class="prose">
-              <p>SGLang runs prefill and decode in separate scheduling loops and fixes each engine's phase at launch. Our engine extends SGLang with one scheduling loop that serves both phases and with a GPU-to-GPU KV transfer protocol between nodes. Every node is ambidextrous.</p>
-              <p>A single router sends prefill requests to one set of nodes and decode requests to the rest. To switch a node, the router only changes the type of request that it routes there. Before the switch, it moves the node's queued requests to other nodes of the same phase. The engine keeps running and the node's KV stays in the pool, so a switch needs no relaunch and loses no KV reuse.</p>
-            </div>
-          </div>
-          <div class="panel" role="tabpanel" id="p-d2" aria-labelledby="t-d2" hidden>
-            <div class="prose">
-              <p>Following HiCache, each node caches KV in GPU memory (L1) and writes it through to host memory (L2) in both phases. The L2 of all nodes forms one shared pool. A prefill node finds reusable KV through the directory and pulls it from the L2 of a peer over RDMA. The pool needs no extra copy, and deduplication across the GPUs of a node raises its effective capacity.</p>
-              <p>A fetch from a peer would delay the prefill of its request. Evolving Infra therefore starts the fetch while the request waits in the queue: the node pulls the KV into GPU memory and broadcasts it to all GPUs of the node before prefill begins. Decode nodes only write to the pool. They receive each request's KV from the prefill node over the faster GPU-to-GPU path, and the KV they generate stays in their L2 for the agent's next prefill.</p>
-            </div>
-          </div>
-          <div class="panel" role="tabpanel" id="p-d3" aria-labelledby="t-d3" hidden>
-            <div class="prose">
-                <p>Following the Dynamo KV indexer, the router keeps a cluster-wide prefix tree that records where KV sits in the GPU and host memory of each node. For each KV block, it also counts the active agent branches that reference it.</p>
-                <p>The harness tags each request with the ID of its branch and reports when a branch finishes. The router keeps a version per branch and increments it when compaction rewrites the context. Counts follow context management: a consecutive request counts only its new blocks, a compaction releases the blocks that the new context drops, and a finished branch releases all its counts.</p>
-                <p>Counts also follow KV transfers. A move between two nodes of the same phase moves the counts, since the branch reuses only the target copy. A transfer between phases keeps counts on both nodes, since the next step needs both copies.</p>
-              </div>
-              <figure class="plate" style="margin-top:22px">
-                  <div class="dir-key">
-                    <span><i class="blk" style="background:#5e5e5e"></i>System prompt</span>
-                    <span><i class="blk" style="background:#a6a6a6"></i>Branch 1's context</span>
-                    <span><i class="blk" style="background:#cdcdcd"></i>Branch 2's context</span>
-                    <span><i class="blk" style="background:#a31f34"></i>New KV</span>
-                    <span><i class="blk" style="background:#ffffff; border-style:dashed"></i>Count 0</span>
-                  </div>
-                  <div class="dir-grid">
-                    <figure><img src="fig/dir-consecutive.svg" alt="A consecutive request adds a count only to its new block" loading="lazy"><figcaption>(a) Consecutive requests</figcaption></figure>
-                    <figure><img src="fig/dir-compaction.svg" alt="Compaction moves branch 1 from version v1 to v2, and its old blocks drop to count 0" loading="lazy"><figcaption>(b) Compaction</figcaption></figure>
-                    <figure><img src="fig/dir-p2p.svg" alt="Branch 1 moves from prefill node P1 to P2; P2 counts its KV and P1 releases its counts" loading="lazy"><figcaption>(c) P2P and D2D</figcaption></figure>
-                    <figure><img src="fig/dir-p2d.svg" alt="Branch 1 alternates between P1 and D1; both nodes count its KV and each step sends only new KV" loading="lazy"><figcaption>(d) P2D or D2P</figcaption></figure>
-                  </div>
-                  <figcaption>R<sub>P1</sub>, R<sub>P2</sub>, and R<sub>D1</sub> count the branches that use a block on prefill nodes P1 and P2 and decode node D1. Tags +1 and −1 mark the counts that each step changes.</figcaption>
-                </figure>
-          </div>
-        </div>
-      </div>
-
-      <div class="sub" id="design-compute">
-        <h3><span class="num">4.2</span>Agent-adaptive compute allocation</h3>
-        <p>The planner sizes the prefill–decode split from models of the work that requests need after KV reuse. It learns the models online and needs no offline profiling.</p>
-        <div class="tabs" data-tabs>
-          <div class="tablist" role="tablist" aria-label="Compute allocation">
-            <button class="tab" role="tab" id="t-c1" aria-controls="p-c1" aria-selected="true">Iteration-time models</button>
-            <button class="tab" role="tab" id="t-c2" aria-controls="p-c2" aria-selected="false" tabindex="-1">Online planner</button>
-          </div>
-          <div class="panel" role="tabpanel" id="p-c1" aria-labelledby="t-c1">
-            <div class="panel-grid">
-              <div class="prose">
-                <p>Each request is described by its uncached input tokens t<sub>uc</sub>, cached input tokens t<sub>c</sub>, output tokens t<sub>out</sub>, and tokens accepted per decode step t<sub>acc</sub>. The router reads t<sub>c</sub> from the longest cached prefix in the directory. Separating cached from uncached tokens keeps the prediction accurate when agents reuse most of their context.</p>
-                <p>Prefill is compute-bound. Under chunked prefill, an iteration on node n costs a fixed overhead plus terms for new tokens, query–key pairs A, and tokens restored from host memory:</p>
-                <div class="math" data-tex="\begin{aligned} T^{\mathrm{iter}}_{\mathrm{P},n} &amp;= c_{n,0} + c_{n,1}\textstyle\sum t_{\mathrm{uc}} \\ &amp;\quad + c_{n,2}\textstyle\sum A + c_{n,3}\textstyle\sum t_{\mathrm{rst}} \end{aligned}"><code>T_P,n = c0 + c1·Σt_uc + c2·ΣA + c3·Σt_rst</code></div>
-                <div class="math" data-tex="A = t_{\mathrm{uc}}\,t_{\mathrm{c}} + \tfrac{1}{2}\,t_{\mathrm{uc}}\,(t_{\mathrm{uc}}+1)"><code>A = t_uc·t_c + t_uc·(t_uc+1)/2</code></div>
-                <p>Decode is memory-bound. With B requests sharing each iteration, a request occupies a decode node for</p>
-                <div class="math" data-tex="T^{\mathrm{req}}_{\mathrm{D},n}(w) = T^{\mathrm{iter}}_{\mathrm{D},n}(B)\,\frac{t_{\mathrm{out}}}{B\,t_{\mathrm{acc}}}"><code>T_D,n(w) = T_iter(B) · t_out / (B · t_acc)</code></div>
-                <p>Evolving Infra fits the coefficients of each node online during warmup with nonnegative least squares, then freezes them. On GB300 nodes the models predict iteration time with a mean error below 7%.</p>
-              </div>
-              <figure class="plate narrow-plate"><img src="fig/itmodel-all.svg" alt="Predicted against measured iteration time in milliseconds, close to the diagonal, with mean errors of 4.2% and 6.3%" width="111" height="112" loading="lazy"><figcaption>Predicted against measured iteration time on GB300 (ms, log scale), for single requests and batches.</figcaption></figure>
-            </div>
-          </div>
-          <div class="panel" role="tabpanel" id="p-c2" aria-labelledby="t-c2" hidden>
-            <div class="prose">
-              <p>Every request passes through both phases, so the slower phase sets the cluster throughput. At the end of each 10-minute planning window, the planner evaluates every split with the average work per request, w̄, and the average number of requests in decode, q̄:</p>
-              <div class="math" data-tex="\Theta(\mathcal{P},\mathcal{D};\bar{w},\bar{q}) = \min\Big(\sum_{n\in\mathcal{P}}\mu_{\mathrm{P},n},\;\sum_{n\in\mathcal{D}}\mu_{\mathrm{D},n}\Big)"><code>Θ = min(Σ μ_P,n over prefill nodes, Σ μ_D,n over decode nodes)</code></div>
-              <p>Unlike queue depth, the average work per request describes the agent workload itself and barely moves during a short burst of sub-agents. Because each switch has a cost, the planner switches only when a candidate split is better with statistical confidence. It splits the window into m slices and computes the gain of the candidate on each slice:</p>
-              <div class="math" data-tex="\begin{aligned} g_i = {} &amp; \Theta(\mathcal{P}',\mathcal{D}';\bar{w}_i,\bar{q}_i) \\ &amp; - \Theta(\mathcal{P},\mathcal{D};\bar{w}_i,\bar{q}_i) \end{aligned}"><code>g_i = Θ(candidate) − Θ(current) on slice i</code></div>
-              <p>It switches only if the mean gain exceeds twice its standard error:</p>
-              <div class="math" data-tex="\bar{g} > \frac{2\,\sigma_g}{\sqrt{m}}"><code>mean gain &gt; 2 · std / sqrt(m)</code></div>
-              <p>If several candidates qualify, it picks the one with the largest mean gain and applies it through an in-place phase switch.</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="sub" id="design-kv">
-        <h3><span class="num">4.3</span>Agent-adaptive KV cache management</h3>
-        <p>With the directory counts and fast KV transfers, Evolving Infra evicts the KV that no agent needs and routes for load instead of cache location.</p>
-        <div class="tabs" data-tabs>
-          <div class="tablist" role="tablist" aria-label="KV cache management">
-            <button class="tab" role="tab" id="t-k1" aria-controls="p-k1" aria-selected="true">Eviction</button>
-            <button class="tab" role="tab" id="t-k2" aria-controls="p-k2" aria-selected="false" tabindex="-1">Routing</button>
-          </div>
-          <div class="panel" role="tabpanel" id="p-k1" aria-labelledby="t-k1">
-            <div class="prose">
-              <p>A block keeps a positive count only while an active branch may still reuse it on that node. A block with count zero, such as a history that compaction replaced or the source copy left by a same-phase transfer, is KV that no active branch will reuse. Each node evicts the blocks in its host memory in ascending order of</p>
-              <div class="math" data-tex="\big(\mathbf{1}[R_b > 0],\; T_b\big)"><code>(R_b &gt; 0, last access time T_b)</code></div>
-              <p>where R<sub>b</sub> is the count of block b on the node and T<sub>b</sub> its last access time. Zero-count blocks go first, in LRU order. Blocks with positive counts go only when no zero-count block remains. Replaced histories therefore leave before the KV of branches that wait for tools.</p>
-              <p>With this eviction, Evolving Infra keeps nearly all the KV that agents still need. Under Dynamo, the fraction of prompt tokens prefilled without cached KV is up to 2.99× that of Evolving Infra.</p>
-            </div>
-          </div>
-          <div class="panel" role="tabpanel" id="p-k2" aria-labelledby="t-k2" hidden>
-            <div class="prose">
-              <p>Asynchronous fetches make moving KV fast, so the router no longer has to send a request to the few nodes that hold its prefix. It sends each prefill request to the node with the shortest predicted time to first token:</p>
-              <div class="math" data-tex="\begin{aligned} \hat{T}_n(w) = {} &amp; T^{\mathrm{rem}}_n + \textstyle\sum_{j\in Q_n} T^{\mathrm{req}}_{\mathrm{P},n}(w_j) \\ &amp; + T^{\mathrm{req}}_{\mathrm{P},n}(w) \end{aligned}"><code>T_n(w) = remaining batch time + queued work + own prefill time</code></div>
-              <p>Here T<sup>rem</sup><sub>n</sub> is the remaining time of the node's running batch and Q<sub>n</sub> its queue. The prediction also charges the part of a fetch that outlasts the wait and the duplicate copy that the fetch creates. The chosen node fetches the request's KV from the shared pool while the request waits.</p>
-              <p>This choice weighs each node's queue against its cached KV and keeps popular prefixes from overloading a few nodes. On Claude Code, the most loaded prefill node queues requests 1.75–1.85× as long as the average node, against 2.29–2.61× under cache-aware routing.</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section class="band" id="citation">
-    <div class="wrap">
-      <div class="sec-head">
-        <p class="eyebrow">Citation</p>
-        <h2>Cite Evolving Infra</h2>
-      </div>
-      <div class="cite-box">
-        <p>The paper is being prepared for arXiv. The BibTeX entry will appear here when the arXiv ID is assigned.</p>
-        <p class="muted small">Hao Kang, Weili Xu, Ziyang Li, Zheng Du, Hanchen Li, Tian Xia, Song Bian, Tushar Krishna, Huizi Mao, Ion Stoica, Song Han.</p>
-      </div>
-    </div>
-  </section>
-</main>
-
-<nav class="toc" aria-label="Sections">
-  <a href="#top" data-sec="top">Overview</a>
-  <a href="#results" data-sec="results">1 · Results</a>
-  <a href="#architecture" data-sec="architecture">2 · Architecture</a>
-  <a href="#challenges" data-sec="challenges">3 · Challenges</a>
-  <a href="#design" data-sec="design">4 · Design</a>
-  <a class="sub-item" href="#design-infra" data-sec="design-infra">4.1 Decoupling</a>
-  <a class="sub-item" href="#design-compute" data-sec="design-compute">4.2 Compute</a>
-  <a class="sub-item" href="#design-kv" data-sec="design-kv">4.3 KV cache</a>
-  <a href="#citation" data-sec="citation">Citation</a>
-</nav>
-
-<footer>
-  <div class="wrap">
-    <a class="brand" href="#top"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span><span class="brand-name">Evolving Infra</span></a>
-    <span>Agent-adaptive LLM serving · <a href="#top">Back to top</a></span>
-  </div>
-</footer>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.11/katex.min.js"></script>
-<script>
-(() => {
-  // Tabs: click, arrow keys, Home and End.
-  document.querySelectorAll('[data-tabs]').forEach((box) => {
-    const tabs = Array.from(box.querySelector('[role="tablist"]').querySelectorAll('[role="tab"]'));
-    const select = (tab, focus) => {
-      tabs.forEach((t) => {
-        const on = t === tab;
-        t.setAttribute('aria-selected', String(on));
-        t.tabIndex = on ? 0 : -1;
-        const panel = document.getElementById(t.getAttribute('aria-controls'));
-        panel.hidden = !on;
-        if (!on) panel.querySelectorAll('video').forEach((v) => v.pause());
-      });
-      if (focus) tab.focus();
-    };
-    tabs.forEach((t, i) => {
-      t.addEventListener('click', () => select(t, false));
-      t.addEventListener('keydown', (e) => {
-        let j = null;
-        if (e.key === 'ArrowRight') j = (i + 1) % tabs.length;
-        if (e.key === 'ArrowLeft') j = (i - 1 + tabs.length) % tabs.length;
-        if (e.key === 'Home') j = 0;
-        if (e.key === 'End') j = tabs.length - 1;
-        if (j !== null) { e.preventDefault(); select(tabs[j], true); }
-      });
-    });
-  });
-
-  // Theme toggle. Without a choice, the page follows the viewer's theme (dark first).
-  const root = document.documentElement;
-  const themeBtn = document.getElementById('theme-btn');
-  const isDark = () => (root.dataset.theme ? root.dataset.theme === 'dark' : !window.matchMedia('(prefers-color-scheme: light)').matches);
-  const label = () => { themeBtn.textContent = isDark() ? 'Light' : 'Dark'; };
-  // Demo video: the dark page plays the dark render and the light page the light render.
-  const video = document.getElementById('demo-video');
-  const syncVideo = () => {
-    const source = video && video.querySelector('source');
-    if (!source) return;
-    const dark = isDark();
-    const src = `media/evolving-infra-vs-dynamo-cc126${dark ? '-dark' : ''}.mp4`;
-    if (source.getAttribute('src') === src) return;
-    const t = video.currentTime;
-    const playing = !video.paused && !video.ended;
-    video.poster = dark ? 'media/poster-dark.png' : 'media/poster.png';
-    source.setAttribute('src', src);
-    video.load();
-    if (t > 0) {
-      video.addEventListener('loadedmetadata', () => {
-        video.currentTime = t;
-        if (playing) video.play().catch(() => {});
-      }, { once: true });
-    }
-  };
-  const onTheme = () => { label(); syncVideo(); };
-  themeBtn.addEventListener('click', () => { root.dataset.theme = isDark() ? 'light' : 'dark'; onTheme(); });
-  window.matchMedia('(prefers-color-scheme: light)').addEventListener('change', onTheme);
-  onTheme();
-
-  // Equations, rendered as MathML. Without KaTeX the plain-text fallback stays.
-  if (window.katex) {
-    document.querySelectorAll('.math[data-tex]').forEach((el) => {
-      try { window.katex.render(el.dataset.tex, el, { output: 'mathml', displayMode: true, throwOnError: false }); } catch (e) { /* keep fallback */ }
-    });
-  }
-
-  // Live node strip: the split moves as the agent mix shifts; one node switches in place per step.
-  const nodes = Array.from(document.querySelectorAll('#cluster .node'));
-  const pEl = document.getElementById('cl-p');
-  const dEl = document.getElementById('cl-d');
-  const mixEl = document.getElementById('cl-mix');
-  const noteEl = document.getElementById('cl-note');
-  const seq = [6, 5, 4, 4, 4, 5, 6, 7, 8, 8, 8, 7];
-  const mixText = (p) => (p <= 4 ? 'Claude Code agents: the planner settles at 4P5D'
-    : p >= 8 ? 'OSWorld agents: prefill-heavy, the planner settles at 8P1D'
-    : 'The agent mix is shifting');
-  let k = 0;
-  let cur = 6;
-  let timer = null;
-  const paint = (p) => {
-    nodes.forEach((n, i) => {
-      const isP = i < p;
-      n.classList.toggle('d', !isP);
-      n.querySelector('.node-role').textContent = isP ? 'P' : 'D';
-    });
-    pEl.textContent = String(p);
-    dEl.textContent = String(9 - p);
-  };
-  const step = () => {
-    k = (k + 1) % seq.length;
-    const p = seq[k];
-    if (p !== cur) {
-      const idx = Math.min(p, cur);
-      const toDecode = p < cur;
-      paint(p);
-      const n = nodes[idx];
-      n.classList.add('flip');
-      setTimeout(() => n.classList.remove('flip'), 1500);
-      noteEl.innerHTML = 'Node ' + (idx + 1) + ' switched from <b>' + (toDecode ? 'prefill to decode' : 'decode to prefill') +
-        '</b> in place. Its engine keeps running and its KV stays in the shared pool.';
-      mixEl.textContent = mixText(p);
-    }
-    cur = p;
-  };
-  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const start = () => { if (!timer && !reduce) timer = setInterval(step, 2400); };
-  const stop = () => { if (timer) { clearInterval(timer); timer = null; } };
-  const cluster = document.getElementById('cluster');
-  if ('IntersectionObserver' in window) {
-    new IntersectionObserver((es) => es.forEach((e) => (e.isIntersecting && !document.hidden ? start() : stop())), { threshold: 0.25 }).observe(cluster);
-  } else {
-    start();
-  }
-  document.addEventListener('visibilitychange', () => { if (document.hidden) stop(); });
-
-  // Table of contents: highlight the section in view.
-  const links = Array.from(document.querySelectorAll('.toc a'));
-  const byId = new Map(links.map((a) => [a.dataset.sec, a]));
-  if ('IntersectionObserver' in window) {
-    const io = new IntersectionObserver((es) => {
-      es.forEach((e) => {
-        if (!e.isIntersecting) return;
-        links.forEach((a) => a.classList.remove('active'));
-        const a = byId.get(e.target.id);
-        if (a) a.classList.add('active');
-      });
-    }, { rootMargin: '-45% 0px -50% 0px' });
-    ['top', 'results', 'architecture', 'challenges', 'design', 'design-infra', 'design-compute', 'design-kv', 'citation']
-      .forEach((id) => { const el = document.getElementById(id); if (el) io.observe(el); });
-  }
-})();
-</script>
+    </section>
+  </main>
+  <footer class="site-footer wrap"><a class="brand" href="#hero"><span class="brand-symbol" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span><span>EVOLVING INFRA</span></a><span>Infrastructure that moves with your agents.</span><a href="#hero">Back to top <span aria-hidden="true">↑</span></a></footer>
+  <dialog id="release-dialog" aria-labelledby="release-title" aria-describedby="release-message"><button id="release-close" type="button" class="dialog-close" aria-label="Close">×</button><span class="dialog-mark" aria-hidden="true">↗</span><h2 id="release-title">Code release coming soon</h2><p id="release-message">The Evolving Infra implementation will be linked here when it is released.</p><a class="button button-outline" href="#demo" onclick="this.closest('dialog').close()">Watch the demo <span aria-hidden="true">↓</span></a></dialog>
+  <noscript><style>.evolve-trigger{display:none}.hero-demo-link{opacity:1;pointer-events:auto}.canvas-shell{display:none}.hero-scene{min-height:120px}</style></noscript>
 </body>
 </html>

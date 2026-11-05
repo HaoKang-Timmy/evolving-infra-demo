@@ -6,7 +6,7 @@ project page, the demo video, and the code that renders the video.
 - Project page: https://inference-rsi.com/ (source in `docs/`, served by GitHub Pages)
 - Demo video: [`video/evolving-infra-vs-dynamo-cc126.mp4`](video/evolving-infra-vs-dynamo-cc126.mp4) (light) and
   [`video/evolving-infra-vs-dynamo-cc126-dark.mp4`](video/evolving-infra-vs-dynamo-cc126-dark.mp4) (dark, played by the
-  page in dark mode). Dynamo and Evolving Infra each serve 126 concurrent Claude Code agents with GLM-5.2 on 36 GB300
+  page). Dynamo and Evolving Infra each serve 126 concurrent Claude Code agents with GLM-5.2 on 36 GB300
   GPUs. The video shows one hour of each run at 60× speed. Each agent window shows with an icon what its agent did for
   most of the last 30 seconds: waiting for the model, generating, or a tool call / idle. A check mark in its title bar
   counts each agent that finished in that window. The counters and charts are exact.
@@ -15,7 +15,7 @@ project page, the demo video, and the code that renders the video.
 
 | Path | Content |
 | --- | --- |
-| `docs/` | The project page: one static `index.html` (HTML, CSS and JavaScript; Google Fonts and KaTeX load from CDNs), SVG figures in `fig/`, the light and dark videos and their posters in `media/`. The page plays the video that matches its theme. No build step. |
+| `docs/` | The static project page: `index.html`, `site.css`, and native JavaScript in `js/`. An interactive Canvas opening illustrates adaptation, followed by the dark demo, results, and technical details. SVG figures live in `fig/`; videos and posters in `media/`. Google Fonts load from a CDN. No build step. |
 | `video/` | The video, `render.py` (renders it), `data.json` (its input), `extract.py` (built `data.json` from the benchmark logs), and the icon font. |
 | `web/figbuild/` | TikZ wrappers of the architecture and KV-directory figures in `docs/fig/`. They compile against the paper's LaTeX sources, which are not included. |
 
@@ -24,6 +24,11 @@ project page, the demo video, and the code that renders the video.
 ```
 python3 -m http.server -d docs 8000    # then open http://localhost:8000
 ```
+
+The site publishes from `main` → `docs/` on GitHub Pages at `inference-rsi.com`.
+The code and report buttons show a release notice until the corresponding URLs are set in
+`releaseLinks` at the top of `docs/js/site.js`. The website repository is separate from the
+future implementation repository.
 
 ## Render the video
 
