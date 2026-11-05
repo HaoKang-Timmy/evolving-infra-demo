@@ -18,13 +18,17 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="site.css">
-  <script src="js/site.js" defer></script>
-  <script src="js/hero.js" defer></script>
+  <link rel="stylesheet" href="scene.css?v=layered-scene">
+  <link rel="preload" as="image" href="media/scene/apps-atlas.png">
+  <link rel="preload" as="image" href="media/scene/hardware-atlas.png">
+  <script src="js/site.js?v=layered-scene" defer></script>
+  <script src="js/hero.js?v=layered-scene" defer></script>
 </head>
-<body>
-  <a class="skip-link" href="#demo">Skip to the demo</a>
+<body class="intro-active">
+  <a class="skip-link" href="#demo" data-enter>Skip to the demo</a>
   <header class="site-header">
     <a class="brand" href="#hero" aria-label="Evolving Infra home"><span class="brand-symbol" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span><span>EVOLVING INFRA</span></a>
+    <a class="intro-skip" href="#demo" data-enter>Skip intro <span aria-hidden="true">↗</span></a>
     <button class="menu-toggle" id="menu-toggle" type="button" aria-expanded="false" aria-controls="nav-links">Menu <span aria-hidden="true">＋</span></button>
     <nav class="nav-links" id="nav-links" aria-label="Main navigation">
       <a href="#demo">Watch the demo</a><a href="#why-evolve">The idea</a>
@@ -33,45 +37,56 @@
     </nav>
   </header>
   <main>
-    <section class="hero" id="hero" data-mode="rigid" aria-labelledby="hero-heading">
-      <div class="hero-glow" aria-hidden="true"></div>
-      <div class="hero-inner wrap">
-        <div class="hero-copy">
-          <div id="hero-before">
-            <p class="eyebrow"><span class="status-dot" aria-hidden="true"></span> THE WORKLOAD KEEPS CHANGING</p>
-            <h1 class="hero-title" id="hero-heading">Agents evolve.<br><span>Infra should.</span></h1>
-            <p class="hero-description">Agents reason, code, act, and start new work.<br class="desktop-break"> Their infrastructure should move with them.</p>
+    <section class="hero scene-hero" id="hero" data-mode="rigid" aria-label="A changing world of agents above a fixed world of hardware">
+      <div class="scene-world">
+        <div class="scene-grain" aria-hidden="true"></div>
+        <div class="application-layer">
+          <p class="layer-title">An ever-changing world of <strong>agents.</strong></p>
+          <div class="application-row">
+            <figure class="application application-math"><div class="scene-art app-art art-math" role="img" aria-label="Mathematical reasoning illustrated by a notebook and floating formulas"><span class="math-sparks" aria-hidden="true"><i>∑</i><i>x²</i><i>∫</i></span></div><figcaption>Math<span>reason · verify</span></figcaption></figure>
+            <figure class="application application-cua"><div class="scene-art app-art art-cua" role="img" aria-label="Computer use illustrated by desktop windows and a cursor"><span class="scene-cursor" aria-hidden="true"></span></div><figcaption>Computer use<span>observe · act</span></figcaption></figure>
+            <figure class="application application-code"><div class="scene-art app-art art-code" role="img" aria-label="Coding illustrated by a terminal and branching editor windows"><span class="code-sparks" aria-hidden="true"><i>{ }</i><i>↗</i></span></div><figcaption>Code<span>build · branch</span></figcaption></figure>
+            <figure class="application application-proactive"><div class="scene-art app-art art-proactive" role="img" aria-label="Proactive agents illustrated by a radar, calendar, and notifications"><span class="scene-ping" aria-hidden="true"></span></div><figcaption>Proactive<span>watch · initiate</span></figcaption></figure>
           </div>
-          <div id="hero-after" hidden>
-            <p class="eyebrow"><span class="status-dot" aria-hidden="true"></span> FREEDOM TO ADAPT</p>
-            <h1 class="hero-title evolved-title">Evolving<br><span>Infra.</span></h1>
-            <p class="hero-description">Same hardware. More freedom.<br>Infrastructure that adapts as agents work.</p>
-          </div>
-          <div class="hero-actions">
-            <button class="button button-primary evolve-trigger" id="evolve-trigger" type="button">Let it evolve <span aria-hidden="true">↗</span></button>
-            <a class="hero-demo-link" id="hero-demo-link" href="#demo">See the difference <span aria-hidden="true">↓</span></a>
-          </div>
-          <p class="hero-micro">Unlock the degrees of freedom.</p>
-          <p class="sr-only" id="hero-announcement" aria-live="polite"></p>
         </div>
-        <div class="hero-scene">
-          <div class="scene-caption"><span>CHANGING WORKLOADS</span><span class="scene-caption-line" aria-hidden="true"></span><span>THE SAME HARDWARE</span></div>
-          <div class="canvas-shell"><canvas id="infra-canvas" role="img" aria-label="Concept animation: computer-use, math, coding, and proactive agents send different workloads to the same GPU nodes. Activate Evolving Infra to see compute roles and request routes adapt while KV remains available.">Evolving Infra lets the same GPU nodes switch between prefill and decode while preserving reusable context in shared memory.</canvas></div>
-          <div class="scene-footer"><p id="infra-status">Different demands. Limited freedom to adapt.</p><span>CONCEPT ILLUSTRATION</span></div>
+        <div class="scene-gap" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span></div>
+        <div class="hardware-layer">
+          <div class="hardware-row">
+            <figure class="hardware"><div class="scene-art hardware-art art-gb300" role="img" aria-label="Concept illustration of a GB300 compute rack"></div><figcaption>GB300<span>GPU systems</span></figcaption></figure>
+            <figure class="hardware"><div class="scene-art hardware-art art-h200" role="img" aria-label="Concept illustration of an H200 GPU accelerator"></div><figcaption>H200<span>GPU accelerators</span></figcaption></figure>
+            <figure class="hardware"><div class="scene-art hardware-art art-tpu" role="img" aria-label="Concept illustration of a TPU accelerator board"></div><figcaption>TPU<span>AI accelerators</span></figcaption></figure>
+          </div>
+          <p class="layer-title">The same physical <strong>hardware.</strong></p>
         </div>
+        <p class="scene-scope">An illustrated application &amp; hardware landscape</p>
       </div>
-      <a class="scroll-cue" href="#demo"><span>SCROLL TO SEE IT WORK</span><span class="scroll-line" aria-hidden="true"></span></a>
-    </section>
-
-    <section class="proof-section" id="demo" aria-labelledby="demo-heading">
-      <div class="wrap">
-        <div class="section-topline" data-reveal><span class="eyebrow">01 / SEE THE DIFFERENCE</span><span class="mono-note">SAME MODEL. SAME WORKLOAD. SAME GPUs.</span></div>
-        <div class="proof-heading" data-reveal><h2 id="demo-heading">Less waiting.<br><span class="accent-text">More work done.</span></h2><p>126 coding agents. 36 GB300 GPUs.<br>One hour of serving, side by side.</p></div>
-        <div class="demo-player" data-reveal>
+      <div class="scene-intro" id="hero-before">
+        <p>Can infrastructure evolve, too?</p>
+        <button id="evolve-trigger" class="scene-enter" type="button"><span class="enter-disc" aria-hidden="true">↗</span><span>Let it evolve</span></button>
+      </div>
+      <div class="scene-reveal" id="hero-after" hidden>
+        <div class="reveal-heading">
+          <p class="eyebrow">SAME HARDWARE. MORE FREEDOM.</p>
+          <h1 id="revealed-title" tabindex="-1">Evolving <span>Infra.</span></h1>
+          <p class="reveal-description">Infrastructure that moves with your agents.</p>
+          <button class="replay-intro" id="replay-intro" type="button"><span aria-hidden="true">↶</span> Replay the opening</button>
+        </div>
+        <div class="reveal-demo" id="demo">
+          <div class="reveal-demo-heading"><span>126 coding agents. <strong>One shared cluster.</strong></span><span>36 GB300 GPUs</span></div>
+          <div class="demo-player">
           <div class="player-top"><span><i class="record-dot" aria-hidden="true"></i> EXPERIMENT REPLAY</span><span>GLM-5.2 · CLAUDE CODE · 60× PLAYBACK</span></div>
           <video id="demo-video" controls playsinline preload="none" poster="media/poster-dark.png" aria-label="Dynamo versus Evolving Infra serving 126 concurrent coding agents"><source src="media/evolving-infra-vs-dynamo-cc126-dark.mp4" type="video/mp4"><p>Your browser does not support this video. <a href="media/evolving-infra-vs-dynamo-cc126-dark.mp4">Download the demo.</a></p></video>
           <div class="player-bottom"><span>Dynamo <span class="comparison-arrow" aria-hidden="true">→</span> Evolving Infra</span><span>Real traces. One shared comparison window.</span></div>
+          </div>
         </div>
+      </div>
+      <p class="sr-only" id="hero-announcement" aria-live="polite"></p>
+    </section>
+
+    <div id="site-content" hidden>
+    <section class="proof-section" id="results" aria-label="Efficiency improvements">
+      <div class="wrap">
+        <div class="section-topline" data-reveal><span class="eyebrow">EFFICIENCY, UNLOCKED.</span><span class="mono-note">SAME MODEL. SAME WORKLOAD. SAME GPUs.</span></div>
         <div class="results" aria-label="Results from the demo runs" data-reveal>
           <article class="result"><span class="result-number">4.2<span>×</span></span><h3>Lower mean<br>request latency</h3><p><span>54.4 s</span><i aria-hidden="true">→</i><strong>13.0 s</strong></p><span class="result-label">END-TO-END</span></article>
           <article class="result"><span class="result-number">11.7<span>×</span></span><h3>Lower P95<br>time to first token</h3><p><span>228.4 s</span><i aria-hidden="true">→</i><strong>19.6 s</strong></p><span class="result-label">TAIL LATENCY</span></article>
@@ -122,9 +137,10 @@
         <p class="research-note">* Equal contribution. Technical report and BibTeX coming soon.</p>
       </div>
     </section>
+    </div>
   </main>
   <footer class="site-footer wrap"><a class="brand" href="#hero"><span class="brand-symbol" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span><span>EVOLVING INFRA</span></a><span>Infrastructure that moves with your agents.</span><a href="#hero">Back to top <span aria-hidden="true">↑</span></a></footer>
   <dialog id="release-dialog" aria-labelledby="release-title" aria-describedby="release-message"><button id="release-close" type="button" class="dialog-close" aria-label="Close">×</button><span class="dialog-mark" aria-hidden="true">↗</span><h2 id="release-title">Code release coming soon</h2><p id="release-message">The Evolving Infra implementation will be linked here when it is released.</p><a class="button button-outline" href="#demo" onclick="this.closest('dialog').close()">Watch the demo <span aria-hidden="true">↓</span></a></dialog>
-  <noscript><style>.evolve-trigger{display:none}.hero-demo-link{opacity:1;pointer-events:auto}.canvas-shell{display:none}.hero-scene{min-height:120px}</style></noscript>
+  <noscript><style>#hero-before,.intro-skip,#replay-intro{display:none!important}#hero-after[hidden],#site-content[hidden]{display:block!important}.intro-active .site-header .brand{visibility:visible}.scene-world{opacity:.15;pointer-events:none}.scene-hero{min-height:0!important}.scene-reveal{position:relative;opacity:1!important}.site-footer{display:flex!important}</style></noscript>
 </body>
 </html>

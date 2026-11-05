@@ -5,40 +5,6 @@
   const releaseLinks = { code: null, paper: null };
 
   const init = () => {
-    const hero = document.getElementById('hero');
-    const before = document.getElementById('hero-before');
-    const after = document.getElementById('hero-after');
-    const evolveTrigger = document.getElementById('evolve-trigger');
-    const announcement = document.getElementById('hero-announcement');
-
-    if (announcement && !announcement.hasAttribute('aria-live')) {
-      announcement.setAttribute('aria-live', 'polite');
-    }
-
-    const syncHero = (announce = false) => {
-      if (!hero) return;
-      const evolving = hero.dataset.mode === 'evolving';
-      if (before) before.hidden = evolving;
-      if (after) after.hidden = !evolving;
-      hero.setAttribute('aria-label', evolving
-        ? 'Evolving Infra: infrastructure that moves with your agents'
-        : 'Dynamic agents and limited infrastructure flexibility');
-      hero.removeAttribute('aria-labelledby');
-      if (evolveTrigger) {
-        evolveTrigger.textContent = evolving
-          ? 'Replay the transformation'
-          : 'Let it evolve';
-      }
-      if (announce && announcement) {
-        announcement.textContent = evolving
-          ? 'Evolving Infra: compute allocation adapts and reusable KV stays available.'
-          : 'Rigid serving shown. Activate Let it evolve to transform the cluster.';
-      }
-    };
-
-    window.addEventListener('infra:evolved', () => syncHero(true));
-    syncHero();
-
     const reveals = Array.from(document.querySelectorAll('[data-reveal]'));
     const motion = typeof window.matchMedia === 'function'
       ? window.matchMedia('(prefers-reduced-motion: reduce)')

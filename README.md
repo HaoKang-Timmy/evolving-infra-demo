@@ -15,7 +15,7 @@ project page, the demo video, and the code that renders the video.
 
 | Path | Content |
 | --- | --- |
-| `docs/` | The static project page: `index.html`, `site.css`, and native JavaScript in `js/`. An interactive Canvas opening illustrates adaptation, followed by the dark demo, results, and technical details. SVG figures live in `fig/`; videos and posters in `media/`. Google Fonts load from a CDN. No build step. |
+| `docs/` | The static project page: `index.html`, `site.css`, `scene.css`, and native JavaScript in `js/`. An illustrated opening places changing agent applications above fixed hardware; activating it turns the scene into the background for the project and demo. Results and technical details follow. SVG figures live in `fig/`; videos, posters, and scene artwork in `media/`. Google Fonts load from a CDN. No build step. |
 | `video/` | The video, `render.py` (renders it), `data.json` (its input), `extract.py` (built `data.json` from the benchmark logs), and the icon font. |
 | `web/figbuild/` | TikZ wrappers of the architecture and KV-directory figures in `docs/fig/`. They compile against the paper's LaTeX sources, which are not included. |
 
@@ -29,6 +29,11 @@ The site publishes from `main` → `docs/` on GitHub Pages at `inference-rsi.com
 The code and report buttons show a release notice until the corresponding URLs are set in
 `releaseLinks` at the top of `docs/js/site.js`. The website repository is separate from the
 future implementation repository.
+
+The opening uses two transparent 2×2 illustration atlases in `docs/media/scene/`, with generation
+prompts alongside them. They are conceptual artwork, not product photographs or a list of validated
+platforms. The demo and result captions state the actual experimental hardware. The upper-layer
+motion stops for reduced-motion preferences and when the scene is offscreen or the page is hidden.
 
 ## Render the video
 
