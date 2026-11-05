@@ -36,6 +36,11 @@ only the report/code actions. `reading-view.css` scopes this behavior to the rev
 replaying the opening restores its original layout. `brand-mark.svg` and `favicon.svg` share
 the supplied red-and-black spine design.
 
+`reading-compact.css` keeps the demo and its three acceleration results together in the first
+content view, beside each other on desktop and tightly stacked on phones. `reading-typography.css`
+sets larger reading text without changing the opening scene. The result figures retain the same
+demo-run definitions and values.
+
 The opening uses two transparent 2×2 illustration atlases in `docs/media/scene/`, with generation
 prompts alongside them. They are conceptual artwork, not product photographs or a list of validated
 platforms. The demo and result captions state the actual experimental hardware. The upper-layer

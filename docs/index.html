@@ -23,6 +23,8 @@
   <link rel="stylesheet" href="workload.css?v=logo-cta-fix">
   <link rel="stylesheet" href="affiliations.css?v=logo-names">
   <link rel="stylesheet" href="reading-view.css?v=follow-scroll">
+  <link rel="stylesheet" href="reading-typography.css?v=compact-content">
+  <link rel="stylesheet" href="reading-compact.css?v=compact-content">
   <link rel="preload" as="image" href="media/scene/apps-atlas.png">
   <link rel="preload" as="image" href="media/scene/hardware-atlas.png">
   <script src="js/site.js?v=light-motion" defer></script>
@@ -89,27 +91,31 @@
           <p class="reveal-description">Infrastructure that <span class="dynamic-word">moves</span> with your agents.</p>
           <button class="replay-intro" id="replay-intro" type="button"><span aria-hidden="true">↶</span> Replay the opening</button>
         </div>
+        <div class="reveal-proof">
         <div class="reveal-demo" id="demo">
-          <div class="reveal-demo-heading"><span>126 coding agents. <strong>One shared cluster.</strong></span><span>36 GB300 GPUs</span></div>
+          <div class="reveal-demo-heading"><span>126 coding agents. <strong>One hour.</strong></span><span>36 GB300 GPUs</span></div>
           <div class="demo-player">
           <div class="player-top"><span><i class="record-dot" aria-hidden="true"></i> EXPERIMENT REPLAY</span><span>GLM-5.2 · CLAUDE CODE · 60× PLAYBACK</span></div>
           <video id="demo-video" controls playsinline preload="none" poster="media/poster.png" aria-label="Dynamo versus Evolving Infra serving 126 concurrent coding agents"><source src="media/evolving-infra-vs-dynamo-cc126.mp4" type="video/mp4"><p>Your browser does not support this video. <a href="media/evolving-infra-vs-dynamo-cc126.mp4">Download the demo.</a></p></video>
           <div class="player-bottom"><span>Dynamo <span class="comparison-arrow" aria-hidden="true">→</span> Evolving Infra</span><span>Real traces. One shared comparison window.</span></div>
           </div>
         </div>
+        <aside class="outcome-panel" id="results" aria-label="Acceleration in the demo runs">
+          <p class="eyebrow">EFFICIENCY, UNLOCKED.</p>
+          <div class="results" aria-label="Results from the demo runs">
+            <article class="result"><span class="result-number">4.2<span>×</span></span><h3>Lower mean E2E<br>request latency</h3><p><span>54.4 s</span><i aria-hidden="true">→</i><strong>13.0 s</strong></p><span class="result-label">END-TO-END</span></article>
+            <article class="result"><span class="result-number">11.7<span>×</span></span><h3>Lower P95<br>time to first token</h3><p><span>228.4 s</span><i aria-hidden="true">→</i><strong>19.6 s</strong></p><span class="result-label">TAIL LATENCY</span></article>
+            <article class="result"><span class="result-number">2.25<span>×</span></span><h3>As many agent<br>sessions completed</h3><p><span>52</span><i aria-hidden="true">→</i><strong>117</strong></p><span class="result-label">IN ONE HOUR</span></article>
+          </div>
+        </aside>
+        </div>
       </div>
       <p class="sr-only" id="hero-announcement" aria-live="polite"></p>
     </section>
 
     <div id="site-content" hidden>
-    <section class="proof-section" id="results" aria-label="Efficiency improvements">
+    <section class="proof-section" id="proof-notes" aria-label="Experiment details and code access">
       <div class="wrap">
-        <div class="section-topline" data-reveal><span class="eyebrow">EFFICIENCY, UNLOCKED.</span><span class="mono-note">SAME MODEL. SAME WORKLOAD. SAME GPUs.</span></div>
-        <div class="results" aria-label="Results from the demo runs" data-reveal>
-          <article class="result"><span class="result-number">4.2<span>×</span></span><h3>Lower mean<br>request latency</h3><p><span>54.4 s</span><i aria-hidden="true">→</i><strong>13.0 s</strong></p><span class="result-label">END-TO-END</span></article>
-          <article class="result"><span class="result-number">11.7<span>×</span></span><h3>Lower P95<br>time to first token</h3><p><span>228.4 s</span><i aria-hidden="true">→</i><strong>19.6 s</strong></p><span class="result-label">TAIL LATENCY</span></article>
-          <article class="result"><span class="result-number">2.25<span>×</span></span><h3>As many agent<br>sessions completed</h3><p><span>52</span><i aria-hidden="true">→</i><strong>117</strong></p><span class="result-label">IN ONE HOUR</span></article>
-        </div>
         <p class="measurement-note">Compared with Dynamo in the demo runs: GLM-5.2, 126 concurrent Claude Code agents, and the same 36 GB300 GPUs. Scored over one hour after a 30-minute warmup. E2E measures individual LLM requests.</p>
         <div class="try-row" data-reveal><div><span class="eyebrow">BUILD FOR WHAT COMES NEXT</span><p>Your agents are evolving.<br>Your infrastructure can, too.</p></div><div class="try-action"><button class="button button-primary button-large" type="button" data-release="code" aria-describedby="code-release-note">Try it!! <span aria-hidden="true">↗</span></button><span id="code-release-note">Open-source code coming soon</span></div></div>
       </div>
