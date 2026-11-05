@@ -118,7 +118,7 @@ body { background: #0d0e10; }
 
 .scene-intro { position: absolute; top: 50%; left: 24px; right: 24px; transform: translateY(-50%); text-align: center; z-index: 2; }
 .scene-intro > p { font-size: 23px; line-height: 1.4; letter-spacing: -.04em; color: #bdb8b9; }
-.scene-enter { display: inline-flex; align-items: center; gap: 17px; padding: 0; margin-top: 21px; border: 0; background: transparent; font: 500 13px var(--display); color: #f0ece8; }
+.scene-enter { display: inline-flex; align-items: center; gap: 17px; padding: 0; margin-top: 21px; border: 0; background: transparent; font: 500 20px var(--display); color: #f0ece8; }
 .enter-disc { display: grid; place-items: center; width: 58px; height: 58px; border-radius: 50%; background: #ef3547; font: 30px/1 var(--display); box-shadow: 0 0 45px #ed3b4222; transition: transform .3s, box-shadow .3s; }
 .scene-enter:hover .enter-disc { transform: rotate(45deg) scale(1.07); box-shadow: 0 0 65px #ed3b4244; }
 .scene-enter:focus-visible { outline-offset: 10px; border-radius: 35px; }
@@ -173,7 +173,7 @@ body { background: #0d0e10; }
   .application figcaption span { font-size: 8px; margin-top: 3px; }
   .scene-intro { top: 55%; }
   .scene-intro > p { font-size: 19px; max-width: 310px; margin: auto; }
-  .scene-enter { margin-top: 16px; gap: 14px; font-size: 12px; }
+  .scene-enter { margin-top: 16px; gap: 14px; font-size: 18px; }
   .enter-disc { width: 49px; height: 49px; font-size: 26px; }
   .hardware-layer { bottom: 68px; width: calc(100% - 28px); }
   .hardware-row { gap: 5px; }

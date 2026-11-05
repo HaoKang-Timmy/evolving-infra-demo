@@ -21,9 +21,9 @@
     },
     {
       "name": "Massachusetts Institute of Technology",
-      "file": "mit.svg",
+      "file": "mit-red-gray.svg",
       "source_page": "https://brand.mit.edu/logos-marks/mit-logo",
-      "source_asset": "Original embedded SVG in the official Brand Guide stylesheet"
+      "source_asset": "https://groups.csail.mit.edu/gdpgroup/assets/mitlogo/MIT-logo-red-gray-72x38.svg"
     },
     {
       "name": "NVIDIA",
@@ -33,10 +33,10 @@
     },
     {
       "name": "OpenAI",
-      "file": "openai.svg",
+      "file": "openai-blossom.svg",
       "source_page": "https://openai.com/brand/",
       "source_asset": "https://cdn.openai.com/brand/OpenAI-Logos-2025.zip",
-      "archive_member": "SVGs/OpenAI-black-wordmark.svg"
+      "archive_member": "OpenAI-logos(new)/SVGs/OpenAI-black-monoblossom.svg"
     }
   ]
 }
