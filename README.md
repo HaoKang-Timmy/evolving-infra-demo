@@ -3,7 +3,7 @@
 Evolving Infra is a serving system that adapts to agent workload at runtime. This repository holds its
 project page, the demo video, and the code that renders the video.
 
-- Project page: https://weilixu.com/evolving-infra-demo/ (source in `docs/`, served by GitHub Pages)
+- Project page: https://inference-rsi.com/ (source in `docs/`, served by GitHub Pages)
 - Demo video: [`video/evolving-infra-vs-dynamo-cc126.mp4`](video/evolving-infra-vs-dynamo-cc126.mp4) (light) and
   [`video/evolving-infra-vs-dynamo-cc126-dark.mp4`](video/evolving-infra-vs-dynamo-cc126-dark.mp4) (dark, played by the
   page in dark mode). Dynamo and Evolving Infra each serve 126 concurrent Claude Code agents with GLM-5.2 on 36 GB300
