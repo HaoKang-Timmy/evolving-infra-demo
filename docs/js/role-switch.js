@@ -41,65 +41,65 @@
     let destroyed = false;
 
     const stages = [
-      ['A sustained workload shift', 'Demand shifts toward decode. Both sides start at 3P3D, with prefix K cached on the switch target, Node 3.'],
-      ['The node needs time to change', ''],
-      ['New role. Different cache outcomes.', 'N3 now serves decode. The split is 2P4D. Local prefix state resets on the left; shared K stays available on the right.'],
-      ['The next request arrives', 'K + Δ arrives at N1. The baseline restores K; Evolving Infra fetches the retained prefix from peer L2 while queued.'],
-      ['Reuse across the role change', 'Evolving Infra reuses K and prefills Δ. Both paths send request KV from the prefill GPU onward to decode.']
+      ['A sustained workload shift', 'Demand shifts toward decode. Both sides start at 3P3D. N3 holds KV-A, the cached state for Context A.'],
+      ['N3 needs time to change', ''],
+      ['New role. Different KV outcomes.', 'N3 now serves decode, giving 2P4D. The baseline loses N3’s local KV-A; Evolving Infra retains KV-A in the shared KV pool.'],
+      ['R3 arrives with Context A', 'R3 carries Context A + new input to N1. The baseline restores KV-A; Evolving Infra fetches KV-A from the shared KV pool while R3 is queued.'],
+      ['Reuse Context A', 'After restoring or fetching KV-A, N1 reuses Context A and prefills R3’s new input. R3 then continues to decode.']
     ];
     // Each row is engine state, cache state, and a panel explanation.
     const labels = {
       evolving: [
-        ['Engine running', 'K in shared L2', 'Node 3 serves prefill; its reusable KV is accessible through the shared pool.'],
-        ['Engine running; draining work', 'Shared L2 retains K', 'Each queued request moves to N1 or N2 while N3 finishes its running work.'],
-        ['Same engine, now decode', 'Shared L2 retains K', 'The role changes; the host-memory KV remains accessible.'],
-        ['Engine running', 'Fetch K while queued', 'Node 1 fetches peer-L2 prefix K while the request waits in its queue.'],
-        ['Engine running', 'Reuse K; prefill Δ', 'This request continues to decode through the normal GPU-to-GPU KV transfer.']
+        ['N3 running', 'KV-A in shared KV pool', 'N3 serves prefill and stores KV-A for Context A in the shared KV pool.'],
+        ['N3 drains R0', 'KV-A retained', 'Queued R1 goes to N1 and R2 to N2; running R0 finishes on N3.'],
+        ['N3 now serves decode', 'KV-A retained', 'N3 changes role. KV-A stays available in the shared KV pool.'],
+        ['N3 serving decode', 'N1 fetches KV-A', 'R3 carries Context A + new input. N1 fetches KV-A while R3 is queued.'],
+        ['N3 serving decode', 'N1 reuses KV-A', 'N1 reuses KV-A for Context A; R3 then continues to decode.']
       ],
       sglang: [
-        ['Engine running', 'K in local cache', 'Node 3 serves prefill; K is cached locally.'],
-        ['Idle required; process running', 'Local K awaits cache reset', 'The caller stops new arrivals and waits until the instance is fully idle before invoking the switch.'],
-        ['Same process, now decode', 'Local KV cache lost on N3', 'The runtime switch resets the local prefix cache without restarting the process.'],
-        ['Process running', 'Reload or recompute K', 'Node 1 restores the missing local prefix by reloading or recomputing it.'],
-        ['Process running', 'Prefix restored', 'With K restored, Node 1 prefills the new input.']
+        ['N3 running', 'KV-A cached on N3', 'N3 serves prefill with KV-A stored in its local KV cache.'],
+        ['N3 waits until idle', 'KV-A awaits cache reset', 'The caller stops new arrivals and waits until N3 is fully idle.'],
+        ['N3 now serves decode', 'N3 has lost local KV-A', 'N3 changes to decode and resets its local KV cache without a restart.'],
+        ['N3 serving decode', 'Restore KV-A on N1', 'R3 carries Context A + new input. N1 must restore KV-A.'],
+        ['N3 serving decode', 'KV-A restored on N1', 'KV-A is restored on N1; N1 now prefills R3’s new input.']
       ],
       restart: [
-        ['Worker running', 'K in local cache', 'Node 3 serves prefill in a restart-based engine deployment.'],
-        ['Selected worker restarting', 'Local KV cache lost on N3', 'The selected worker is terminated; the other nodes keep serving.'],
-        ['Replacement worker running', 'Local KV cache lost on N3', 'The replacement worker serves decode with a fresh local KV cache.'],
-        ['Replacement worker running', 'Reload or recompute K', 'Node 1 restores the missing local prefix by reloading or recomputing it.'],
-        ['Replacement worker running', 'Prefix restored', 'With K restored, Node 1 prefills the new input.']
+        ['N3 running', 'KV-A cached on N3', 'N3 serves prefill with KV-A stored in its local KV cache.'],
+        ['N3 restarting', 'N3 has lost local KV-A', 'N3 is restarting; the other nodes keep serving.'],
+        ['N3 now serves decode', 'N3 has lost local KV-A', 'N3 returns as decode with an empty local KV cache.'],
+        ['N3 serving decode', 'Restore KV-A on N1', 'R3 carries Context A + new input. N1 must restore KV-A.'],
+        ['N3 serving decode', 'KV-A restored on N1', 'KV-A is restored on N1; N1 now prefills R3’s new input.']
       ]
     };
     // These cards distinguish the cost of changing roles from the loss and
     // later restoration of the original local prefix cache.
     const costDetails = {
       evolving: [
-        ['Queued work moves to N1 and N2; running work drains.', 'K resides in shared host memory.'],
-        ['Distribute queued work to N1 and N2; drain N3.', 'Shared L2 keeps K through the role change.'],
-        ['N3 serves decode after draining; its engine stays alive.', 'N3 switches to D while its shared-L2 prefix remains available.'],
-        ['Same engines, new 2P4D split.', 'N1 fetches retained K from peer L2 while queued.'],
-        ['The switch still includes reroute and drain.', 'N1 reuses K and prefills new input Δ.']
+        ['Queued requests can reroute; running R0 must finish on N3.', 'KV-A is stored in the shared KV pool.'],
+        ['R1 moves to N1; R2 moves to N2. N3 drains R0.', 'The shared KV pool retains KV-A through the role change.'],
+        ['N3 serves decode after R0 finishes; no engine restart.', 'N3 changes role while KV-A remains available.'],
+        ['N1 handles R3 under the new 2P4D split.', 'N1 fetches KV-A from the shared KV pool while R3 is queued.'],
+        ['The role change included rerouting R1/R2 and draining R0.', 'N1 reuses KV-A for Context A and prefills R3’s new input.']
       ],
       sglang: [
-        ['Wait until the engine is fully idle.', 'On N3: K is cached now and reset when the role changes.'],
-        ['Reach idle, then rebuild role-specific state.', 'On N3: the pending switch will reset local prefix K.'],
-        ['N3 serves decode after the idle-and-switch sequence.', 'On N3: the role changed and local prefix K was reset.'],
-        ['N3 keeps serving decode in the same process.', 'On N1: reload or recompute the prefix lost from N3.'],
-        ['Switch complete; the process stayed running.', 'Original N3 cache was lost; K restored elsewhere.']
+        ['N3 must be fully idle before changing role.', 'N3 holds KV-A now; its role change will reset that local cache.'],
+        ['Wait for N3 to become idle, then change its role.', 'N3’s local KV-A will be reset when the role changes.'],
+        ['N3 serves decode after the idle-and-switch sequence.', 'N3’s local KV cache was reset; KV-A is unavailable there.'],
+        ['N3 serves decode while N1 restores KV-A for R3.', 'N1 reloads or recomputes KV-A to serve R3.'],
+        ['N3 is serving decode after the idle-and-switch sequence.', 'N3’s original KV-A was lost; KV-A is restored on N1.']
       ],
       restart: [
-        ['N3’s worker must stop and restart.', 'On N3: K is cached now and lost when its worker restarts.'],
-        ['N3 cannot serve while its worker restarts.', 'On N3: the stopped worker loses its reusable local prefix.'],
-        ['The replacement worker now serves decode.', 'On N3: the new worker has no copy of the original prefix K.'],
-        ['N3 serves decode after the restart.', 'On N1: reload or recompute the prefix lost from N3.'],
-        ['The restart is complete; N3 serves decode.', 'Original N3 cache was lost; K restored elsewhere.']
+        ['N3 must stop serving and restart in its new role.', 'N3 holds KV-A now; restarting will clear that local cache.'],
+        ['N3 cannot serve requests while restarting.', 'N3’s local KV-A is lost during the restart.'],
+        ['N3 returns to service as decode.', 'N3 returns without its original local KV-A.'],
+        ['N3 serves decode while N1 restores KV-A for R3.', 'N1 reloads or recomputes KV-A to serve R3.'],
+        ['N3 is serving decode after the restart.', 'N3’s original KV-A was lost; KV-A is restored on N1.']
       ]
     };
     const nodeStatuses = {
-      evolving: ['PREFILL', 'REROUTE + DRAIN', 'D · K RETAINED', 'D · K RETAINED', 'D · K REUSED'],
-      sglang: ['PREFILL', 'IDLE → RECONFIGURE', 'D · CACHE RESET', 'D · CACHE RESET', 'D · K RESTORED ELSEWHERE'],
-      restart: ['PREFILL', 'RESTARTING', 'D · CACHE RESET', 'D · CACHE RESET', 'D · K RESTORED ELSEWHERE']
+      evolving: ['PREFILL', 'REROUTE + DRAIN', 'D · KV-A RETAINED', 'D · KV-A RETAINED', 'D · KV-A REUSED'],
+      sglang: ['PREFILL', 'IDLE → RECONFIGURE', 'D · KV-A LOST', 'D · KV-A LOST', 'D · KV-A RESTORED ON N1'],
+      restart: ['PREFILL', 'RESTARTING', 'D · KV-A LOST', 'D · KV-A LOST', 'D · KV-A RESTORED ON N1']
     };
 
     if (baselineSelect) {
@@ -137,8 +137,8 @@
       setText(title, stages[step][0]);
       const explanation = step === 1
         ? baseline === 'sglang'
-          ? 'SGLang waits for idle. Evolving Infra distributes N3’s queued requests to N1 and N2 while its running work drains.'
-          : 'The baseline relaunches N3. Evolving Infra distributes its queued requests to N1 and N2 while running work finishes.'
+          ? 'With SGLang, N3 must become idle first. Evolving Infra reroutes R1 to N1 and R2 to N2, while R0 finishes on N3.'
+          : 'The baseline restarts N3. Evolving Infra reroutes R1 to N1 and R2 to N2, while R0 finishes on N3.'
         : stages[step][1];
       setText(copy, explanation);
 
@@ -150,10 +150,10 @@
         if (system === 'baseline') {
           setText(panel.querySelector('[data-engine-family]'), baseline === 'restart'
             ? 'Engine examples: vLLM · SGLang · TRT-LLM'
-            : 'In-place switch · local prefix caching enabled');
+            : 'In-place role switch · KV caching enabled');
           setText(panel.querySelector('[data-path-label]'), baseline === 'restart'
             ? 'Restart-based reconfiguration'
-            : 'Idle → switch → cache reset');
+            : 'Idle → role switch → KV cache reset');
         }
         setText(panel.querySelector('[data-engine-state]'), row[0]);
         setText(panel.querySelector('[data-cache-state]'), row[1]);
@@ -168,8 +168,8 @@
         setText(panel.querySelector('.switch-node[data-node="3"] [data-node-status]')
           || panel.querySelector('[data-node-status]'), nodeStatuses[path][step]);
         const targetLabel = step === 0 ? 'N3: prefill → decode'
-          : step === 1 ? (system === 'baseline' ? 'N3: no new work during the change' : 'N3: drain running work')
-            : system === 'baseline' ? 'New role. Local KV lost.' : 'New role. Context retained.';
+          : step === 1 ? (system === 'baseline' ? 'N3: no new requests during the change' : 'N3: finish running request R0')
+            : system === 'baseline' ? 'N3 now decodes. Local KV-A lost.' : 'N3 now decodes. KV-A retained.';
         setText(panel.querySelector('.switch-target-label'), targetLabel);
       });
       stepButtons.forEach((button) => {

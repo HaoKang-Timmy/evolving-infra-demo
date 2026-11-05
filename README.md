@@ -50,7 +50,11 @@ The five-stage illustration inside the Idea section is implemented in `js/role-s
 management, and the diagram labels the two layers explicitly. Its default "Existing engine" comparison illustrates restart-based
 reconfiguration, grounded in the report's Dynamo/SGLang deployment. A separate SGLang runtime
 switch option illustrates an idle, in-place switch that releases the local prefix cache. Red
-callouts and node/cache states make switching time and lost reusable KV explicit. Engine names
+callouts and node/cache states make switching time and lost reusable KV explicit.
+Names are consistent: N1–N6 are compute nodes, R0–R3 are requests, and KV-A is the
+cached model state for context A. Light stacked input cards represent requests; red
+stacked cache blocks remain in labeled storage. Solid arrows route requests and dashed
+red arrows transfer KV; request R3 carries prompt text, not the KV cache itself. Engine names
 are examples, not a claim that every configuration requires a restart. Controls support
 pause, replay and direct stage selection; desktop autoplay runs once, while reduced-motion
 users advance one stage at a time. The sequence is qualitative, not a timed benchmark. The
