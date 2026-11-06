@@ -4,8 +4,11 @@ Evolving Infra is a serving system that adapts to agent workload at runtime. Thi
 project page, the demo video, and the code that renders the video.
 
 - Project page: https://inference-rsi.com/ (source in `docs/`, served by GitHub Pages)
-- Demo video: [`video/evolving-infra-vs-dynamo-cc126.mp4`](video/evolving-infra-vs-dynamo-cc126.mp4) (light, played by the page) and
-  [`video/evolving-infra-vs-dynamo-cc126-dark.mp4`](video/evolving-infra-vs-dynamo-cc126-dark.mp4) (dark).
+- Demo video: [`docs/media/merge_demo.mp4`](docs/media/merge_demo.mp4), played by the page.
+  The merged demo compares Dynamo and Evolving Infra on OSWorld computer-use tasks and concurrent Claude Code agents.
+  Its poster is extracted from the opening title, and the MP4 is packaged for progressive playback without re-encoding.
+- Original coding replay: [`docs/media/evolving-infra-vs-dynamo-cc126.mp4`](docs/media/evolving-infra-vs-dynamo-cc126.mp4) (light) and
+  [`docs/media/evolving-infra-vs-dynamo-cc126-dark.mp4`](docs/media/evolving-infra-vs-dynamo-cc126-dark.mp4) (dark).
   Dynamo and Evolving Infra each serve 126 concurrent Claude Code agents with GLM-5.2 on 36 GB300
   GPUs. The video shows one hour of each run at 60× speed. Each agent window shows with an icon what its agent did for
   most of the last 30 seconds: waiting for the model, generating, or a tool call / idle. A check mark in its title bar
@@ -16,7 +19,7 @@ project page, the demo video, and the code that renders the video.
 | Path | Content |
 | --- | --- |
 | `docs/` | The static project page: `index.html`, base styles in `site.css` and `scene.css`, the default light palette in `light.css`, motion styling in `workload.css`, and native JavaScript in `js/`. An illustrated opening places changing agent applications above fixed hardware; activating it turns the scene into the background for the project and demo. Results and technical details follow. SVG figures live in `fig/`; videos, posters, and scene artwork in `media/`. Google Fonts load from a CDN. No build step. |
-| `video/` | The video, `render.py` (renders it), `data.json` (its input), `extract.py` (built `data.json` from the benchmark logs), and the icon font. |
+| `video/` | `render.py` (renders the original coding replay), `data.json` (its input), `extract.py` (built `data.json` from the benchmark logs), and the icon font. Published videos live in `docs/media/`. |
 | `web/figbuild/` | TikZ wrappers of the architecture and KV-directory figures in `docs/fig/`. They compile against the paper's LaTeX sources, which are not included. |
 
 ## View the page locally
