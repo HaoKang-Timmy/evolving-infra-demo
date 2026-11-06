@@ -10,7 +10,8 @@ body.content-active .reveal-heading h1 span { display: inline; margin: 0; }
 body.content-active .reveal-description { font-size: 26px; line-height: 1.35; margin: 0 auto; max-width: none; }
 body.content-active .replay-intro { font-size: 12px; margin-top: 5px; padding: 2px 8px; }
 body.content-active .reveal-proof {
-  --demo-width: clamp(480px, calc((100svh - var(--reading-bar-height) - 285px) * 1.7778), 740px);
+  /* The player is 16:9 plus a strip for the native video controls (--player-controls in site.css, 0 on phones). */
+  --demo-width: clamp(480px, calc((100svh - var(--reading-bar-height) - 285px - var(--player-controls)) * 1.7778), 740px);
   display: grid;
   grid-template-columns: minmax(0,var(--demo-width)) 260px;
   align-items: start;
@@ -107,7 +108,7 @@ body.content-active #proof-notes .try-row { margin-top: 34px; padding-top: 28px;
 @media (max-height:780px) and (max-width:700px) {
   body.content-active .scene-reveal { padding-top: calc(var(--reading-bar-height) + 6px); }
   body.content-active .replay-intro { margin-top: 2px; padding-block: 1px; }
-  body.content-active .reveal-demo { width: clamp(240px, calc((100svh - var(--reading-bar-height) - 375px) * 1.7778), 100%); margin-inline: auto; }
+  body.content-active .reveal-demo { width: clamp(240px, calc((100svh - var(--reading-bar-height) - 375px - var(--player-controls)) * 1.7778), 100%); margin-inline: auto; }
   body.content-active .reveal-demo .player-bottom { display: none; }
   body.content-active .outcome-panel { margin-top: 10px; }
   body.content-active #results .results { grid-template-columns: repeat(3,minmax(0,1fr)); gap: 12px; }
