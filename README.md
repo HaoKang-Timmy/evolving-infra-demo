@@ -8,8 +8,8 @@ project page, the demo video, and the code that renders the video.
   The merged demo compares Dynamo and Evolving Infra on OSWorld computer-use tasks and concurrent Claude Code agents.
   Its poster is extracted from the opening title. Evolving Infra is drawn in the page red (`#c92336`). In the coding
   part, a Dynamo node that restarts is shown in amber, so red marks only Evolving Infra, and the icon legend sits above
-  the area that player controls cover. In the OSWorld part, the status pill above each screen stays on THINKING during
-  fast-forward instead of changing at every agent step.
+  the area that player controls cover. In the OSWorld part, no status pill is shown during the race, so the pace of the
+  actions on the two screens shows the difference; a FINISHED pill marks the end of each agent.
 - Original coding replay: [`docs/media/evolving-infra-vs-dynamo-cc126.mp4`](docs/media/evolving-infra-vs-dynamo-cc126.mp4) (light) and
   [`docs/media/evolving-infra-vs-dynamo-cc126-dark.mp4`](docs/media/evolving-infra-vs-dynamo-cc126-dark.mp4) (dark).
   Dynamo and Evolving Infra each serve 126 concurrent Claude Code agents with GLM-5.2 on 36 GB300
