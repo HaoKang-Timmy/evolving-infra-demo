@@ -1,0 +1,31 @@
+/* Outline of the reading view. On wide screens it sits to the right of the three idea sections and follows
+   the reader; the sections leave room for it. Narrower screens and the opening keep their layout. */
+.page-outline { display: none; }
+@media (min-width: 1180px) {
+  body.content-active { --outline-width: 196px; --outline-gap: 44px; }
+  body.content-active .idea-section > .wrap { padding-right: calc(var(--outline-width) + var(--outline-gap)); }
+  body.content-active .page-outline {
+    display: block;
+    position: fixed;
+    z-index: 40;
+    top: calc(var(--reading-bar-height, 82px) + 44px);
+    right: calc((100% - min(1240px, 100% - 96px)) / 2);
+    width: var(--outline-width);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(6px);
+    transition: opacity .35s, transform .35s, visibility .35s;
+  }
+  body.content-active .page-outline.is-shown { opacity: 1; visibility: visible; transform: none; }
+}
+.page-outline-title { margin: 0 0 12px; color: var(--faint); font: 10px/1.4 var(--mono); letter-spacing: .12em; }
+.page-outline ol { margin: 0; padding: 0; list-style: none; border-left: 1px solid var(--line); }
+.page-outline a { display: grid; grid-template-columns: 24px minmax(0,1fr); margin-left: -1px; padding: 7px 0 7px 14px; border-left: 2px solid transparent; color: var(--muted); font-size: 14px; line-height: 1.35; transition: color .2s, border-color .2s; }
+.page-outline a span { color: var(--faint); font: 11px/1.7 var(--mono); }
+.page-outline a:hover { color: var(--fg); }
+.page-outline a[aria-current] { color: var(--red); border-left-color: var(--red); }
+.page-outline a[aria-current] span { color: var(--red); }
+
+@media (prefers-reduced-motion: reduce) {
+  .page-outline { transition: none !important; }
+}
