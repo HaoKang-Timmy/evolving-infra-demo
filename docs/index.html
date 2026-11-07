@@ -306,16 +306,16 @@
               <div class="switch-consequence is-cost"><strong data-t="chip1">Routes to the KV holder</strong></div>
               <div class="switch-consequence is-cost"><strong data-t="chip2">Evicts least recently used</strong></div>
             </div>
-            <div class="kvm-agents"><span class="kvm-agent kv-r0"><i></i>A · waiting for a tool</span><span class="kvm-agent kv-r1"><i></i>C</span><span class="kvm-agent kv-r1 kvm-sub"><i></i>B · sub-agent of C</span></div>
+            <div class="kvm-agents"><span class="kvm-agent" data-agent="A"><i>A</i><em>waiting for a tool</em></span><span class="kvm-agent" data-agent="C"><i>C</i><em></em></span><span class="kvm-agent" data-agent="B"><i>B</i><em>sub-agent of C</em></span></div>
             <div class="kvm-diagram" aria-hidden="true">
               <span class="kvm-router">ROUTER</span>
               <svg class="kvm-flows" viewBox="0 0 600 276" preserveAspectRatio="none" aria-hidden="true">
                 <defs><marker id="kvm-arrow-baseline" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#65545f"/></marker><marker id="kvm-copy-baseline" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#c92336"/></marker></defs>
                 <path class="flow-route kvm-route" data-route="1" d="M300 22C300 44 95 40 95 68" marker-end="url(#kvm-arrow-baseline)"/>
                 <path class="flow-route kvm-route" data-route="2" d="M300 22L300 68" marker-end="url(#kvm-arrow-baseline)"/>
-                <path class="flow-route flow-fetch kvm-fetch" d="M122 252C158 270 232 270 268 252" marker-end="url(#kvm-copy-baseline)"/>
+                <path class="flow-route flow-fetch kvm-fetch" d="M130 256C170 282 270 284 302 266" marker-end="url(#kvm-copy-baseline)"/>
               </svg>
-              <span class="kvm-req kv-r1" data-req="B"><b>B</b></span><span class="kvm-req kv-r0" data-req="A"><b>A</b></span>
+              <span class="kvm-req" data-req="B"><b>B</b></span><span class="kvm-req" data-req="A"><b>A</b></span>
               <span class="switch-compute-label kvm-layer-label">GPU COMPUTE · PREFILL</span>
               <div class="kvm-nodes">
                 <div class="kvm-node" data-node="1"><span class="kvm-queue"><i></i><i></i><i></i><i></i></span><span class="node-id">N1</span><span class="node-phase">P</span><span class="kvm-note" data-note="1"></span></div>
@@ -324,9 +324,9 @@
               </div>
               <span class="memory-label kvm-layer-label kvm-memory-label">HOST MEMORY · SHARED KV POOL</span>
               <div class="kvm-stores">
-                <div class="kvm-store" data-store="1"><b class="kvm-store-id">N1</b><span class="kvm-row"><i class="kvm-b kv-r0" data-b="a1"><em></em></i><i class="kvm-b kv-r0" data-b="a2"><em></em></i><i class="kvm-b kv-r0" data-b="a3"><em></em></i><i class="kvm-b kv-r0" data-b="a4"><em></em></i></span><span class="kvm-row"><i class="kvm-b kv-r1" data-b="c1"><em></em></i><i class="kvm-b kv-r1" data-b="c2"><em></em></i><i class="kvm-b kv-r1" data-b="c3"><em></em></i><i class="kvm-b kv-r1" data-b="s"><em></em></i></span></div>
-                <div class="kvm-store" data-store="2"><b class="kvm-store-id">N2</b><span class="kvm-row"></span><span class="kvm-row"><i class="kvm-b kv-r1" data-b="b1"><em></em></i><i class="kvm-b kv-r1" data-b="b2"><em></em></i></span></div>
-                <div class="kvm-store" data-store="3"><b class="kvm-store-id">N3</b><span class="kvm-row"><i class="kvm-b kv-r2" data-b="x1"><em></em></i><i class="kvm-b kv-r2" data-b="x2"><em></em></i></span><span class="kvm-row"></span></div>
+                <div class="kvm-store" data-store="1"><b class="kvm-store-id">N1</b><span class="kvm-row" data-owner="A"><b class="kvm-owner">A</b><i class="kvm-b kv-r0" data-b="a1"><em></em></i><i class="kvm-b kv-r0" data-b="a2"><em></em></i><i class="kvm-b kv-r0" data-b="a3"><em></em></i><i class="kvm-b kv-r0" data-b="a4"><em></em></i></span><span class="kvm-row" data-owner="C"><b class="kvm-owner">C</b><i class="kvm-b kv-r1" data-b="c1"><em></em></i><i class="kvm-b kv-r1" data-b="c2"><em></em></i><i class="kvm-b kv-r1" data-b="c3"><em></em></i><i class="kvm-b kv-r1" data-b="s"><em></em></i></span></div>
+                <div class="kvm-store" data-store="2"><b class="kvm-store-id">N2</b><span class="kvm-row"></span><span class="kvm-row" data-owner="B"><b class="kvm-owner">B</b><i class="kvm-b kv-r1" data-b="b1"><em></em></i><i class="kvm-b kv-r1" data-b="b2"><em></em></i></span></div>
+                <div class="kvm-store" data-store="3"><b class="kvm-store-id">N3</b><span class="kvm-row"></span><span class="kvm-row"></span></div>
               </div>
             </div>
             <div class="switch-cache-status"><span class="cache-dot" aria-hidden="true"></span><strong data-t="status">N1 holds the contexts of A and C.</strong></div>
@@ -337,16 +337,16 @@
               <div class="switch-consequence is-benefit"><strong data-t="chip1">Routes by predicted TTFT</strong></div>
               <div class="switch-consequence is-benefit"><strong data-t="chip2">Evicts unreused KV first</strong></div>
             </div>
-            <div class="kvm-agents"><span class="kvm-agent kv-r0"><i></i>A · waiting for a tool</span><span class="kvm-agent kv-r1"><i></i>C</span><span class="kvm-agent kv-r1 kvm-sub"><i></i>B · sub-agent of C</span></div>
+            <div class="kvm-agents"><span class="kvm-agent" data-agent="A"><i>A</i><em>waiting for a tool</em></span><span class="kvm-agent" data-agent="C"><i>C</i><em></em></span><span class="kvm-agent" data-agent="B"><i>B</i><em>sub-agent of C</em></span></div>
             <div class="kvm-diagram" aria-hidden="true">
               <span class="kvm-router">ROUTER</span>
               <svg class="kvm-flows" viewBox="0 0 600 276" preserveAspectRatio="none" aria-hidden="true">
                 <defs><marker id="kvm-arrow-evolving" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#65545f"/></marker><marker id="kvm-copy-evolving" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#c92336"/></marker></defs>
                 <path class="flow-route kvm-route" data-route="1" d="M300 22C300 44 95 40 95 68" marker-end="url(#kvm-arrow-evolving)"/>
                 <path class="flow-route kvm-route" data-route="2" d="M300 22L300 68" marker-end="url(#kvm-arrow-evolving)"/>
-                <path class="flow-route flow-fetch kvm-fetch" d="M122 252C158 270 232 270 268 252" marker-end="url(#kvm-copy-evolving)"/>
+                <path class="flow-route flow-fetch kvm-fetch" d="M130 256C170 282 270 284 302 266" marker-end="url(#kvm-copy-evolving)"/>
               </svg>
-              <span class="kvm-req kv-r1" data-req="B"><b>B</b></span><span class="kvm-req kv-r0" data-req="A"><b>A</b></span>
+              <span class="kvm-req" data-req="B"><b>B</b></span><span class="kvm-req" data-req="A"><b>A</b></span>
               <span class="switch-compute-label kvm-layer-label">GPU COMPUTE · PREFILL</span>
               <div class="kvm-nodes">
                 <div class="kvm-node" data-node="1"><span class="kvm-queue"><i></i><i></i><i></i><i></i></span><span class="node-id">N1</span><span class="node-phase">P</span><span class="kvm-note" data-note="1"></span></div>
@@ -355,15 +355,15 @@
               </div>
               <span class="memory-label kvm-layer-label kvm-memory-label">HOST MEMORY · SHARED KV POOL</span>
               <div class="kvm-stores">
-                <div class="kvm-store" data-store="1"><b class="kvm-store-id">N1</b><span class="kvm-row"><i class="kvm-b kv-r0" data-b="a1"><em></em></i><i class="kvm-b kv-r0" data-b="a2"><em></em></i><i class="kvm-b kv-r0" data-b="a3"><em></em></i><i class="kvm-b kv-r0" data-b="a4"><em></em></i></span><span class="kvm-row"><i class="kvm-b kv-r1" data-b="c1"><em></em></i><i class="kvm-b kv-r1" data-b="c2"><em></em></i><i class="kvm-b kv-r1" data-b="c3"><em></em></i><i class="kvm-b kv-r1" data-b="s"><em></em></i></span></div>
-                <div class="kvm-store" data-store="2"><b class="kvm-store-id">N2</b><span class="kvm-row"></span><span class="kvm-row"><i class="kvm-b kv-r1" data-b="b1"><em></em></i><i class="kvm-b kv-r1" data-b="b2"><em></em></i></span></div>
-                <div class="kvm-store" data-store="3"><b class="kvm-store-id">N3</b><span class="kvm-row"><i class="kvm-b kv-r2" data-b="x1"><em></em></i><i class="kvm-b kv-r2" data-b="x2"><em></em></i></span><span class="kvm-row"></span></div>
+                <div class="kvm-store" data-store="1"><b class="kvm-store-id">N1</b><span class="kvm-row" data-owner="A"><b class="kvm-owner">A</b><i class="kvm-b kv-r0" data-b="a1"><em></em></i><i class="kvm-b kv-r0" data-b="a2"><em></em></i><i class="kvm-b kv-r0" data-b="a3"><em></em></i><i class="kvm-b kv-r0" data-b="a4"><em></em></i></span><span class="kvm-row" data-owner="C"><b class="kvm-owner">C</b><i class="kvm-b kv-r1" data-b="c1"><em></em></i><i class="kvm-b kv-r1" data-b="c2"><em></em></i><i class="kvm-b kv-r1" data-b="c3"><em></em></i><i class="kvm-b kv-r1" data-b="s"><em></em></i></span></div>
+                <div class="kvm-store" data-store="2"><b class="kvm-store-id">N2</b><span class="kvm-row"></span><span class="kvm-row" data-owner="B"><b class="kvm-owner">B</b><i class="kvm-b kv-r1" data-b="b1"><em></em></i><i class="kvm-b kv-r1" data-b="b2"><em></em></i></span></div>
+                <div class="kvm-store" data-store="3"><b class="kvm-store-id">N3</b><span class="kvm-row"></span><span class="kvm-row"></span></div>
               </div>
             </div>
             <div class="switch-cache-status"><span class="cache-dot" aria-hidden="true"></span><strong data-t="status">Counts show how many branches reuse each block.</strong></div>
           </article>
           </div>
-          <p class="switch-legend"><span><b>A B C</b> Agent branches</span><span>Blocks = branch KV</span><span class="kvm-count-key"><i aria-hidden="true">2</i> Branches that reuse a block</span><span class="kvm-dead-key"><i aria-hidden="true"></i> No branch reuses it</span><span class="kv-line-key"><i aria-hidden="true"></i> KV copy</span></p>
+          <p class="switch-legend"><span class="kvm-agent-key" data-agent="C"><i aria-hidden="true">C</i> Agent and its requests</span><span class="kvm-block-key"><i aria-hidden="true"></i> KV block</span><span class="kvm-count-key"><i aria-hidden="true">2</i> Branches that reuse a block</span><span class="kvm-dead-key"><i aria-hidden="true"></i> No branch reuses it</span><span class="kv-line-key"><i aria-hidden="true"></i> KV copy</span></p>
           </div>
           <details class="switch-scope"><summary>How it works · comparison scope and sources</summary><div>
             <p><strong>KV directory:</strong> the router keeps a cluster-wide prefix tree of the KV in GPU and host memory of every node, and counts for each block on each node how many active agent branches reference it there. A fork or a sub-agent adds one count to each block it reuses. A consecutive request of the same branch counts only its new blocks. When compaction rewrites a context, the router releases the blocks that the new context drops. A transfer between two prefill nodes moves the counts of the branch to the target, so the source copy is left with a count of zero.</p>
