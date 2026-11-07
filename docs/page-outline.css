@@ -1,18 +1,21 @@
-/* Outline of the reading view. On wide screens it stays at the right edge of the window, centered in the area
-   below the header, while the reader is in the three idea sections. Narrower screens and the opening keep their
-   layout. */
+/* Outline of the reading view. On wide screens it stays at the right edge of the window, a little above the middle
+   of the area below the header, while the reader is in the three idea sections. Narrow or short screens and the
+   opening keep their layout. */
 .page-outline { display: none; }
-@media (min-width: 1180px) {
-  body.content-active { --outline-width: 196px; --outline-gap: 40px; --outline-edge: 28px; }
+@media (min-width: 1180px) and (min-height: 480px) {
+  body.content-active {
+    --outline-width: 196px; --outline-gap: 40px; --outline-edge: 28px;
+    --outline-at: .4; /* vertical center of the outline, as a fraction of the area below the header */
+  }
   /* Room for the outline only where the right margin of the page is narrower than the outline. */
   body.content-active .idea-section > .wrap {
-    padding-right: max(0px, calc(var(--outline-width) + var(--outline-gap) + var(--outline-edge) - (100vw - min(1240px, 100vw - 96px)) / 2));
+    padding-right: max(0px, calc(var(--outline-width) + var(--outline-gap) + var(--outline-edge) - (100% - min(1240px, 100% - 96px)) / 2));
   }
   body.content-active .page-outline {
     display: block;
     position: fixed;
     z-index: 40;
-    top: calc(50% + var(--reading-bar-height, 82px) / 2);
+    top: calc(var(--outline-at) * 100% + (1 - var(--outline-at)) * var(--reading-bar-height, 82px));
     right: var(--outline-edge);
     width: var(--outline-width);
     padding: 14px 16px;
