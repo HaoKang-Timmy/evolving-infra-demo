@@ -6,7 +6,8 @@ project page, the demo video, and the code that renders the video.
 - Project page: https://inference-rsi.com/ (source in `docs/`, served by GitHub Pages)
 - Demo video: [`docs/media/merge_demo.mp4`](docs/media/merge_demo.mp4), played by the page.
   The merged demo compares Dynamo and Evolving Infra on OSWorld computer-use tasks and concurrent Claude Code agents.
-  Its poster is extracted from the opening title, and the MP4 is packaged for progressive playback without re-encoding.
+  Its poster is extracted from the opening title. In the coding part, a Dynamo node that restarts is shown in amber,
+  so red marks only Evolving Infra, and the icon legend sits above the area that player controls cover.
 - Original coding replay: [`docs/media/evolving-infra-vs-dynamo-cc126.mp4`](docs/media/evolving-infra-vs-dynamo-cc126.mp4) (light) and
   [`docs/media/evolving-infra-vs-dynamo-cc126-dark.mp4`](docs/media/evolving-infra-vs-dynamo-cc126-dark.mp4) (dark).
   Dynamo and Evolving Infra each serve 126 concurrent Claude Code agents with GLM-5.2 on 36 GB300
