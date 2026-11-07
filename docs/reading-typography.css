@@ -1,38 +1,38 @@
 /* Reading-size type below the opening/demo; colors and layout stay in the base styles. */
-body.content-active #why-evolve :is(.idea-heading, .mechanism, .detail-content) p {
+body.content-active :is(#why-evolve, #workload-planning, #kv-management) :is(.idea-heading, .mechanism, .detail-content) p {
   font-size: 17px;
   line-height: 1.75;
 }
 
-body.content-active #why-evolve .idea-heading .lead {
+body.content-active :is(#why-evolve, #workload-planning, #kv-management) .idea-heading .lead {
   font-size: 24px;
   line-height: 1.5;
   max-width: 34ch;
 }
 
-body.content-active #why-evolve .detail-content > p {
+body.content-active :is(#why-evolve, #workload-planning, #kv-management) .detail-content > p {
   max-width: 72ch;
 }
 
-body.content-active #why-evolve .technical-detail summary {
+body.content-active :is(#why-evolve, #workload-planning, #kv-management) .technical-detail summary {
   font-size: 18px;
   line-height: 1.5;
 }
 
-body.content-active #why-evolve .mechanism-tag,
-body.content-active #why-evolve .section-topline .eyebrow,
+body.content-active :is(#why-evolve, #workload-planning, #kv-management) .mechanism-tag,
+body.content-active :is(#why-evolve, #workload-planning, #kv-management) .section-topline .eyebrow,
 body.content-active #research .research-header .eyebrow {
   font-size: 12px;
   line-height: 1.6;
 }
 
-body.content-active #why-evolve .benchmark-grid h4 {
+body.content-active :is(#why-evolve, #workload-planning, #kv-management) .benchmark-grid h4 {
   font-size: 14px;
   line-height: 1.5;
 }
 
-body.content-active #why-evolve .paper-figure figcaption,
-body.content-active #why-evolve .detail-content .evidence-note,
+body.content-active :is(#why-evolve, #workload-planning, #kv-management) .paper-figure figcaption,
+body.content-active :is(#why-evolve, #workload-planning, #kv-management) .detail-content .evidence-note,
 body.content-active #research .research-note {
   font-size: 13px;
   line-height: 1.7;
@@ -76,26 +76,26 @@ body.content-active .site-footer > a:last-child {
 }
 
 @media (max-width: 800px) {
-  body.content-active #why-evolve :is(.idea-heading, .mechanism, .detail-content) p {
+  body.content-active :is(#why-evolve, #workload-planning, #kv-management) :is(.idea-heading, .mechanism, .detail-content) p {
     font-size: 16px;
     line-height: 1.75;
   }
 
-  body.content-active #why-evolve .idea-heading .lead {
+  body.content-active :is(#why-evolve, #workload-planning, #kv-management) .idea-heading .lead {
     font-size: 20px;
     line-height: 1.5;
   }
 
-  body.content-active #why-evolve .technical-detail summary {
+  body.content-active :is(#why-evolve, #workload-planning, #kv-management) .technical-detail summary {
     font-size: 17px;
   }
 
-  body.content-active #why-evolve .benchmark-grid h4 {
+  body.content-active :is(#why-evolve, #workload-planning, #kv-management) .benchmark-grid h4 {
     font-size: 13px;
   }
 
-  body.content-active #why-evolve .paper-figure figcaption,
-  body.content-active #why-evolve .detail-content .evidence-note,
+  body.content-active :is(#why-evolve, #workload-planning, #kv-management) .paper-figure figcaption,
+  body.content-active :is(#why-evolve, #workload-planning, #kv-management) .detail-content .evidence-note,
   body.content-active #research .research-note,
   body.content-active #proof-notes .measurement-note {
     font-size: 12px;
