@@ -26,6 +26,7 @@
   <link rel="stylesheet" href="reading-typography.css?v=compact-content">
   <link rel="stylesheet" href="reading-compact.css?v=compact-content">
   <link rel="stylesheet" href="role-switch.css?v=compact-motion">
+  <link rel="stylesheet" href="idea-demos.css?v=idea-demos-1">
   <link rel="preload" as="image" href="media/scene/apps-atlas.png">
   <link rel="preload" as="image" href="media/scene/hardware-atlas.png">
   <script src="js/site.js?v=light-motion" defer></script>
@@ -33,6 +34,7 @@
   <script src="js/workload.js?v=light-motion" defer></script>
   <script src="js/reading-view.js?v=follow-scroll" defer></script>
   <script src="js/role-switch.js?v=compact-motion" defer></script>
+  <script src="js/idea-demos.js?v=idea-demos-1" defer></script>
 </head>
 <body class="intro-active">
   <a class="skip-link" href="#demo" data-enter>Skip to the demo</a>
@@ -209,7 +211,7 @@
 
           </article>
           </div>
-          <p class="switch-legend"><span><b>P</b> Prefill · <b>D</b> Decode</span><span>Blocks = request KV</span><span class="pending-key"><i aria-hidden="true"></i> Pending prefill</span><span class="kv-line-key"><i aria-hidden="true"></i> KV copy</span><span>Illustrative timing</span></p>
+          <p class="switch-legend"><span><b>P</b> Prefill · <b>D</b> Decode</span><span>Blocks = request KV</span><span class="pending-key"><i aria-hidden="true"></i> Pending prefill</span><span class="kv-line-key"><i aria-hidden="true"></i> KV copy</span></p>
 
 
           </div>
@@ -224,6 +226,144 @@
             <p><strong>Existing engine:</strong> vLLM, SGLang and TRT-LLM are examples of serving engines. The default animation illustrates restart-based reconfiguration, grounded in the Dynamo/SGLang deployment evaluated in our report; it is not a claim that every configuration of these engines requires a restart. Only the selected worker restarts; the rest of the cluster continues serving.</p>
             <p><strong>vLLM:</strong> KV transfer, multi-turn reuse, and configurations with per-request P/D behavior already exist. This illustration makes no blanket claim that vLLM or SGLang cannot transfer KV or switch roles. The focus is the lifecycle of reusable KV during the specific reconfiguration paths shown. <a href="https://github.com/vllm-project/vllm/issues/43807" target="_blank" rel="noopener noreferrer">vLLM P/D behavior ↗</a> · <a href="https://github.com/vllm-project/vllm/blob/1ab4476ac9d1829426f467f3c04ae2de3f49e8fe/docs/design/nixl_kv_cache_lease.md" target="_blank" rel="noopener noreferrer">Multi-turn KV reuse ↗</a></p>
             <p><strong>Evolving Infra:</strong> queued prefills are distributed across the other prefill nodes, N1 and N2, while in-flight work drains on N3, and N3 changes role without a process restart. The cached blocks associated with R0, R1 and R2 physically stay in N3’s host memory, which is accessible through the shared KV pool. Request R3 continues R1’s context: N1 reads R1’s cached blocks while R3 is queued, computes KV for its new input, then sends the resulting KV to decode through GPU-to-GPU transfer. An outlined block represents new input whose KV has not yet been computed.</p>
+          </div></details>
+        </section>
+        <section class="switch-demo idea-demo plan-demo" id="planning-demo" data-stage="0" data-baseline="dynamo" data-playing="false" aria-labelledby="planning-demo-title">
+          <div class="switch-stage">
+          <div class="switch-demo-heading"><div><p class="eyebrow">PLANNING IN ACTION</p><h3 id="planning-demo-title">Count real work. <span class="accent-text">Ignore bursts.</span></h3></div><div class="switch-controls"><label for="planning-baseline">Compare with</label><select id="planning-baseline" data-demo-baseline><option value="dynamo">Dynamo planner</option><option value="arrow">Arrow planner</option></select><div class="switch-playback"><button type="button" class="button button-primary" data-demo-play>Play comparison</button><button type="button" class="button button-outline" data-demo-replay>Replay</button></div></div></div>
+          <div class="switch-steps" aria-label="Animation stages">
+            <button type="button" data-demo-step="0" aria-current="step"><span>1</span>Long contexts</button>
+            <button type="button" data-demo-step="1"><span>2</span>First decision</button>
+            <button type="button" data-demo-step="2"><span>3</span>Sub-agent burst</button>
+            <button type="button" data-demo-step="3"><span>4</span>Mix shifts</button>
+            <button type="button" data-demo-step="4"><span>5</span>Result</button>
+          </div>
+          <div class="switch-explanation"><strong data-demo-title>Coding agents reuse long cached contexts. Both sides start at 3P3D.</strong></div>
+          <div class="switch-panels">
+          <article class="switch-panel plan-panel" data-system="baseline" aria-label="Comparison planner">
+            <header class="switch-panel-header"><h4 data-t="name">Dynamo planner</h4><span class="switch-split" data-split>3P · 3D</span></header>
+            <div class="switch-consequences">
+              <div class="switch-consequence is-cost"><strong data-t="chip1">Reads queue depth and KV use</strong></div>
+              <div class="switch-consequence is-cost"><strong data-t="chip2">Relaunches a worker per switch</strong></div>
+            </div>
+            <div class="plan-diagram" aria-hidden="true">
+              <span class="plan-label">PREFILL</span><span class="plan-label">DECODE</span>
+              <div class="plan-tracks">
+                <div class="plan-track" data-row="P"><i class="plan-spike"></i><i class="plan-need"></i><i class="plan-guess"></i><b class="plan-flag">BOTTLENECK</b></div>
+                <div class="plan-track" data-row="D"><i class="plan-spike"></i><i class="plan-need"></i><i class="plan-guess"></i><b class="plan-flag">BOTTLENECK</b></div>
+                <span class="plan-node" data-node="1"><small>N1</small><b>P</b></span><span class="plan-node" data-node="2"><small>N2</small><b>P</b></span><span class="plan-node" data-node="3"><small>N3</small><b>P</b></span><span class="plan-node" data-node="4"><small>N4</small><b>D</b></span><span class="plan-node" data-node="5"><small>N5</small><b>D</b></span><span class="plan-node" data-node="6"><small>N6</small><b>D</b></span>
+              </div>
+              <div class="plan-meter"><span class="plan-label">THROUGHPUT</span><div class="plan-bar"><i></i><em>BEST SPLIT</em></div></div>
+            </div>
+            <div class="switch-cache-status"><span class="cache-dot" aria-hidden="true"></span><strong data-t="status">Starts at 3P3D. Long contexts keep decode KV use high.</strong></div>
+          </article>
+          <article class="switch-panel plan-panel ours" data-system="evolving" aria-label="Evolving Infra">
+            <header class="switch-panel-header"><h4>Evolving Infra</h4><span class="switch-split" data-split>3P · 3D</span></header>
+            <div class="switch-consequences">
+              <div class="switch-consequence is-benefit"><strong data-t="chip1">Models work after KV reuse</strong></div>
+              <div class="switch-consequence is-benefit"><strong data-t="chip2">Switches on lasting gains</strong></div>
+            </div>
+            <div class="plan-diagram" aria-hidden="true">
+              <span class="plan-label">PREFILL</span><span class="plan-label">DECODE</span>
+              <div class="plan-tracks">
+                <div class="plan-track" data-row="P"><i class="plan-spike"></i><i class="plan-need"></i><i class="plan-guess"></i><b class="plan-flag">BOTTLENECK</b></div>
+                <div class="plan-track" data-row="D"><i class="plan-spike"></i><i class="plan-need"></i><i class="plan-guess"></i><b class="plan-flag">BOTTLENECK</b></div>
+                <span class="plan-node" data-node="1"><small>N1</small><b>P</b></span><span class="plan-node" data-node="2"><small>N2</small><b>P</b></span><span class="plan-node" data-node="3"><small>N3</small><b>P</b></span><span class="plan-node" data-node="4"><small>N4</small><b>D</b></span><span class="plan-node" data-node="5"><small>N5</small><b>D</b></span><span class="plan-node" data-node="6"><small>N6</small><b>D</b></span>
+              </div>
+              <div class="plan-meter"><span class="plan-label">THROUGHPUT</span><div class="plan-bar"><i></i><em>BEST SPLIT</em></div></div>
+            </div>
+            <div class="switch-cache-status"><span class="cache-dot" aria-hidden="true"></span><strong data-t="status">Starts at 3P3D. Models the work left after KV reuse.</strong></div>
+          </article>
+          </div>
+          <p class="switch-legend"><span><b>P</b> Prefill · <b>D</b> Decode node</span><span class="plan-need-key"><i aria-hidden="true"></i> Work the agents need</span><span class="plan-guess-key"><i aria-hidden="true"></i> Planner estimate</span><span class="plan-short-key"><i aria-hidden="true"></i> Too few nodes</span></p>
+          </div>
+          <details class="switch-scope"><summary>How it works · comparison scope and sources</summary><div>
+            <p><strong>Evolving Infra:</strong> the planner describes each request by the work left after KV reuse: uncached and cached prefill tokens, output tokens, and tokens accepted per decode step. It fits prefill and decode iteration-time models online, with errors below 7%, and predicts the throughput of every split; the slower phase sets the throughput of the cluster. At the end of each planning window it compares the candidate splits on slices of the window and switches only when the mean gain exceeds twice its standard error. Short bursts of sub-agents and forks raise the momentary load but barely change the average work, so they do not trigger a switch. The switch itself is the in-place role change shown above.</p>
+            <p><strong>Dynamo planner:</strong> sizes the split from queue depth and KV utilization. Long agent contexts keep the KV utilization of decode nodes high, so it keeps adding decode nodes. Each switch relaunches the worker of a node. <strong>Arrow:</strong> predicts prefill time from the full input length, which counts cached prefixes as work, and reacts to short prefill bursts. We reimplement Arrow’s planner on the symmetric engines of Evolving Infra.</p>
+            <p><strong>Measured:</strong> Claude Code traces with 90 concurrent agents, GLM-5.2 on nine nodes of 4× GB300, one hour after a 30-minute warmup, both planners starting from 6P3D. The Dynamo planner drifts to 2P7D and Arrow to 8P1D with 34 switches; they deliver 49% and 65% less throughput than the best static split, 4P5D. Evolving Infra delivers over twice the throughput of either planner. In a three-hour shift from Putnam to OSWorld agents, its split tracks the best split of each 10-minute window.</p>
+          </div></details>
+        </section>
+        <section class="switch-demo idea-demo kvm-demo" id="kv-demo" data-stage="0" data-baseline="cache" data-playing="false" aria-labelledby="kv-demo-title">
+          <div class="switch-stage">
+          <div class="switch-demo-heading"><div><p class="eyebrow">KV MANAGEMENT IN ACTION</p><h3 id="kv-demo-title">Fetch while waiting. <span class="accent-text">Keep what agents reuse.</span></h3></div><div class="switch-controls"><label for="kv-baseline">Compare with</label><select id="kv-baseline" data-demo-baseline><option value="cache">Cache-aware router</option><option value="load">Dynamo KV router</option></select><div class="switch-playback"><button type="button" class="button button-primary" data-demo-play>Play comparison</button><button type="button" class="button button-outline" data-demo-replay>Replay</button></div></div></div>
+          <div class="switch-steps" aria-label="Animation stages">
+            <button type="button" data-demo-step="0" aria-current="step"><span>1</span>Sub-agent</button>
+            <button type="button" data-demo-step="1"><span>2</span>Routing</button>
+            <button type="button" data-demo-step="2"><span>3</span>Compaction</button>
+            <button type="button" data-demo-step="3"><span>4</span>Eviction</button>
+            <button type="button" data-demo-step="4"><span>5</span>Tool returns</button>
+          </div>
+          <div class="switch-explanation"><strong data-demo-title>Agent C spawns sub-agent B, which reuses C’s context on N1.</strong></div>
+          <div class="switch-panels">
+          <article class="switch-panel kvm-panel" data-system="baseline" aria-label="Comparison router">
+            <header class="switch-panel-header"><h4 data-t="name">Cache-aware router</h4></header>
+            <div class="switch-consequences">
+              <div class="switch-consequence is-cost"><strong data-t="chip1">Routes to the KV holder</strong></div>
+              <div class="switch-consequence is-cost"><strong data-t="chip2">Evicts least recently used</strong></div>
+            </div>
+            <div class="kvm-agents"><span class="kvm-agent kv-r0"><i></i>A · waiting for a tool</span><span class="kvm-agent kv-r1"><i></i>C</span><span class="kvm-agent kv-r1 kvm-sub"><i></i>B · sub-agent of C</span></div>
+            <div class="kvm-diagram" aria-hidden="true">
+              <span class="kvm-router">ROUTER</span>
+              <svg class="kvm-flows" viewBox="0 0 600 276" preserveAspectRatio="none" aria-hidden="true">
+                <defs><marker id="kvm-arrow-baseline" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#65545f"/></marker><marker id="kvm-copy-baseline" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#c92336"/></marker></defs>
+                <path class="flow-route kvm-route" data-route="1" d="M300 22C300 44 95 40 95 68" marker-end="url(#kvm-arrow-baseline)"/>
+                <path class="flow-route kvm-route" data-route="2" d="M300 22L300 68" marker-end="url(#kvm-arrow-baseline)"/>
+                <path class="flow-route flow-fetch kvm-fetch" d="M122 252C158 270 232 270 268 252" marker-end="url(#kvm-copy-baseline)"/>
+              </svg>
+              <span class="kvm-req kv-r1" data-req="B"><b>B</b></span><span class="kvm-req kv-r0" data-req="A"><b>A</b></span>
+              <span class="switch-compute-label kvm-layer-label">GPU COMPUTE · PREFILL</span>
+              <div class="kvm-nodes">
+                <div class="kvm-node" data-node="1"><span class="kvm-queue"><i></i><i></i><i></i><i></i></span><span class="node-id">N1</span><span class="node-phase">P</span><span class="kvm-note" data-note="1"></span></div>
+                <div class="kvm-node" data-node="2"><span class="kvm-queue"></span><span class="node-id">N2</span><span class="node-phase">P</span><span class="kvm-note" data-note="2"></span></div>
+                <div class="kvm-node" data-node="3"><span class="kvm-queue"><i></i><i></i></span><span class="node-id">N3</span><span class="node-phase">P</span><span class="kvm-note" data-note="3"></span></div>
+              </div>
+              <span class="memory-label kvm-layer-label kvm-memory-label">HOST MEMORY · SHARED KV POOL</span>
+              <div class="kvm-stores">
+                <div class="kvm-store" data-store="1"><b class="kvm-store-id">N1</b><span class="kvm-row"><i class="kvm-b kv-r0" data-b="a1"><em></em></i><i class="kvm-b kv-r0" data-b="a2"><em></em></i><i class="kvm-b kv-r0" data-b="a3"><em></em></i><i class="kvm-b kv-r0" data-b="a4"><em></em></i></span><span class="kvm-row"><i class="kvm-b kv-r1" data-b="c1"><em></em></i><i class="kvm-b kv-r1" data-b="c2"><em></em></i><i class="kvm-b kv-r1" data-b="c3"><em></em></i><i class="kvm-b kv-r1" data-b="s"><em></em></i></span></div>
+                <div class="kvm-store" data-store="2"><b class="kvm-store-id">N2</b><span class="kvm-row"></span><span class="kvm-row"><i class="kvm-b kv-r1" data-b="b1"><em></em></i><i class="kvm-b kv-r1" data-b="b2"><em></em></i></span></div>
+                <div class="kvm-store" data-store="3"><b class="kvm-store-id">N3</b><span class="kvm-row"><i class="kvm-b kv-r2" data-b="x1"><em></em></i><i class="kvm-b kv-r2" data-b="x2"><em></em></i></span><span class="kvm-row"></span></div>
+              </div>
+            </div>
+            <div class="switch-cache-status"><span class="cache-dot" aria-hidden="true"></span><strong data-t="status">N1 holds the contexts of A and C.</strong></div>
+          </article>
+          <article class="switch-panel kvm-panel ours" data-system="evolving" aria-label="Evolving Infra">
+            <header class="switch-panel-header"><h4>Evolving Infra</h4></header>
+            <div class="switch-consequences">
+              <div class="switch-consequence is-benefit"><strong data-t="chip1">Routes by predicted TTFT</strong></div>
+              <div class="switch-consequence is-benefit"><strong data-t="chip2">Evicts unreused KV first</strong></div>
+            </div>
+            <div class="kvm-agents"><span class="kvm-agent kv-r0"><i></i>A · waiting for a tool</span><span class="kvm-agent kv-r1"><i></i>C</span><span class="kvm-agent kv-r1 kvm-sub"><i></i>B · sub-agent of C</span></div>
+            <div class="kvm-diagram" aria-hidden="true">
+              <span class="kvm-router">ROUTER</span>
+              <svg class="kvm-flows" viewBox="0 0 600 276" preserveAspectRatio="none" aria-hidden="true">
+                <defs><marker id="kvm-arrow-evolving" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#65545f"/></marker><marker id="kvm-copy-evolving" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#c92336"/></marker></defs>
+                <path class="flow-route kvm-route" data-route="1" d="M300 22C300 44 95 40 95 68" marker-end="url(#kvm-arrow-evolving)"/>
+                <path class="flow-route kvm-route" data-route="2" d="M300 22L300 68" marker-end="url(#kvm-arrow-evolving)"/>
+                <path class="flow-route flow-fetch kvm-fetch" d="M122 252C158 270 232 270 268 252" marker-end="url(#kvm-copy-evolving)"/>
+              </svg>
+              <span class="kvm-req kv-r1" data-req="B"><b>B</b></span><span class="kvm-req kv-r0" data-req="A"><b>A</b></span>
+              <span class="switch-compute-label kvm-layer-label">GPU COMPUTE · PREFILL</span>
+              <div class="kvm-nodes">
+                <div class="kvm-node" data-node="1"><span class="kvm-queue"><i></i><i></i><i></i><i></i></span><span class="node-id">N1</span><span class="node-phase">P</span><span class="kvm-note" data-note="1"></span></div>
+                <div class="kvm-node" data-node="2"><span class="kvm-queue"></span><span class="node-id">N2</span><span class="node-phase">P</span><span class="kvm-note" data-note="2"></span></div>
+                <div class="kvm-node" data-node="3"><span class="kvm-queue"><i></i><i></i></span><span class="node-id">N3</span><span class="node-phase">P</span><span class="kvm-note" data-note="3"></span></div>
+              </div>
+              <span class="memory-label kvm-layer-label kvm-memory-label">HOST MEMORY · SHARED KV POOL</span>
+              <div class="kvm-stores">
+                <div class="kvm-store" data-store="1"><b class="kvm-store-id">N1</b><span class="kvm-row"><i class="kvm-b kv-r0" data-b="a1"><em></em></i><i class="kvm-b kv-r0" data-b="a2"><em></em></i><i class="kvm-b kv-r0" data-b="a3"><em></em></i><i class="kvm-b kv-r0" data-b="a4"><em></em></i></span><span class="kvm-row"><i class="kvm-b kv-r1" data-b="c1"><em></em></i><i class="kvm-b kv-r1" data-b="c2"><em></em></i><i class="kvm-b kv-r1" data-b="c3"><em></em></i><i class="kvm-b kv-r1" data-b="s"><em></em></i></span></div>
+                <div class="kvm-store" data-store="2"><b class="kvm-store-id">N2</b><span class="kvm-row"></span><span class="kvm-row"><i class="kvm-b kv-r1" data-b="b1"><em></em></i><i class="kvm-b kv-r1" data-b="b2"><em></em></i></span></div>
+                <div class="kvm-store" data-store="3"><b class="kvm-store-id">N3</b><span class="kvm-row"><i class="kvm-b kv-r2" data-b="x1"><em></em></i><i class="kvm-b kv-r2" data-b="x2"><em></em></i></span><span class="kvm-row"></span></div>
+              </div>
+            </div>
+            <div class="switch-cache-status"><span class="cache-dot" aria-hidden="true"></span><strong data-t="status">Counts show how many branches reuse each block.</strong></div>
+          </article>
+          </div>
+          <p class="switch-legend"><span><b>A B C</b> Agent branches</span><span>Blocks = branch KV</span><span class="kvm-count-key"><i aria-hidden="true">2</i> Branches that reuse a block</span><span class="kvm-dead-key"><i aria-hidden="true"></i> No branch reuses it</span><span class="kv-line-key"><i aria-hidden="true"></i> KV copy</span></p>
+          </div>
+          <details class="switch-scope"><summary>How it works · comparison scope and sources</summary><div>
+            <p><strong>KV directory:</strong> the router keeps a cluster-wide prefix tree of the KV in GPU and host memory of every node, and counts for each block on each node how many active agent branches reference it there. A fork or a sub-agent adds one count to each block it reuses. A consecutive request of the same branch counts only its new blocks. When compaction rewrites a context, the router releases the blocks that the new context drops. A transfer between two prefill nodes moves the counts of the branch to the target, so the source copy is left with a count of zero.</p>
+            <p><strong>Routing and eviction:</strong> the router sends each prefill request to the node with the shortest predicted time to first token: the rest of its running batch, its queued requests, and the new request itself, each predicted by the prefill model. That node fetches the KV of the request from the shared host-memory pool while the request waits in its queue, so the fetch overlaps the wait. Each node evicts blocks with a zero count first, in least-recently-used order, and evicts blocks that a branch still references only when none are left.</p>
+            <p><strong>Comparison:</strong> the cache-aware router of the SGLang Model Gateway keeps an agent and its forks on the few prefill nodes that hold their prefixes; the Dynamo KV router sends more requests to nodes without the prefix, which recompute it. Both deployments run HiCache with least-recently-used eviction, which drops the KV of branches that wait for tools while keeping histories that compaction replaced. On Claude Code, these evictions cause 34–46% of the KV reuse that Dynamo loses. Evolving Infra lowers the P95 TTFT by 3.25–13.92× relative to Dynamo on Claude Code and OSWorld.</p>
           </div></details>
         </section>
         </div>
