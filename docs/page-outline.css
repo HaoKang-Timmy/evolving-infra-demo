@@ -1,22 +1,29 @@
-/* Outline of the reading view. On wide screens it sits to the right of the three idea sections and follows
-   the reader; the sections leave room for it. Narrower screens and the opening keep their layout. */
+/* Outline of the reading view. On wide screens it stays at the right edge of the window, centered in the area
+   below the header, while the reader is in the three idea sections. Narrower screens and the opening keep their
+   layout. */
 .page-outline { display: none; }
 @media (min-width: 1180px) {
-  body.content-active { --outline-width: 196px; --outline-gap: 44px; }
-  body.content-active .idea-section > .wrap { padding-right: calc(var(--outline-width) + var(--outline-gap)); }
+  body.content-active { --outline-width: 196px; --outline-gap: 40px; --outline-edge: 28px; }
+  /* Room for the outline only where the right margin of the page is narrower than the outline. */
+  body.content-active .idea-section > .wrap {
+    padding-right: max(0px, calc(var(--outline-width) + var(--outline-gap) + var(--outline-edge) - (100vw - min(1240px, 100vw - 96px)) / 2));
+  }
   body.content-active .page-outline {
     display: block;
     position: fixed;
     z-index: 40;
-    top: calc(var(--reading-bar-height, 82px) + 44px);
-    right: calc((100% - min(1240px, 100% - 96px)) / 2);
+    top: calc(50% + var(--reading-bar-height, 82px) / 2);
+    right: var(--outline-edge);
     width: var(--outline-width);
+    padding: 14px 16px;
+    border-radius: 10px;
+    background: rgba(247,245,242,.92);
     opacity: 0;
     visibility: hidden;
-    transform: translateY(6px);
+    transform: translateY(calc(-50% + 8px));
     transition: opacity .35s, transform .35s, visibility .35s;
   }
-  body.content-active .page-outline.is-shown { opacity: 1; visibility: visible; transform: none; }
+  body.content-active .page-outline.is-shown { opacity: 1; visibility: visible; transform: translateY(-50%); }
 }
 .page-outline-title { margin: 0 0 12px; color: var(--faint); font: 10px/1.4 var(--mono); letter-spacing: .12em; }
 .page-outline ol { margin: 0; padding: 0; list-style: none; border-left: 1px solid var(--line); }

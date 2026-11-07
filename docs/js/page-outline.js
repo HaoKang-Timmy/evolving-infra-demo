@@ -16,12 +16,19 @@
       const first = ideas.length ? ideas[0].getBoundingClientRect() : null;
       const last = ideas.length ? ideas[ideas.length - 1].getBoundingClientRect() : null;
       // Hidden content has an empty box, so the outline stays hidden until the reading view opens.
-      nav.classList.toggle('is-shown', !!(first && last && first.height > 0
-        && first.top < window.innerHeight * 0.55 && last.bottom > line));
+      const shown = !!(first && last && first.height > 0
+        && first.top < window.innerHeight * 0.55 && last.bottom > line);
+      nav.classList.toggle('is-shown', shown);
       let current = -1;
       targets.forEach((target, i) => {
         if (target && target.getBoundingClientRect().top <= line) current = i;
       });
+      // At the end of the page the last sections cannot reach the line, so mark the last one on screen.
+      if (shown && window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 2) {
+        targets.forEach((target, i) => {
+          if (target && target.getBoundingClientRect().top < window.innerHeight) current = i;
+        });
+      }
       links.forEach((link, i) => {
         if (i === current) link.setAttribute('aria-current', 'location');
         else link.removeAttribute('aria-current');
