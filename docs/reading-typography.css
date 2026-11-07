@@ -47,6 +47,9 @@ body.content-active #research .paper-title {
 body.content-active #research .authors {
   font-size: 15px;
   line-height: 2;
+  /* Room for all eleven authors on one line; balanced lines where the page is narrower. */
+  max-width: 980px;
+  text-wrap: balance;
 }
 
 body.content-active #research .affiliations {
