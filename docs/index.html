@@ -23,10 +23,11 @@
   <link rel="stylesheet" href="workload.css?v=logo-cta-fix">
   <link rel="stylesheet" href="affiliations.css?v=logo-names">
   <link rel="stylesheet" href="reading-view.css?v=follow-scroll">
-  <link rel="stylesheet" href="reading-typography.css?v=compact-content">
+  <link rel="stylesheet" href="reading-typography.css?v=idea-sections">
   <link rel="stylesheet" href="reading-compact.css?v=compact-content">
   <link rel="stylesheet" href="role-switch.css?v=compact-motion">
-  <link rel="stylesheet" href="idea-demos.css?v=idea-demos-1">
+  <link rel="stylesheet" href="idea-demos.css?v=idea-demos-2">
+  <link rel="stylesheet" href="page-outline.css?v=outline-1">
   <link rel="preload" as="image" href="media/scene/apps-atlas.png">
   <link rel="preload" as="image" href="media/scene/hardware-atlas.png">
   <script src="js/site.js?v=light-motion" defer></script>
@@ -34,7 +35,8 @@
   <script src="js/workload.js?v=light-motion" defer></script>
   <script src="js/reading-view.js?v=follow-scroll" defer></script>
   <script src="js/role-switch.js?v=compact-motion" defer></script>
-  <script src="js/idea-demos.js?v=idea-demos-1" defer></script>
+  <script src="js/idea-demos.js?v=idea-demos-2" defer></script>
+  <script src="js/page-outline.js?v=outline-1" defer></script>
 </head>
 <body class="intro-active">
   <a class="skip-link" href="#demo" data-enter>Skip to the demo</a>
@@ -118,6 +120,16 @@
     </section>
 
     <div id="site-content" hidden>
+    <nav class="page-outline" aria-label="On this page">
+      <p class="page-outline-title">ON THIS PAGE</p>
+      <ol>
+        <li><a href="#demo"><span>01</span>Demo</a></li>
+        <li><a href="#why-evolve"><span>02</span>Decoupled infrastructure</a></li>
+        <li><a href="#workload-planning"><span>03</span>Workload-aware planning</a></li>
+        <li><a href="#kv-management"><span>04</span>Agent-aware KV management</a></li>
+        <li><a href="#research"><span>05</span>Research</a></li>
+      </ol>
+    </nav>
     <section class="proof-section" id="proof-notes" aria-label="Experiment details and code access">
       <div class="wrap">
         <p class="measurement-note">Compared with Dynamo in the coding demo runs: GLM-5.2, 126 concurrent Claude Code agents, and the same 36 GB300 GPUs. Scored over one hour after a 30-minute warmup. E2E measures individual LLM requests. Revenue is valued at GLM-5.2 list prices: $1.40 per 1M input tokens, $0.26 per 1M cached input tokens, and $4.40 per 1M output tokens.</p>
@@ -127,20 +139,15 @@
 
     <section class="idea-section" id="why-evolve" aria-labelledby="idea-heading">
       <div class="wrap">
-        <div class="section-topline" data-reveal><span class="eyebrow">02 / THE IDEA</span><span class="mono-note">DECOUPLING IS THE FIRST STEP.</span></div>
+        <div class="section-topline" data-reveal><span class="eyebrow">02 / DECOUPLED INFRASTRUCTURE</span><span class="mono-note">DECOUPLING IS THE FIRST STEP.</span></div>
         <div class="idea-heading idea-decoupling" data-reveal>
           <h2 id="idea-heading"><span class="accent-text idea-decouple-word"><img class="decouple-icon" src="fig/decoupled-link.svg" alt="" aria-hidden="true">Decouple</span> compute allocation<br>from KV cache management.</h2>
-          <div><p class="lead">Reallocate compute as workloads change. Keep reusable KV available.</p><p>Change which nodes run prefill and decode independently of where useful context is retained, fetched, and evicted. Decoupling gives infrastructure the freedom to evolve.</p></div>
-        </div>
-        <div class="mechanisms">
-          <article class="mechanism" data-reveal><span class="mechanism-index">01</span><h3>Unlock <br>the freedom.</h3><p>Symmetric engines let every node serve prefill or decode without a restart. A shared host-memory KV pool keeps reusable context accessible when compute roles change.</p><span class="mechanism-tag">DECOUPLED INFRASTRUCTURE</span></article>
-          <article class="mechanism" data-reveal><span class="mechanism-index">02</span><h3>Understand <br>the workload.</h3><p>The planner learns prefill and decode costs online, accounting for cached context. It reallocates nodes when a workload shift persists, without offline profiling.</p><span class="mechanism-tag">WORKLOAD-AWARE PLANNING</span></article>
-          <article class="mechanism" data-reveal><span class="mechanism-index">03</span><h3>Move compute. <br>Keep context.</h3><p>The router balances load and fetches KV while requests wait. A branch-aware directory follows context changes, retaining useful KV and evicting unreferenced copies first.</p><span class="mechanism-tag">AGENT-AWARE KV MANAGEMENT</span></article>
+          <div><p class="lead">Reallocate compute as workloads change. Keep reusable KV available.</p><p>Change which nodes run prefill and decode independently of where useful context is retained, fetched, and evicted. Symmetric engines let every node serve prefill or decode without a restart. A shared host-memory KV pool keeps reusable context accessible when compute roles change. Decoupling gives infrastructure the freedom to evolve.</p></div>
         </div>
         <div class="role-story" id="role-story">
         <section class="switch-demo" id="role-switch-demo" data-step="0" data-baseline="restart" data-playing="false" aria-labelledby="switch-demo-title">
           <div class="switch-stage">
-          <div class="switch-demo-heading"><div><p class="eyebrow">01 · DECOUPLED INFRASTRUCTURE</p><h3 id="switch-demo-title">Switch roles. <span class="accent-text">Keep KV.</span></h3></div><div class="switch-controls"><label for="switch-baseline">Compare with</label><select id="switch-baseline"><option value="restart">Existing engine</option><option value="sglang">SGLang runtime switch</option></select><div class="switch-playback"><button id="switch-play" type="button" class="button button-primary">Play comparison</button><button id="switch-replay" type="button" class="button button-outline">Replay</button></div></div></div>
+          <div class="switch-demo-heading"><div><h3 id="switch-demo-title">Switch roles. <span class="accent-text">Keep KV.</span></h3></div><div class="switch-controls"><label for="switch-baseline">Compare with</label><select id="switch-baseline"><option value="restart">Existing engine</option><option value="sglang">SGLang runtime switch</option></select><div class="switch-playback"><button id="switch-play" type="button" class="button button-primary">Play comparison</button><button id="switch-replay" type="button" class="button button-outline">Replay</button></div></div></div>
           <div class="switch-steps" aria-label="Animation stages">
             <button type="button" data-switch-step="0" aria-current="step"><span>1</span>Demand shifts</button>
             <button type="button" data-switch-step="1"><span>2</span>Switching</button>
@@ -233,9 +240,20 @@
             <p><strong>Evolving Infra:</strong> queued prefills are distributed across the other prefill nodes, N1 and N2, while in-flight work drains on N3, and N3 changes role without a process restart. The cached blocks associated with R0, R1 and R2 physically stay in N3’s host memory, which is accessible through the shared KV pool. Request R3 continues R1’s context: N1 reads R1’s cached blocks while R3 is queued, computes KV for its new input, then sends the resulting KV to decode through GPU-to-GPU transfer. An outlined block represents new input whose KV has not yet been computed.</p>
           </div></details>
         </section>
+        </div>
+      </div>
+    </section>
+    <section class="idea-section" id="workload-planning" aria-labelledby="planning-heading">
+      <div class="wrap">
+        <div class="section-topline" data-reveal><span class="eyebrow">03 / WORKLOAD-AWARE PLANNING</span><span class="mono-note">UNDERSTAND THE WORKLOAD.</span></div>
+        <div class="idea-heading idea-decoupling" data-reveal>
+          <h2 id="planning-heading"><span class="accent-text">Allocate</span> compute by the work<br>agents actually need.</h2>
+          <div><p class="lead">Measure prefill and decode work after KV reuse. Switch only when a shift lasts.</p><p>The planner learns prefill and decode costs online, accounting for cached context. It reallocates nodes when a workload shift persists, without offline profiling. Short bursts of sub-agents raise the momentary load but barely change the average work, so they do not trigger a switch.</p></div>
+        </div>
+        <div class="role-story">
         <section class="switch-demo idea-demo plan-demo" id="planning-demo" data-stage="0" data-baseline="dynamo" data-playing="false" aria-labelledby="planning-demo-title">
           <div class="switch-stage">
-          <div class="switch-demo-heading"><div><p class="eyebrow">02 · WORKLOAD-AWARE PLANNING</p><h3 id="planning-demo-title">Count real work. <span class="accent-text">Ignore bursts.</span></h3></div><div class="switch-controls"><label for="planning-baseline">Compare with</label><select id="planning-baseline" data-demo-baseline><option value="dynamo">Dynamo planner</option><option value="arrow">Arrow planner</option></select><div class="switch-playback"><button type="button" class="button button-primary" data-demo-play>Play comparison</button><button type="button" class="button button-outline" data-demo-replay>Replay</button></div></div></div>
+          <div class="switch-demo-heading"><div><h3 id="planning-demo-title">Count real work. <span class="accent-text">Ignore bursts.</span></h3></div><div class="switch-controls"><label for="planning-baseline">Compare with</label><select id="planning-baseline" data-demo-baseline><option value="dynamo">Dynamo planner</option><option value="arrow">Arrow planner</option></select><div class="switch-playback"><button type="button" class="button button-primary" data-demo-play>Play comparison</button><button type="button" class="button button-outline" data-demo-replay>Replay</button></div></div></div>
           <div class="switch-steps" aria-label="Animation stages">
             <button type="button" data-demo-step="0" aria-current="step"><span>1</span>Long contexts</button>
             <button type="button" data-demo-step="1"><span>2</span>First decision</button>
@@ -288,9 +306,20 @@
             <p><strong>Measured:</strong> Claude Code traces with 90 concurrent agents, GLM-5.2 on nine nodes of 4× GB300, one hour after a 30-minute warmup, both planners starting from 6P3D. The Dynamo planner drifts to 2P7D and Arrow to 8P1D with 34 switches; they deliver 49% and 65% less throughput than the best static split, 4P5D. Evolving Infra delivers over twice the throughput of either planner. In a three-hour shift from Putnam to OSWorld agents, its split tracks the best split of each 10-minute window.</p>
           </div></details>
         </section>
+        </div>
+      </div>
+    </section>
+    <section class="idea-section" id="kv-management" aria-labelledby="kv-heading">
+      <div class="wrap">
+        <div class="section-topline" data-reveal><span class="eyebrow">04 / AGENT-AWARE KV MANAGEMENT</span><span class="mono-note">MOVE COMPUTE. KEEP CONTEXT.</span></div>
+        <div class="idea-heading idea-decoupling" data-reveal>
+          <h2 id="kv-heading"><span class="accent-text">Manage</span> KV the way<br>agents reuse it.</h2>
+          <div><p class="lead">Route each request to the node where it starts first. Fetch its KV while it waits.</p><p>The router balances load and fetches KV while requests wait. A branch-aware directory follows context changes, retaining useful KV and evicting unreferenced copies first. Least-recently-used eviction would instead drop the KV of agents that wait for tools.</p></div>
+        </div>
+        <div class="role-story">
         <section class="switch-demo idea-demo kvm-demo" id="kv-demo" data-stage="0" data-baseline="cache" data-playing="false" aria-labelledby="kv-demo-title">
           <div class="switch-stage">
-          <div class="switch-demo-heading"><div><p class="eyebrow">03 · AGENT-AWARE KV MANAGEMENT</p><h3 id="kv-demo-title">Fetch while waiting. <span class="accent-text">Keep what agents reuse.</span></h3></div><div class="switch-controls"><label for="kv-baseline">Compare with</label><select id="kv-baseline" data-demo-baseline><option value="cache">Cache-aware router</option><option value="load">Dynamo KV router</option></select><div class="switch-playback"><button type="button" class="button button-primary" data-demo-play>Play comparison</button><button type="button" class="button button-outline" data-demo-replay>Replay</button></div></div></div>
+          <div class="switch-demo-heading"><div><h3 id="kv-demo-title">Fetch while waiting. <span class="accent-text">Keep what agents reuse.</span></h3></div><div class="switch-controls"><label for="kv-baseline">Compare with</label><select id="kv-baseline" data-demo-baseline><option value="cache">Cache-aware router</option><option value="load">Dynamo KV router</option></select><div class="switch-playback"><button type="button" class="button button-primary" data-demo-play>Play comparison</button><button type="button" class="button button-outline" data-demo-replay>Replay</button></div></div></div>
           <div class="switch-steps" aria-label="Animation stages">
             <button type="button" data-demo-step="0" aria-current="step"><span>1</span>Sub-agent</button>
             <button type="button" data-demo-step="1"><span>2</span>Routing</button>

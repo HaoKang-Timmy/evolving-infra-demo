@@ -1,5 +1,12 @@
 /* Workload-aware planning and agent-aware KV management, staged like the role-switch demo (role-switch.css).
    The sections use data-stage, not data-step, so the role-switch stage rules do not apply to them. */
+/* Each idea section ends with its demo; drop the stacked bottom margins before the next section. */
+.idea-section .wrap > .role-story:last-child { margin-bottom: 0; }
+.role-story > .switch-demo:last-child { margin-bottom: 0; }
+
+/* In the narrower idea sections the controls move below the demo title instead of squeezing it. */
+.role-story .switch-demo-heading { flex-wrap: wrap; row-gap: 10px; }
+.role-story .switch-playback .button { white-space: nowrap; }
 .idea-demo .switch-explanation strong { min-height: 24px; }
 .idea-demo .switch-consequences { flex-wrap: wrap; }
 
