@@ -65,7 +65,7 @@
   // KV management: one row of states per stage. o = kept, n = new, h = reused, d = no branch reuses it,
   // g = evicted, r = recomputed, - = absent; the digit is the count of branches that reuse the block there.
   const STATE = { o: 'on', n: 'new', h: 'hit', d: 'dead', g: 'gone', r: 'redo', '-': 'off' };
-  const BASE = 'a1:o a2:o a3:o a4:- c1:o c2:o c3:o s:- b1:- b2:- x1:o x2:o';
+  const BASE = 'a1:o a2:o a3:o a4:- c1:o c2:o c3:o s:- b1:- b2:-';
   function rows(base, ...changes) {
     let cur = Object.fromEntries(base.split(' ').map((kv) => kv.split(':')));
     return changes.map((c) => {
@@ -84,11 +84,11 @@
     ],
     durations: [3200, 4200, 3600, 3800, 3600],
     agents: [
-      ['A · waiting for a tool', 'C', 'B · sub-agent of C'],
-      ['A · waiting for a tool', 'C', 'B · sub-agent of C'],
-      ['A · waiting for a tool', 'C · compacted', 'B · sub-agent of C'],
-      ['A · waiting for a tool', 'C · compacted', 'B · sub-agent of C'],
-      ['A · tool returned', 'C · compacted', 'B · sub-agent of C']
+      ['waiting for a tool', '', 'sub-agent of C'],
+      ['waiting for a tool', '', 'sub-agent of C'],
+      ['waiting for a tool', 'compacted', 'sub-agent of C'],
+      ['waiting for a tool', 'compacted', 'sub-agent of C'],
+      ['tool returned', 'compacted', 'sub-agent of C']
     ],
     systems: {
       cache: {
@@ -122,7 +122,7 @@
       evolving: {
         chips: ['Routes by predicted TTFT', 'Evicts unreused KV first'],
         routeB: 2,
-        blocks: rows('a1:o1 a2:o1 a3:o1 a4:- c1:o2 c2:o2 c3:o1 s:- b1:- b2:- x1:o1 x2:o1',
+        blocks: rows('a1:o1 a2:o1 a3:o1 a4:- c1:o2 c2:o2 c3:o1 s:- b1:- b2:-',
           '', 'c1:o1 c2:o1 b1:n1 b2:n1', 'c1:d0 c2:d0 c3:d0 s:n1 b1:o1 b2:o1', 'c1:g c2:g c3:g s:o1',
           'a1:h1 a2:h1 a3:h1 a4:n1 c1:- c2:- c3:-'),
         notes: [['', '', ''], ['', 'copies C’s prefix', ''], ['', '', ''], ['evicts count-0 blocks', '', ''], ['reuses A’s blocks', '', '']],
@@ -181,12 +181,11 @@
       block.dataset.state = STATE[code[0]] || 'off';
       setText(block.querySelector('em'), code.slice(1));
     });
-    panel.querySelectorAll('.kvm-note').forEach((note, i) => setText(note, sys.notes[step][i]));
-    panel.querySelectorAll('.kvm-agent').forEach((agent, i) => {
-      const label = KV.agents[step][i];
-      const text = Array.from(agent.childNodes).find((n) => n.nodeType === 3);
-      if (text && text.nodeValue !== label) text.nodeValue = label;
+    panel.querySelectorAll('.kvm-row').forEach((row) => {
+      row.classList.toggle('is-empty', !row.querySelector('.kvm-b:not([data-state="off"])'));
     });
+    panel.querySelectorAll('.kvm-note').forEach((note, i) => setText(note, sys.notes[step][i]));
+    panel.querySelectorAll('.kvm-agent').forEach((agent, i) => setText(agent.querySelector('em'), KV.agents[step][i]));
     const reqB = panel.querySelector('[data-req="B"]');
     const reqA = panel.querySelector('[data-req="A"]');
     if (reqB) reqB.dataset.at = step === 0 ? 'hidden' : step === 1 ? `q${sys.routeB}` : 'done';
