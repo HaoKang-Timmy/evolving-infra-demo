@@ -21,7 +21,7 @@
 
 <section id="architecture" class="section wrap">
   <p class="eyebrow">05 / THE SYSTEM</p>
-  <div class="section-heading"><h1>Three ideas.<br><em>One serving system.</em></h1><p>The planner changes where compute runs. The router and directory decide where context is reused. Symmetric engines and a shared KV pool let those decisions evolve independently.</p></div>
+  <div class="section-heading"><h1>Three ideas.<br><em>One serving system.</em></h1><p>Evolving Infra adapts compute allocation to agent workloads and KV cache management to agent context management at runtime. Symmetric engines and a shared host-memory KV pool decouple the two.</p></div>
 
   <figure class="system-figure" aria-labelledby="system-caption">
     <div class="request-flow">Agent requests</div>
@@ -45,9 +45,9 @@
   </figure>
 
   <div class="architecture-notes">
-    <article><span class="number">01</span><h3>Decouple compute and KV.</h3><p>A phase switch changes the work a node serves. Its cached KV remains readable across the cluster.</p></article>
-    <article><span class="number">02</span><h3>Learn from execution.</h3><p>Online iteration-time models guide the PD split and predict the time to first token for request placement.</p></article>
-    <article><span class="number">03</span><h3>Follow agent context.</h3><p>The directory tracks KV placement and active branch references across requests. Unreferenced KV is evicted first.</p></article>
+    <article><span class="number">01</span><h3>Decoupled compute allocation and KV cache management.</h3><p>Symmetric engines let nodes switch between prefill and decode without a restart. A shared host-memory KV pool keeps their KV readable by all nodes.</p></article>
+    <article><span class="number">02</span><h3>Agent-adaptive compute allocation.</h3><p>The online planner matches the PD split to workload composition. It learns prefill and decode iteration-time models without offline profiling, and the prefill model incorporates KV reuse.</p></article>
+    <article><span class="number">03</span><h3>Agent-adaptive KV cache management.</h3><p>KV-reuse-aware eviction and routing preserve the KV that active branches still reuse and balance prefill work across nodes. Remote KV is fetched while a request is queued, and KV that no active branch references is evicted first.</p></article>
   </div>
   <a class="text-link" href="../../fig/arch.svg" target="_blank" rel="noopener">Open the report’s architecture figure ↗</a>
 </section>
