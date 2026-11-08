@@ -1,4 +1,4 @@
-/* Outline of the reading view: shown beside the idea sections, it marks the section that is being read. */
+/* Outline of the reading view: shown beside the idea, architecture, and evidence sections, it marks the section that is being read. */
 (() => {
   'use strict';
 
