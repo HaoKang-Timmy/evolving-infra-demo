@@ -1,0 +1,601 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="robots" content="noindex">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Design 04-B – Idle is not unused</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f7f5f2;--panel:#fff;--fg:#232328;--muted:#56545d;--faint:#67646d;--red:#c92336;--line:#d9d5cf;
+  --display:'Space Grotesk',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --mono:'IBM Plex Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+  --ink:#1a1a1a;--sys:#5e5e5e;--b1:#a6a6a6;--b1e:#5e5e5e;--b2:#cdcdcd;--b2e:#8c8c8c;--newe:#8e1526;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--display);font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased}
+button{font:inherit;color:inherit;background:none;border:0;margin:0;cursor:pointer;-webkit-tap-highlight-color:transparent}
+button:focus-visible{outline:2px solid var(--red);outline-offset:3px}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+
+/* Preview strip: not part of the demo. */
+.preview{background:#ebe7e1;border-bottom:1px dashed #bdb6ad;padding:10px 16px}
+.preview p{width:min(1076px,100%);margin:0 auto;font:12px/1.55 var(--mono);color:var(--muted)}
+.preview b{color:var(--fg);font-weight:600}
+
+/* Demo box, as it would sit in section 04. */
+.page{width:min(1076px,calc(100% - 32px));margin:28px auto 56px}
+.demo{background:#fffdfaf2;border:1px solid #d7d2cc;border-radius:10px;overflow:hidden}
+.stage{padding:16px}
+.head{display:flex;align-items:center;justify-content:space-between;gap:18px;margin-bottom:10px}
+.head h3{margin:0;font-size:26px;font-weight:500;line-height:1.1;letter-spacing:-.04em}
+.accent{color:var(--red)}
+.controls{display:flex;gap:6px;flex:none}
+.btn{display:inline-flex;align-items:center;justify-content:center;min-height:36px;padding:7px 14px;border:1px solid transparent;border-radius:4px;font-size:14px;font-weight:500;line-height:1.3;transition:background .2s,border-color .2s}
+.btn-primary{background:var(--red);color:#fff;min-width:104px}
+.btn-primary:hover{background:#ad192b}
+.btn-outline{border-color:#aaa59e;color:var(--fg)}
+.btn-outline:hover{background:#ece8e2;border-color:#817a74}
+.steps{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:5px;margin:0 0 8px}
+.steps button{position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;gap:7px;min-height:34px;padding:5px 6px;border:1px solid #ded9d2;border-radius:4px;color:#68616a;font-size:13px;line-height:1.25;text-align:center}
+.steps .n{font:11px var(--mono);opacity:.75}
+.steps .sh{display:none}
+.steps button:hover{border-color:#c9c2ba}
+.steps button[aria-current=step]{color:#ae2032;border-color:#ca7a85;background:#fae9eb}
+.steps .bar{position:absolute;left:0;right:0;bottom:0;height:2px;background:var(--red);transform:scaleX(0);transform-origin:left}
+.demo[data-playing=true] .steps button[aria-current=step] .bar{animation:prog var(--dur,4s) linear both}
+@keyframes prog{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+.caption{margin:0 0 12px;min-height:24px}
+.caption strong{display:block;font-size:17px;font-weight:500;line-height:1.4;letter-spacing:-.02em}
+
+/* Layout: cast on top, tree and memory bar side by side. */
+.fig{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);grid-template-areas:"cast cast" "tree mem";gap:12px 28px;align-items:center}
+.cast{grid-area:cast;display:flex;flex-wrap:wrap;gap:8px 28px;padding:10px 14px;border:1px solid #e4ded7;border-radius:6px;background:#fff}
+.who{display:flex;align-items:center;gap:10px;min-width:0;transition:opacity .5s}
+.who.off{opacity:.35}
+.badge{display:grid;place-items:center;flex:none;width:26px;height:26px;border-radius:50%;border:1.5px solid var(--ink);font:600 12px/1 var(--mono);color:var(--ink)}
+.badge.a{background:var(--b1)}
+.badge.s{background:var(--b2)}
+.who-t{font-size:14px;line-height:1.25}
+.who-t b{font-weight:600}
+.who-t small{display:block;font:11px/1.4 var(--mono);color:var(--muted)}
+.who-t small.wait{color:var(--fg);font-weight:600}
+.tree-wrap{grid-area:tree;min-width:0}
+.mem{grid-area:mem;min-width:0;padding:12px 14px 6px;border:1px solid #e4ded7;border-radius:6px;background:#fff}
+.mem-head{margin:0;display:flex;flex-wrap:wrap;justify-content:space-between;gap:2px 12px;font:600 11px/1.4 var(--mono);letter-spacing:.06em;text-transform:uppercase;color:#4f4a52}
+.mem-head span{font-weight:400;letter-spacing:.01em;text-transform:none;color:var(--faint)}
+.mem-track{position:relative;height:104px;margin-top:6px}
+.mr{position:absolute;top:36px;width:44px;height:30px;display:grid;place-items:center;border:1.2px solid var(--ink);border-radius:4px;font:600 13px/1 var(--display);transition:left .8s cubic-bezier(.3,.7,.2,1),opacity .45s,background .45s,border-color .45s,color .45s,transform .45s}
+.mr.sys{background:var(--sys);color:#fff}
+.mr.b1{background:var(--b1);border-color:var(--b1e)}
+.mr.b2{background:var(--b2);border-color:var(--b2e)}
+.mr.new{background:var(--red);border-color:var(--newe);color:#fff}
+.mr.zero{border:1.3px dashed var(--ink);background-color:#cdcdcd73;color:var(--ink)}
+.mr.ev{background:#fffdfa;border:1.3px dotted #9a958f;color:#8a8580}
+.mr.gone{opacity:0;transform:scale(.6)}
+.brk{position:absolute;height:9px;opacity:0;transition:opacity .45s}
+.brk.on{opacity:1}
+.brk.lru{top:23px;border:1.5px dashed #8a8580;border-bottom:0;border-radius:3px 3px 0 0}
+.brk.ours{top:70px;border:2px solid var(--red);border-top:0;border-radius:0 0 3px 3px}
+.brk span{position:absolute;left:-2px;white-space:nowrap;font:500 11px/1.2 var(--mono)}
+.brk.lru span{bottom:11px;color:#6a656d}
+.brk.ours span{top:11px;color:var(--red);font-weight:600}
+
+/* Tree (shared look with Figure 4). */
+.tree{display:block;width:100%;max-width:480px;height:auto;margin:0 auto;overflow:visible}
+.tree text{font-family:var(--display)}
+.edge{fill:none;stroke:#8c8c8c;stroke-width:1.3;opacity:0;transition:opacity .45s .3s}
+.edge.on{opacity:1}
+.edge.ev{stroke-dasharray:2 3;opacity:.45}
+.blk{transition:transform .8s cubic-bezier(.3,.7,.2,1),opacity .5s}
+.noanim,.noanim *{transition:none!important}
+.box{stroke-width:1.2;transition:fill .5s,fill-opacity .5s,stroke .4s}
+.blk[data-o=sys] .box{fill:var(--sys);stroke:var(--ink)}
+.blk[data-o=b1] .box{fill:var(--b1);stroke:var(--b1e)}
+.blk[data-o=b2] .box{fill:var(--b2);stroke:var(--b2e)}
+.blk[data-o=new] .box{fill:var(--red);stroke:var(--newe)}
+.ct{font-size:12.5px;font-weight:600;fill:var(--ink);transition:fill .4s,opacity .4s}
+.blk[data-o=sys] .ct,.blk[data-o=new] .ct{fill:#fff}
+.blk.zero .box{stroke:var(--ink);stroke-dasharray:4 3;fill-opacity:.45}
+.blk.zero .ct{fill:var(--ink)}
+.zb{fill:none;stroke:none}
+.ln.zero .zb{stroke:var(--ink);stroke-dasharray:3 2;fill:#ffffff59}
+.strike{stroke:var(--ink);stroke-width:1.4;opacity:0;transition:opacity .4s .2s}
+.ln.x .strike{opacity:.85}
+.ln.x .ct{opacity:.5}
+.blk:not(.ev) .ln.x .zb{stroke:#9a958f;stroke-dasharray:1.5 2.5;fill:#fffdfa}
+.blk.ev .box{fill:#fffdfa;fill-opacity:1;stroke:#9a958f;stroke-dasharray:1.5 2.5}
+.blk.ev .ct{fill:var(--ink)}
+.tg,.evp{opacity:0;transform:scale(.3);transform-box:fill-box;transform-origin:center;transition:opacity .25s,transform .35s cubic-bezier(.3,1.5,.5,1)}
+.tg.on{opacity:1;transform:scale(1);transition-delay:.2s}
+.ln.xp .evp{opacity:1;transform:scale(1);transition-delay:.35s}
+.tg rect{fill:#fff;stroke:var(--ink);stroke-width:1}
+.tg text{font-size:10.5px;font-weight:700;fill:var(--ink)}
+.evp rect{fill:#fff;stroke:#8a8580;stroke-width:1}
+.evp text{font:600 9.2px var(--mono);fill:var(--muted)}
+.ln.bump .ct{animation:bump .8s ease}
+@keyframes bump{0%,25%{opacity:.15}}
+.ring{fill:none;stroke:var(--red);stroke-width:2;opacity:0}
+.blk.hit .ring{opacity:.8;animation:ring 1.4s ease-out}
+.blk.static .ring{animation:none}
+@keyframes ring{0%{stroke-width:8;opacity:0}45%{stroke-width:2;opacity:.9}}
+.rider{transition:transform .8s cubic-bezier(.3,.7,.2,1),opacity .5s}
+.rider .dot{stroke:var(--ink);stroke-width:1.5}
+.rider[data-r=A] .dot{fill:var(--b1)}
+.rider[data-r=S] .dot{fill:var(--b2)}
+.rider text{font:600 11.5px var(--mono);fill:var(--ink)}
+.rider .wait{fill:none;stroke:#4f4a52;stroke-width:1.4;stroke-dasharray:3.2 3.2;opacity:0;transform-box:fill-box;transform-origin:center;transition:opacity .4s}
+.rider.waiting .wait{opacity:1;animation:spin 6s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.instant,.instant *{transition:none!important;animation:none!important}
+
+/* Legend. */
+.legend{display:flex;flex-wrap:wrap;align-items:center;gap:6px 16px;margin:12px 0 0;padding-top:10px;border-top:1px solid #e6e0d9;color:#5f5a62;font-size:13px;line-height:18px}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.sw{display:inline-block;width:16px;height:11px;border-radius:2px}
+.sw.sys{background:var(--sys)}.sw.b1{background:var(--b1)}.sw.b2{background:var(--b2)}.sw.new{background:var(--red)}
+.sw.zero{background:#cdcdcd73;border:1.3px dashed var(--ink)}
+.legend .count-key{color:var(--fg)}
+.count-key b{font-weight:600}
+
+@media (max-width:760px){
+  .stage{padding:14px 10px}
+  .head{display:block}
+  .head h3{font-size:24px}
+  .controls{margin-top:12px}
+  .controls .btn{flex:1}
+  .steps{gap:4px}
+  .steps button{flex-direction:column;gap:2px;font-size:11px;min-height:44px;padding:4px 2px}
+  .steps .lg{display:none}
+  .steps .sh{display:inline}
+  .caption{min-height:48px}
+  .caption strong{font-size:16px}
+  .fig{grid-template-columns:minmax(0,1fr);grid-template-areas:"cast" "tree" "mem"}
+  .cast{padding:10px;gap:8px 18px}
+  .mem{padding:10px 10px 4px}
+  .legend{gap:6px 12px;font-size:12px}
+}
+@media (prefers-reduced-motion:reduce){
+  .demo *,.demo *::before,.demo *::after{transition:none!important;animation:none!important}
+}
+</style>
+</head>
+<body>
+<header class="preview"><p><b>Design 04-B – Idle is not unused.</b> A short agent story on one node: the agent waits while its sub-agent works, compacts and finishes. The tree’s counts decide what P1 evicts, and a memory bar shows LRU dropping the waiting agent’s KV instead.</p></header>
+
+<main class="page">
+  <section class="demo" id="kv-demo" data-playing="false" aria-labelledby="kv-demo-title">
+    <div class="stage">
+      <div class="head">
+        <h3 id="kv-demo-title">Idle is not unused. <span class="accent">Recent is not needed.</span></h3>
+        <div class="controls">
+          <button type="button" class="btn btn-primary" data-play>Pause</button>
+          <button type="button" class="btn btn-outline" data-replay>Replay</button>
+        </div>
+      </div>
+      <div class="steps" role="group" aria-label="Animation steps">
+        <button type="button" data-step="1"><span class="n">1</span><span class="lg">Sub-agent</span><span class="sh">Spawn</span><i class="bar" aria-hidden="true"></i></button>
+        <button type="button" data-step="2"><span class="n">2</span><span class="lg">Next request</span><span class="sh">Request</span><i class="bar" aria-hidden="true"></i></button>
+        <button type="button" data-step="3"><span class="n">3</span><span class="lg">Compaction</span><span class="sh">Compact</span><i class="bar" aria-hidden="true"></i></button>
+        <button type="button" data-step="4"><span class="n">4</span><span class="lg">Memory full</span><span class="sh">Evict</span><i class="bar" aria-hidden="true"></i></button>
+        <button type="button" data-step="5"><span class="n">5</span><span class="lg">Agent resumes</span><span class="sh">Resume</span><i class="bar" aria-hidden="true"></i></button>
+      </div>
+      <p class="caption" aria-live="polite"><strong data-caption>The agent spawns a sub-agent and waits for it.</strong></p>
+
+      <div class="fig" data-fig>
+        <div class="cast">
+          <div class="who" data-who="A"><span class="badge a" aria-hidden="true">A</span><span class="who-t"><b>Agent</b> · branch 1<small data-st>working</small></span></div>
+          <div class="who" data-who="S"><span class="badge s" aria-hidden="true">S</span><span class="who-t"><b>Sub-agent</b> · branch 2<small data-st>not spawned yet</small></span></div>
+        </div>
+        <div class="tree-wrap">
+          <p class="sr-only">A prefix tree of KV blocks on prefill node P1. Each block shows how many active branches use it on P1.</p>
+          <svg class="tree" data-tree viewBox="0 0 360 240" aria-hidden="true"></svg>
+        </div>
+        <div class="mem" aria-hidden="true">
+          <p class="mem-head">P1 host memory <span>last used: oldest → newest</span></p>
+          <div class="mem-track" data-mem>
+            <span class="brk lru" data-brk="lru"><span>LRU would evict</span></span>
+            <span class="brk ours" data-brk="ours"><span>Evolving Infra evicts</span></span>
+          </div>
+        </div>
+      </div>
+
+      <p class="legend">
+        <span class="count-key"><b>P1: 2</b> means two active branches still use this block on P1</span>
+        <span><i class="sw sys"></i>System prompt</span>
+        <span><i class="sw b1"></i>Agent’s context</span>
+        <span><i class="sw b2"></i>Sub-agent’s context</span>
+        <span><i class="sw new"></i>New KV</span>
+        <span><i class="sw zero"></i>Count 0</span>
+      </p>
+    </div>
+  </section>
+</main>
+
+<script>
+(function () {
+  'use strict';
+
+  /* ---------- Shared: SVG helper ---------- */
+  var NS = 'http://www.w3.org/2000/svg';
+  function S(tag, attrs, parent, text) {
+    var e = document.createElementNS(NS, tag);
+    if (attrs) for (var k in attrs) e.setAttribute(k, attrs[k]);
+    if (text != null) e.textContent = text;
+    if (parent) parent.appendChild(e);
+    return e;
+  }
+  function flush(el) { if (el && el.getBoundingClientRect) el.getBoundingClientRect(); }
+
+  /* ---------- Shared: tree of KV blocks with per-node counts (+ riding agent badges) ---------- */
+  function Tree(svg, cfg) {
+    var W = cfg.w, LH = 15, PAD = 7, TX = -8;
+    var gE = S('g', { 'class': 'edges' }, svg);
+    var gB = S('g', { 'class': 'blocks' }, svg);
+    var gM = S('g', { 'class': 'marks' }, svg);
+    var gR = S('g', { 'class': 'riders' }, svg);
+    var items = {}, riders = {}, markKey = '';
+    function hOf(n) { return PAD * 2 + LH * Math.max(1, n); }
+    function label(ct, node) {
+      if (cfg.notation === 'R') {
+        S('tspan', null, ct, 'R');
+        S('tspan', { 'class': 'sub', dy: 3 }, ct, node);
+        S('tspan', { dy: -3 }, ct, ' = ');
+      } else {
+        S('tspan', null, ct, node + ': ');
+      }
+      return S('tspan', { 'class': 'num' }, ct, '');
+    }
+    function mkLine(it, node) {
+      var g = S('g', { 'class': 'ln' }, it.lg);
+      S('rect', { 'class': 'zb', x: -W / 2 + 4, y: -11.5, width: W - 8, height: 15.5, rx: 2.5 }, g);
+      var ct = S('text', { 'class': 'ct', x: TX, y: 0, 'text-anchor': 'middle' }, g);
+      var num = label(ct, node);
+      var strike = S('line', { 'class': 'strike', x1: TX - 22, x2: TX + 22, y1: -4, y2: -4 }, g);
+      var tg = S('g', { 'class': 'tg' }, g);
+      S('rect', { x: W / 2 - 13, y: -12, width: 26, height: 16, rx: 8 }, tg);
+      var tt = S('text', { x: W / 2, y: -0.5, 'text-anchor': 'middle' }, tg, '');
+      var ep = S('g', { 'class': 'evp' }, g);
+      S('rect', { x: W / 2 - 22, y: -12, width: 44, height: 16, rx: 8 }, ep);
+      S('text', { x: W / 2, y: -1, 'text-anchor': 'middle' }, ep, 'evicted');
+      return { g: g, ct: ct, num: num, strike: strike, tg: tg, tt: tt, val: null };
+    }
+    function ensure(id) {
+      if (items[id]) return items[id];
+      var g = S('g', { 'class': 'blk', 'data-id': id }, gB);
+      var ring = S('rect', { 'class': 'ring', x: -W / 2 - 4, y: -4, width: W + 8, height: 37, rx: 7 }, g);
+      var box = S('rect', { 'class': 'box', x: -W / 2, y: 0, width: W, height: 29, rx: 4 }, g);
+      var lg = S('g', { 'class': 'lines' }, g);
+      var edge = S('path', { 'class': 'edge', d: 'M0 0' }, gE);
+      items[id] = { g: g, ring: ring, box: box, lg: lg, edge: edge, lines: {}, shown: false };
+      return items[id];
+    }
+    function place(el, x, y, s) { el.style.transform = 'translate(' + x + 'px,' + y + 'px) scale(' + s + ')'; }
+    function fitStrike(ln) {
+      var w = 0;
+      try { w = ln.ct.getComputedTextLength(); } catch (e) { w = 0; }
+      var half = (w > 6 ? w : 38) / 2 + 3;
+      ln.strike.setAttribute('x1', TX - half);
+      ln.strike.setAttribute('x2', TX + half);
+    }
+    function rider(id) {
+      if (riders[id]) return riders[id];
+      var g = S('g', { 'class': 'rider', 'data-r': id }, gR);
+      S('circle', { 'class': 'wait', r: 15.5 }, g);
+      S('circle', { 'class': 'dot', r: 11 }, g);
+      S('text', { y: 4, 'text-anchor': 'middle' }, g, id);
+      riders[id] = { g: g, shown: false, x: 0, y: 0 };
+      return riders[id];
+    }
+    this.render = function (fr, instant) {
+      var B = fr.blocks, geo = {}, id;
+      for (id in B) geo[id] = { x: B[id].x, y: cfg.levels[B[id].l], h: hOf(B[id].L.length) };
+      for (id in items) {
+        if (!B[id] && items[id].shown) {
+          items[id].g.style.opacity = '0';
+          items[id].edge.classList.remove('on');
+          items[id].shown = false;
+        }
+      }
+      for (id in B) {
+        var b = B[id], it = ensure(id), gm = geo[id];
+        if (!it.shown) {
+          var from = b.p && geo[b.p] ? geo[b.p] : null;
+          it.g.classList.add('noanim');
+          if (from) place(it.g, from.x, from.y + from.h * 0.4, 0.35); else place(it.g, gm.x, gm.y + 6, 0.9);
+          it.g.style.opacity = '0';
+          flush(it.g);
+          it.g.classList.remove('noanim');
+          it.shown = true;
+        }
+        it.g.setAttribute('data-o', b.o);
+        var ev = !!b.ev;
+        var zero = !ev && b.L.every(function (l) { return l.c === 0; });
+        it.g.classList.toggle('zero', zero);
+        it.g.classList.toggle('ev', ev);
+        it.g.classList.toggle('hit', !!b.hit);
+        it.g.classList.toggle('static', !!instant);
+        it.box.setAttribute('height', gm.h);
+        it.ring.setAttribute('height', gm.h + 8);
+        var seen = {};
+        b.L.forEach(function (l, i) {
+          var ln = it.lines[l.n] || (it.lines[l.n] = mkLine(it, l.n));
+          seen[l.n] = true;
+          ln.g.setAttribute('transform', 'translate(0 ' + (PAD + 11 + i * LH) + ')');
+          ln.g.style.display = '';
+          var v = String(l.c);
+          if (ln.num.textContent !== v) {
+            ln.num.textContent = v;
+            if (!instant && ln.val !== null) { ln.g.classList.remove('bump'); flush(ln.g); ln.g.classList.add('bump'); }
+          }
+          ln.val = v;
+          var struck = ev || !!l.x;
+          ln.g.classList.toggle('zero', l.c === 0 && !zero && !struck);
+          ln.g.classList.toggle('x', struck);
+          ln.g.classList.toggle('xp', !!l.x || (ev && i === 0));
+          if (struck) fitStrike(ln);
+          if (l.t) { ln.tt.textContent = l.t === '-1' ? '−1' : '+1'; ln.tg.classList.add('on'); }
+          else ln.tg.classList.remove('on');
+        });
+        for (var n in it.lines) if (!seen[n]) it.lines[n].g.style.display = 'none';
+        place(it.g, gm.x, gm.y, 1);
+        it.g.style.opacity = '1';
+        if (b.p && geo[b.p]) {
+          var pg = geo[b.p], ey = cfg.elbows[b.l - 1];
+          it.edge.setAttribute('d', 'M' + pg.x + ' ' + (pg.y + pg.h) + 'V' + ey + 'H' + gm.x + 'V' + gm.y);
+          it.edge.classList.add('on');
+          it.edge.classList.toggle('ev', ev);
+        } else it.edge.classList.remove('on');
+      }
+      var marks = fr.marks || [];
+      var key = marks.map(function (m) { return m.id + ':' + m.text; }).join('|');
+      if (key !== markKey) {
+        markKey = key;
+        while (gM.firstChild) gM.removeChild(gM.firstChild);
+        marks.forEach(function (m) {
+          var g = geo[m.id];
+          if (!g) return;
+          var mg = S('g', { 'class': 'mark' + (instant ? ' static' : '') }, gM);
+          S('rect', { 'class': 'halo', x: g.x - W / 2 - 5, y: g.y - 5, width: W + 10, height: g.h + 10, rx: 7 }, mg);
+          var t = S('text', { x: g.x, y: g.y + g.h + 19, 'text-anchor': 'middle' }, mg);
+          m.text.split('\n').forEach(function (part, k) { S('tspan', { x: g.x, dy: k ? 12 : 0 }, t, part); });
+        });
+      }
+      // Agent badges ride the tip block of their branch (bottom-left corner).
+      var want = {};
+      (fr.riders || []).forEach(function (r) {
+        var g = geo[r.at];
+        if (!g) return;
+        want[r.id] = true;
+        var rd = rider(r.id), x = g.x - W / 2 + 6, y = g.y + g.h;
+        if (!rd.shown) {
+          var src = r.from && riders[r.from] ? riders[r.from] : { x: x, y: y + 8 };
+          rd.g.classList.add('noanim');
+          place(rd.g, src.x, src.y, 0.4); rd.g.style.opacity = '0';
+          flush(rd.g);
+          rd.g.classList.remove('noanim');
+          rd.shown = true;
+        }
+        rd.x = x; rd.y = y;
+        rd.g.classList.toggle('waiting', !!r.wait);
+        place(rd.g, x, y, 1); rd.g.style.opacity = '1';
+      });
+      for (id in riders) {
+        if (!want[id] && riders[id].shown) {
+          place(riders[id].g, riders[id].x, riders[id].y, 0.6);
+          riders[id].g.style.opacity = '0';
+          riders[id].shown = false;
+        }
+      }
+    };
+  }
+
+  /* ---------- Shared: step player ---------- */
+  function Player(root, cfg) {
+    var playBtn = root.querySelector('[data-play]');
+    var replayBtn = root.querySelector('[data-replay]');
+    var stepBtns = Array.prototype.slice.call(root.querySelectorAll('[data-step]'));
+    var cap = root.querySelector('[data-caption]');
+    var mq = window.matchMedia ? window.matchMedia('(prefers-reduced-motion: reduce)') : null;
+    var N = cfg.steps.length, cur = 0, playing = false, timers = [];
+    function reduced() { return !!(mq && mq.matches); }
+    function clear() { timers.forEach(clearTimeout); timers = []; }
+    function at(ms, fn) { timers.push(setTimeout(fn, ms)); }
+    function ui() {
+      root.setAttribute('data-playing', String(playing));
+      root.setAttribute('data-frame', String(cur));
+      stepBtns.forEach(function (b) {
+        if (Number(b.getAttribute('data-step')) === Math.max(cur, 1)) b.setAttribute('aria-current', 'step');
+        else b.removeAttribute('aria-current');
+      });
+      playBtn.textContent = reduced() ? (cur >= N ? 'Start over' : 'Next step') : (playing ? 'Pause' : (cur >= N ? 'Play again' : 'Play'));
+    }
+    function restartBar() {
+      var bar = root.querySelector('[aria-current=step] .bar');
+      if (!bar) return;
+      bar.style.animation = 'none'; flush(bar); bar.style.animation = '';
+    }
+    function go(i, animate) {
+      clear();
+      var s = cfg.steps[Math.max(i, 1) - 1];
+      cap.textContent = s.cap;
+      if (!animate) { cfg.render(i, 'instant'); cur = i; ui(); return; }
+      cfg.render(i - 1, 'instant');
+      cur = i;
+      root.style.setProperty('--dur', s.dur + 'ms');
+      ui(); restartBar();
+      cfg.render(i, 'pre');
+      at(s.pre, function () { cfg.render(i, 'main'); });
+      at(s.dur, function () {
+        if (!playing) return;
+        if (i < N) go(i + 1, true); else { playing = false; ui(); }
+      });
+    }
+    playBtn.addEventListener('click', function () {
+      if (reduced()) { go(cur >= N ? 1 : cur + 1, false); return; }
+      if (playing) { playing = false; clear(); cfg.render(cur, 'instant'); ui(); return; }
+      playing = true;
+      go(cur >= N ? 1 : cur + 1, true);
+    });
+    replayBtn.addEventListener('click', function () { playing = !reduced(); go(1, !reduced()); });
+    stepBtns.forEach(function (b) {
+      b.addEventListener('click', function () { playing = false; go(Number(b.getAttribute('data-step')), !reduced()); });
+    });
+    if (mq) {
+      var onChange = function () { if (reduced()) { playing = false; clear(); cfg.render(cur, 'instant'); } ui(); };
+      if (mq.addEventListener) mq.addEventListener('change', onChange); else if (mq.addListener) mq.addListener(onChange);
+    }
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(function () { if (!playing) cfg.render(cur, 'instant'); });
+    }
+    if (reduced()) go(N, false);
+    else { playing = true; go(1, true); }
+  }
+
+  /* ---------- Frames: one node, an agent and its sub-agent ---------- */
+  function ln(n, c, t) { return { n: n, c: c, t: t || null, x: false }; }
+  function setc(b, c, t) { b.L[0].c = c; b.L[0].t = t || null; }
+  function next(prev, fn) {
+    var f = JSON.parse(JSON.stringify(prev));
+    Object.keys(f.blocks).forEach(function (k) { f.blocks[k].L.forEach(function (l) { l.t = null; }); f.blocks[k].hit = false; });
+    f.marks = [];
+    fn(f.blocks, f);
+    return f;
+  }
+  var F = [];
+  F[0] = { marks: [], riders: [{ id: 'A', at: 'A1' }], blocks: {
+    S:  { x: 180, l: 0, o: 'sys', L: [ln('P1', 1)] },
+    A1: { x: 60,  l: 1, p: 'S', o: 'b1', L: [ln('P1', 1)] }
+  } };
+  // The agent spawns a sub-agent: +1 on the block the new branch reuses, +1 on its new context.
+  F[1] = next(F[0], function (B, f) {
+    setc(B.S, 2, '+1');
+    B.U1 = { x: 290, l: 1, p: 'S', o: 'new', L: [ln('P1', 1, '+1')] };
+    f.riders = [{ id: 'A', at: 'A1', wait: true }, { id: 'S', at: 'U1', from: 'A' }];
+  });
+  // Consecutive request: only the appended block gets a count.
+  F[2] = next(F[1], function (B, f) {
+    B.U1.o = 'b2';
+    B.U2 = { x: 290, l: 2, p: 'U1', o: 'new', L: [ln('P1', 1, '+1')] };
+    f.riders = [{ id: 'A', at: 'A1', wait: true }, { id: 'S', at: 'U2' }];
+  });
+  // Compaction: version v1 -> v2; the replaced history drops to 0.
+  F[3] = next(F[2], function (B, f) {
+    B.U2.o = 'b2'; setc(B.U1, 0, '-1'); setc(B.U2, 0, '-1');
+    B.C = { x: 180, l: 1, p: 'S', o: 'new', L: [ln('P1', 1, '+1')] };
+    f.riders = [{ id: 'A', at: 'A1', wait: true }, { id: 'S', at: 'C' }];
+  });
+  // Memory full: zero-count blocks go first (LRU would take the idle agent's block).
+  F[4] = next(F[3], function (B, f) {
+    B.C.o = 'b2'; B.U1.ev = true; B.U2.ev = true;
+    f.riders = [{ id: 'A', at: 'A1', wait: true }, { id: 'S', at: 'C' }];
+  });
+  // The sub-agent finishes (its counts are released); the agent resumes and reuses its KV.
+  F[5] = next(F[4], function (B, f) {
+    setc(B.C, 0, '-1'); setc(B.S, 1, '-1');
+    B.A1.hit = true;
+    B.A2 = { x: 60, l: 2, p: 'A1', o: 'new', L: [ln('P1', 1, '+1')] };
+    f.riders = [{ id: 'A', at: 'A2' }];
+  });
+
+  // P1 host memory in last-use order (oldest first), and the two eviction choices.
+  var MEM = [
+    { order: ['S', 'A1'] },
+    { order: ['A1', 'S', 'U1'] },
+    { order: ['A1', 'S', 'U1', 'U2'] },
+    { order: ['A1', 'U1', 'U2', 'S', 'C'] },
+    { order: ['A1', 'U1', 'U2', 'S', 'C'], lru: [0, 1], ours: [1, 2] },
+    { order: ['C', 'S', 'A1', 'A2'] }
+  ];
+  var CAST = [
+    { A: 'working', S: 'not spawned yet', on: false },
+    { A: 'waits for its sub-agent', S: 'working', on: true },
+    { A: 'waits for its sub-agent', S: 'working', on: true },
+    { A: 'waits for its sub-agent', S: 'compacted: v1 → v2', on: true },
+    { A: 'waits for its sub-agent', S: 'working', on: true },
+    { A: 'working again', S: 'finished', on: false }
+  ];
+
+  var root = document.getElementById('kv-demo');
+  var fig = root.querySelector('[data-fig]');
+  var tree = new Tree(root.querySelector('[data-tree]'), { w: 92, vw: 360, levels: [8, 100, 192], elbows: [84, 176], notation: 'colon' });
+  var track = root.querySelector('[data-mem]');
+  var brkL = root.querySelector('[data-brk="lru"]'), brkO = root.querySelector('[data-brk="ours"]');
+  var whoA = root.querySelector('[data-who="A"]'), whoS = root.querySelector('[data-who="S"]');
+  var rects = {}, STEP = 52;
+
+  function setBracket(el, span) {
+    el.classList.toggle('on', !!span);
+    if (span) { el.style.left = (span[0] * STEP - 2) + 'px'; el.style.width = ((span[1] - span[0]) * STEP + 48) + 'px'; }
+  }
+  function memRect(id) {
+    if (rects[id]) return rects[id];
+    var r = document.createElement('span');
+    r.className = 'mr gone';
+    r.setAttribute('data-m', id);
+    track.appendChild(r);
+    rects[id] = r;
+    return r;
+  }
+  function renderMem(i, instant) {
+    var m = MEM[i], B = F[i].blocks;
+    var inOrder = {};
+    m.order.forEach(function (id, k) {
+      inOrder[id] = true;
+      var r = memRect(id), b = B[id], c = b.L[0].c;
+      var fresh = r.classList.contains('gone');
+      if (fresh && !instant) {
+        r.classList.add('noanim'); r.style.left = (k * STEP) + 'px'; flush(r); r.classList.remove('noanim');
+      }
+      r.className = 'mr ' + b.o + (b.ev ? ' ev' : (c === 0 ? ' zero' : ''));
+      r.style.left = (k * STEP) + 'px';
+      r.textContent = b.ev ? '×' : String(c);
+    });
+    Object.keys(rects).forEach(function (id) { if (!inOrder[id]) rects[id].classList.add('gone'); });
+    setBracket(brkO, m.ours);
+  }
+  function setWho(el, text, on, waiting) {
+    var st = el.querySelector('[data-st]');
+    st.textContent = text;
+    st.classList.toggle('wait', !!waiting);
+    el.classList.toggle('off', !on);
+  }
+  function cast(i) {
+    var c = CAST[i];
+    setWho(whoA, c.A, true, c.A.indexOf('waits') === 0);
+    setWho(whoS, c.S, c.on, false);
+  }
+  function pre(i) {
+    setBracket(brkL, MEM[i].lru);
+    if (!MEM[i].ours) setBracket(brkO, null);
+  }
+  function render(i, mode) {
+    if (mode === 'instant') {
+      fig.classList.add('instant');
+      tree.render(F[i], true); pre(i); cast(i); renderMem(i, true);
+      flush(fig);
+      fig.classList.remove('instant');
+    } else if (mode === 'pre') {
+      pre(i);
+    } else {
+      tree.render(F[i], false); cast(i); renderMem(i, false);
+    }
+  }
+
+  Player(root, {
+    render: render,
+    steps: [
+      { cap: 'The agent spawns a sub-agent and waits for it.', dur: 4800, pre: 1400 },
+      { cap: 'The sub-agent’s next request counts only its new block.', dur: 4400, pre: 600 },
+      { cap: 'The sub-agent compacts: v2. Its old blocks drop to 0.', dur: 4800, pre: 700 },
+      { cap: 'P1 needs room. Zero counts go first, not the waiting agent.', dur: 6600, pre: 1700 },
+      { cap: 'The sub-agent finishes. The agent resumes and reuses its KV.', dur: 5600, pre: 900 }
+    ]
+  });
+})();
+</script>
+</body>
+</html>

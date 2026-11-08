@@ -1,0 +1,555 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="robots" content="noindex">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Design 04-A – Figure 4, in motion</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f7f5f2;--panel:#fff;--fg:#232328;--muted:#56545d;--faint:#67646d;--red:#c92336;--line:#d9d5cf;
+  --display:'Space Grotesk',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --mono:'IBM Plex Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+  --ink:#1a1a1a;--sys:#5e5e5e;--b1:#a6a6a6;--b1e:#5e5e5e;--b2:#cdcdcd;--b2e:#8c8c8c;--newe:#8e1526;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--display);font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased}
+button{font:inherit;color:inherit;background:none;border:0;margin:0;cursor:pointer;-webkit-tap-highlight-color:transparent}
+button:focus-visible{outline:2px solid var(--red);outline-offset:3px}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+
+/* Preview strip: not part of the demo. */
+.preview{background:#ebe7e1;border-bottom:1px dashed #bdb6ad;padding:10px 16px}
+.preview p{width:min(1076px,100%);margin:0 auto;font:12px/1.55 var(--mono);color:var(--muted)}
+.preview b{color:var(--fg);font-weight:600}
+
+/* Demo box, as it would sit in section 04. */
+.page{width:min(1076px,calc(100% - 32px));margin:28px auto 56px}
+.demo{background:#fffdfaf2;border:1px solid #d7d2cc;border-radius:10px;overflow:hidden}
+.stage{padding:16px}
+.head{display:flex;align-items:center;justify-content:space-between;gap:18px;margin-bottom:10px}
+.head h3{margin:0;font-size:26px;font-weight:500;line-height:1.1;letter-spacing:-.04em}
+.accent{color:var(--red)}
+.controls{display:flex;gap:6px;flex:none}
+.btn{display:inline-flex;align-items:center;justify-content:center;min-height:36px;padding:7px 14px;border:1px solid transparent;border-radius:4px;font-size:14px;font-weight:500;line-height:1.3;transition:background .2s,border-color .2s}
+.btn-primary{background:var(--red);color:#fff;min-width:104px}
+.btn-primary:hover{background:#ad192b}
+.btn-outline{border-color:#aaa59e;color:var(--fg)}
+.btn-outline:hover{background:#ece8e2;border-color:#817a74}
+.steps{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:5px;margin:0 0 8px}
+.steps button{position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;gap:7px;min-height:34px;padding:5px 6px;border:1px solid #ded9d2;border-radius:4px;color:#68616a;font-size:13px;line-height:1.25;text-align:center}
+.steps .n{font:11px var(--mono);opacity:.75}
+.steps .sh{display:none}
+.steps button:hover{border-color:#c9c2ba}
+.steps button[aria-current=step]{color:#ae2032;border-color:#ca7a85;background:#fae9eb}
+.steps .bar{position:absolute;left:0;right:0;bottom:0;height:2px;background:var(--red);transform:scaleX(0);transform-origin:left}
+.demo[data-playing=true] .steps button[aria-current=step] .bar{animation:prog var(--dur,4s) linear both}
+@keyframes prog{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+.caption{margin:0 0 12px;min-height:24px}
+.caption strong{display:block;font-size:17px;font-weight:500;line-height:1.4;letter-spacing:-.02em}
+
+/* Branches and nodes band (the figure's top row). */
+.band{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);align-items:center;gap:12px 36px;padding:12px 14px;border:1px solid #e4ded7;border-radius:6px;background:#fff}
+.branches{display:grid;gap:10px}
+.br{display:grid;grid-template-columns:24px max-content minmax(0,1fr);column-gap:10px;row-gap:1px;align-items:center}
+.badge{display:grid;place-items:center;width:24px;height:24px;border-radius:50%;border:1.5px solid var(--ink);font:600 12px/1 var(--mono);color:var(--ink)}
+.br .badge{grid-row:1 / span 2}
+.br[data-b="1"] .badge{background:var(--b1)}
+.br[data-b="2"] .badge{background:var(--b2)}
+.br-name{font-size:14px;font-weight:600;line-height:1.2;white-space:nowrap}
+.ver{display:inline-block;margin-left:4px;padding:0 4px;border:1px solid #d5cfc8;border-radius:3px;font:500 11px/1.5 var(--mono);font-style:normal;color:var(--muted)}
+.ver.flash{animation:flash 1.2s ease}
+@keyframes flash{0%,40%{background:#fae9eb;border-color:var(--red);color:var(--red)}}
+.ctx{display:flex;gap:2px;min-width:0}
+.ctx i{display:block;flex:none;width:18px;height:10px;border-radius:2px}
+.br-st{grid-column:2 / -1;font:11px/1.4 var(--mono);color:var(--muted)}
+.sys{background:var(--sys)}.b1{background:var(--b1)}.b2{background:var(--b2)}.new{background:var(--red)}
+.nodes{display:grid;grid-template-columns:auto minmax(40px,1fr) auto minmax(40px,1fr) auto;align-items:center}
+.nd{display:grid;justify-items:center;min-width:54px;padding:4px 8px 3px;border:1.5px solid var(--ink);border-radius:5px;background:#fff;transition:border-color .4s,box-shadow .4s}
+.nd b{font:600 14px/1.15 var(--mono)}
+.nd small{font:10px/1.3 var(--mono);color:var(--muted);white-space:nowrap}
+.nd.full{border-color:var(--red);box-shadow:0 0 0 3px #c9233620}
+.nd.full small{color:var(--red);font-weight:600}
+.arw{position:relative;height:30px;min-width:0}
+.arw .shaft{position:absolute;left:5px;right:10px;top:50%;height:0;border-top:1.6px solid var(--ink);transform:scaleX(0);transform-origin:left center;opacity:0;transition:transform .6s ease,opacity .3s}
+.arw .shaft::after{content:'';position:absolute;right:-9px;top:-5.6px;border-left:9px solid var(--ink);border-top:4.5px solid transparent;border-bottom:4.5px solid transparent}
+.arw .kv{position:absolute;top:calc(50% - 6px);left:5px;display:flex;gap:1px;padding:1px;background:#fff;opacity:0;transition:left 1s cubic-bezier(.45,0,.2,1) .2s,opacity .3s}
+.arw .kv i{display:block;width:18px;height:10px;border-radius:2px}
+.arw.on .shaft{transform:scaleX(1);opacity:1}
+.arw.on .kv{opacity:1;left:calc(50% - var(--kvw) / 2 - 2px)}
+.arw.past .shaft{transform:scaleX(1);opacity:.2}
+.arw.past .kv{opacity:0;left:calc(50% - var(--kvw) / 2 - 2px)}
+.arw[data-a="12"]{--kvw:41px}.arw[data-a="2d"]{--kvw:60px}
+
+/* Tree (shared look with Figure 4). */
+.tree{display:block;width:100%;max-width:500px;height:auto;margin:6px auto 0;overflow:visible}
+.tree text{font-family:var(--display)}
+.edge{fill:none;stroke:#8c8c8c;stroke-width:1.3;opacity:0;transition:opacity .45s .3s}
+.edge.on{opacity:1}
+.edge.ev{stroke-dasharray:2 3;opacity:.45}
+.blk{transition:transform .8s cubic-bezier(.3,.7,.2,1),opacity .5s}
+.noanim,.noanim *{transition:none!important}
+.box{stroke-width:1.2;transition:fill .5s,fill-opacity .5s,stroke .4s}
+.blk[data-o=sys] .box{fill:var(--sys);stroke:var(--ink)}
+.blk[data-o=b1] .box{fill:var(--b1);stroke:var(--b1e)}
+.blk[data-o=b2] .box{fill:var(--b2);stroke:var(--b2e)}
+.blk[data-o=new] .box{fill:var(--red);stroke:var(--newe)}
+.ct{font-size:12.5px;font-weight:600;fill:var(--ink);transition:fill .4s,opacity .4s}
+.ct .sub{font-size:8.6px}
+.blk[data-o=sys] .ct,.blk[data-o=new] .ct{fill:#fff}
+.blk.zero .box{stroke:var(--ink);stroke-dasharray:4 3;fill-opacity:.45}
+.blk.zero .ct{fill:var(--ink)}
+.zb{fill:none;stroke:none}
+.ln.zero .zb{stroke:var(--ink);stroke-dasharray:3 2;fill:#ffffff59}
+.strike{stroke:var(--ink);stroke-width:1.4;opacity:0;transition:opacity .4s .2s}
+.ln.x .strike{opacity:.85}
+.ln.x .ct{opacity:.5}
+.blk:not(.ev) .ln.x .zb{stroke:#9a958f;stroke-dasharray:1.5 2.5;fill:#fffdfa}
+.blk.ev .box{fill:#fffdfa;fill-opacity:1;stroke:#9a958f;stroke-dasharray:1.5 2.5}
+.blk.ev .ct{fill:var(--ink)}
+.tg,.evp{opacity:0;transform:scale(.3);transform-box:fill-box;transform-origin:center;transition:opacity .25s,transform .35s cubic-bezier(.3,1.5,.5,1)}
+.tg.on{opacity:1;transform:scale(1);transition-delay:.2s}
+.ln.xp .evp{opacity:1;transform:scale(1);transition-delay:.35s}
+.tg rect{fill:#fff;stroke:var(--ink);stroke-width:1}
+.tg text{font-size:10.5px;font-weight:700;fill:var(--ink)}
+.evp rect{fill:#fff;stroke:#8a8580;stroke-width:1}
+.evp text{font:600 9.2px var(--mono);fill:var(--muted)}
+.ln.bump .ct{animation:bump .8s ease}
+@keyframes bump{0%,25%{opacity:.15}}
+.ring{fill:none;stroke:var(--red);stroke-width:2;opacity:0}
+.blk.hit .ring{opacity:.8;animation:ring 1.4s ease-out}
+.blk.static .ring{animation:none}
+@keyframes ring{0%{stroke-width:8;opacity:0}45%{stroke-width:2;opacity:.9}}
+.mark .halo{fill:none;stroke:#8a8580;stroke-width:1.3;stroke-dasharray:3 3}
+.mark text{font:500 10px var(--mono);fill:#6a656d}
+.mark{animation:fadein .6s .6s backwards}
+.mark.static{animation:none}
+@keyframes fadein{from{opacity:0}}
+.instant,.instant *{transition:none!important;animation:none!important}
+
+/* Legend. */
+.legend{display:flex;flex-wrap:wrap;align-items:center;gap:6px 16px;margin:12px 0 0;padding-top:10px;border-top:1px solid #e6e0d9;color:#5f5a62;font-size:13px;line-height:18px}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.sw{display:inline-block;width:16px;height:11px;border-radius:2px}
+.sw.zero{background:#cdcdcd73;border:1.3px dashed var(--ink)}
+.key-arrow{position:relative;display:inline-block;width:20px;height:0;border-top:1.6px solid var(--ink);margin-right:6px}
+.key-arrow::after{content:'';position:absolute;right:-7px;top:-5px;border-left:7px solid var(--ink);border-top:4px solid transparent;border-bottom:4px solid transparent}
+.legend .count-key{color:var(--fg)}
+.count-key b{font-weight:600;white-space:nowrap}
+
+@media (max-width:760px){
+  .stage{padding:14px 10px}
+  .head{display:block}
+  .head h3{font-size:24px}
+  .controls{margin-top:12px}
+  .controls .btn{flex:1}
+  .steps{gap:4px}
+  .steps button{flex-direction:column;gap:2px;font-size:11px;min-height:44px;padding:4px 2px}
+  .steps .lg{display:none}
+  .steps .sh{display:inline}
+  .caption{min-height:48px}
+  .caption strong{font-size:16px}
+  .band{grid-template-columns:minmax(0,1fr);padding:10px}
+  .arw .kv i{width:13px;height:9px}
+  .arw[data-a="12"]{--kvw:31px}.arw[data-a="2d"]{--kvw:45px}
+  .legend{gap:6px 12px;font-size:12px}
+}
+@media (prefers-reduced-motion:reduce){
+  .demo *,.demo *::before,.demo *::after{transition:none!important;animation:none!important}
+}
+</style>
+</head>
+<body>
+<header class="preview"><p><b>Design 04-A – Figure 4, in motion.</b> The paper’s directory figure becomes one living tree: the four count rules play in order, then memory pressure on P1 evicts the dashed zero-count copies first.</p></header>
+
+<main class="page">
+  <section class="demo" id="kv-demo" data-playing="false" aria-labelledby="kv-demo-title">
+    <div class="stage">
+      <div class="head">
+        <h3 id="kv-demo-title">Counts follow agents and transfers. <span class="accent">Zero goes first.</span></h3>
+        <div class="controls">
+          <button type="button" class="btn btn-primary" data-play>Pause</button>
+          <button type="button" class="btn btn-outline" data-replay>Replay</button>
+        </div>
+      </div>
+      <div class="steps" role="group" aria-label="Animation steps">
+        <button type="button" data-step="1"><span class="n">1</span><span class="lg">Consecutive request</span><span class="sh">Request</span><i class="bar" aria-hidden="true"></i></button>
+        <button type="button" data-step="2"><span class="n">2</span><span class="lg">Compaction</span><span class="sh">Compact</span><i class="bar" aria-hidden="true"></i></button>
+        <button type="button" data-step="3"><span class="n">3</span><span class="lg">P2P transfer</span><span class="sh">P2P</span><i class="bar" aria-hidden="true"></i></button>
+        <button type="button" data-step="4"><span class="n">4</span><span class="lg">P2D transfer</span><span class="sh">P2D</span><i class="bar" aria-hidden="true"></i></button>
+        <button type="button" data-step="5"><span class="n">5</span><span class="lg">Eviction</span><span class="sh">Evict</span><i class="bar" aria-hidden="true"></i></button>
+      </div>
+      <p class="caption" aria-live="polite"><strong data-caption>A new request counts only its new block.</strong></p>
+
+      <div class="fig" data-fig>
+        <div class="band">
+          <div class="branches">
+            <div class="br" data-b="1">
+              <span class="badge" aria-hidden="true">1</span>
+              <span class="br-name">Branch 1<em class="ver" data-ver>v1</em></span>
+              <span class="ctx" data-ctx aria-hidden="true"></span>
+              <span class="br-st" data-st>on P1</span>
+            </div>
+            <div class="br" data-b="2">
+              <span class="badge" aria-hidden="true">2</span>
+              <span class="br-name">Branch 2</span>
+              <span class="ctx" data-ctx aria-hidden="true"></span>
+              <span class="br-st" data-st>waits for a tool</span>
+            </div>
+          </div>
+          <div class="nodes" aria-hidden="true">
+            <span class="nd" data-n="P1"><b>P1</b><small data-ndl>prefill</small></span>
+            <span class="arw" data-a="12"><i class="shaft"></i><span class="kv"><i class="sys"></i><i class="b1"></i></span></span>
+            <span class="nd" data-n="P2"><b>P2</b><small>prefill</small></span>
+            <span class="arw" data-a="2d"><i class="shaft"></i><span class="kv"><i class="sys"></i><i class="b1"></i><i class="b1"></i></span></span>
+            <span class="nd" data-n="D1"><b>D1</b><small>decode</small></span>
+          </div>
+        </div>
+        <p class="sr-only">A prefix tree of KV blocks. Each block lists, for every node that holds it, how many active branches use it there.</p>
+        <svg class="tree" data-tree viewBox="0 0 360 246" aria-hidden="true"></svg>
+      </div>
+
+      <p class="legend">
+        <span class="count-key"><b>R<sub>P1</sub> = 2</b> means two active branches still use this block on P1</span>
+        <span><i class="sw sys"></i>System prompt</span>
+        <span><i class="sw b1"></i>Branch 1’s context</span>
+        <span><i class="sw b2"></i>Branch 2’s context</span>
+        <span><i class="sw new"></i>New KV</span>
+        <span><i class="sw zero"></i>Count 0</span>
+        <span><i class="key-arrow"></i>KV transfer</span>
+      </p>
+    </div>
+  </section>
+</main>
+
+<script>
+(function () {
+  'use strict';
+
+  /* ---------- Shared: SVG helper ---------- */
+  var NS = 'http://www.w3.org/2000/svg';
+  function S(tag, attrs, parent, text) {
+    var e = document.createElementNS(NS, tag);
+    if (attrs) for (var k in attrs) e.setAttribute(k, attrs[k]);
+    if (text != null) e.textContent = text;
+    if (parent) parent.appendChild(e);
+    return e;
+  }
+  function flush(el) { if (el && el.getBoundingClientRect) el.getBoundingClientRect(); }
+
+  /* ---------- Shared: tree of KV blocks with per-node counts ---------- */
+  function Tree(svg, cfg) {
+    var W = cfg.w, LH = 15, PAD = 7, TX = -8;
+    var gE = S('g', { 'class': 'edges' }, svg);
+    var gB = S('g', { 'class': 'blocks' }, svg);
+    var gM = S('g', { 'class': 'marks' }, svg);
+    var items = {}, markKey = '';
+    function hOf(n) { return PAD * 2 + LH * Math.max(1, n); }
+    function label(ct, node) {
+      if (cfg.notation === 'R') {
+        S('tspan', null, ct, 'R');
+        S('tspan', { 'class': 'sub', dy: 3 }, ct, node);
+        S('tspan', { dy: -3 }, ct, ' = ');
+      } else {
+        S('tspan', null, ct, node + ': ');
+      }
+      return S('tspan', { 'class': 'num' }, ct, '');
+    }
+    function mkLine(it, node) {
+      var g = S('g', { 'class': 'ln' }, it.lg);
+      S('rect', { 'class': 'zb', x: -W / 2 + 4, y: -11.5, width: W - 8, height: 15.5, rx: 2.5 }, g);
+      var ct = S('text', { 'class': 'ct', x: TX, y: 0, 'text-anchor': 'middle' }, g);
+      var num = label(ct, node);
+      var strike = S('line', { 'class': 'strike', x1: TX - 22, x2: TX + 22, y1: -4, y2: -4 }, g);
+      var tg = S('g', { 'class': 'tg' }, g);
+      S('rect', { x: W / 2 - 13, y: -12, width: 26, height: 16, rx: 8 }, tg);
+      var tt = S('text', { x: W / 2, y: -0.5, 'text-anchor': 'middle' }, tg, '');
+      var ep = S('g', { 'class': 'evp' }, g);
+      S('rect', { x: W / 2 - 22, y: -12, width: 44, height: 16, rx: 8 }, ep);
+      S('text', { x: W / 2, y: -1, 'text-anchor': 'middle' }, ep, 'evicted');
+      return { g: g, ct: ct, num: num, strike: strike, tg: tg, tt: tt, val: null };
+    }
+    function ensure(id) {
+      if (items[id]) return items[id];
+      var g = S('g', { 'class': 'blk', 'data-id': id }, gB);
+      var ring = S('rect', { 'class': 'ring', x: -W / 2 - 4, y: -4, width: W + 8, height: 37, rx: 7 }, g);
+      var box = S('rect', { 'class': 'box', x: -W / 2, y: 0, width: W, height: 29, rx: 4 }, g);
+      var lg = S('g', { 'class': 'lines' }, g);
+      var edge = S('path', { 'class': 'edge', d: 'M0 0' }, gE);
+      items[id] = { g: g, ring: ring, box: box, lg: lg, edge: edge, lines: {}, shown: false };
+      return items[id];
+    }
+    function place(it, x, y, s) { it.g.style.transform = 'translate(' + x + 'px,' + y + 'px) scale(' + s + ')'; }
+    function fitStrike(ln) {
+      var w = 0;
+      try { w = ln.ct.getComputedTextLength(); } catch (e) { w = 0; }
+      var half = (w > 6 ? w : 38) / 2 + 3;
+      ln.strike.setAttribute('x1', TX - half);
+      ln.strike.setAttribute('x2', TX + half);
+    }
+    this.geo = {};
+    this.render = function (fr, instant) {
+      var B = fr.blocks, geo = {}, id;
+      for (id in B) geo[id] = { x: B[id].x, y: cfg.levels[B[id].l], h: hOf(B[id].L.length) };
+      this.geo = geo;
+      for (id in items) {
+        if (!B[id] && items[id].shown) {
+          items[id].g.style.opacity = '0';
+          items[id].edge.classList.remove('on');
+          items[id].shown = false;
+        }
+      }
+      for (id in B) {
+        var b = B[id], it = ensure(id), gm = geo[id];
+        if (!it.shown) {
+          var from = b.p && geo[b.p] ? geo[b.p] : null;
+          it.g.classList.add('noanim');
+          if (from) place(it, from.x, from.y + from.h * 0.4, 0.35); else place(it, gm.x, gm.y + 6, 0.9);
+          it.g.style.opacity = '0';
+          flush(it.g);
+          it.g.classList.remove('noanim');
+          it.shown = true;
+        }
+        it.g.setAttribute('data-o', b.o);
+        var ev = !!b.ev;
+        var zero = !ev && b.L.every(function (l) { return l.c === 0; });
+        it.g.classList.toggle('zero', zero);
+        it.g.classList.toggle('ev', ev);
+        it.g.classList.toggle('hit', !!b.hit);
+        it.g.classList.toggle('static', !!instant);
+        it.box.setAttribute('height', gm.h);
+        it.ring.setAttribute('height', gm.h + 8);
+        var seen = {};
+        b.L.forEach(function (l, i) {
+          var ln = it.lines[l.n] || (it.lines[l.n] = mkLine(it, l.n));
+          seen[l.n] = true;
+          ln.g.setAttribute('transform', 'translate(0 ' + (PAD + 11 + i * LH) + ')');
+          ln.g.style.display = '';
+          var v = String(l.c);
+          if (ln.num.textContent !== v) {
+            ln.num.textContent = v;
+            if (!instant && ln.val !== null) { ln.g.classList.remove('bump'); flush(ln.g); ln.g.classList.add('bump'); }
+          }
+          ln.val = v;
+          var struck = ev || !!l.x;
+          ln.g.classList.toggle('zero', l.c === 0 && !zero && !struck);
+          ln.g.classList.toggle('x', struck);
+          ln.g.classList.toggle('xp', !!l.x || (ev && i === 0));
+          if (struck) fitStrike(ln);
+          if (l.t) { ln.tt.textContent = l.t === '-1' ? '−1' : '+1'; ln.tg.classList.add('on'); }
+          else ln.tg.classList.remove('on');
+        });
+        for (var n in it.lines) if (!seen[n]) it.lines[n].g.style.display = 'none';
+        place(it, gm.x, gm.y, 1);
+        it.g.style.opacity = '1';
+        if (b.p && geo[b.p]) {
+          var pg = geo[b.p], ey = cfg.elbows[b.l - 1];
+          it.edge.setAttribute('d', 'M' + pg.x + ' ' + (pg.y + pg.h) + 'V' + ey + 'H' + gm.x + 'V' + gm.y);
+          it.edge.classList.add('on');
+          it.edge.classList.toggle('ev', ev);
+        } else it.edge.classList.remove('on');
+      }
+      var marks = fr.marks || [];
+      var key = marks.map(function (m) { return m.id + ':' + m.text; }).join('|');
+      if (key !== markKey) {
+        markKey = key;
+        while (gM.firstChild) gM.removeChild(gM.firstChild);
+        marks.forEach(function (m) {
+          var g = geo[m.id];
+          if (!g) return;
+          var mg = S('g', { 'class': 'mark' + (instant ? ' static' : '') }, gM);
+          S('rect', { 'class': 'halo', x: g.x - W / 2 - 5, y: g.y - 5, width: W + 10, height: g.h + 10, rx: 7 }, mg);
+          var t = S('text', { x: g.x, y: g.y + g.h + 19, 'text-anchor': 'middle' }, mg);
+          m.text.split('\n').forEach(function (part, k) { S('tspan', { x: g.x, dy: k ? 12 : 0 }, t, part); });
+        });
+      }
+    };
+  }
+
+  /* ---------- Shared: step player ---------- */
+  function Player(root, cfg) {
+    var playBtn = root.querySelector('[data-play]');
+    var replayBtn = root.querySelector('[data-replay]');
+    var stepBtns = Array.prototype.slice.call(root.querySelectorAll('[data-step]'));
+    var cap = root.querySelector('[data-caption]');
+    var mq = window.matchMedia ? window.matchMedia('(prefers-reduced-motion: reduce)') : null;
+    var N = cfg.steps.length, cur = 0, playing = false, timers = [];
+    function reduced() { return !!(mq && mq.matches); }
+    function clear() { timers.forEach(clearTimeout); timers = []; }
+    function at(ms, fn) { timers.push(setTimeout(fn, ms)); }
+    function ui() {
+      root.setAttribute('data-playing', String(playing));
+      root.setAttribute('data-frame', String(cur));
+      stepBtns.forEach(function (b) {
+        if (Number(b.getAttribute('data-step')) === Math.max(cur, 1)) b.setAttribute('aria-current', 'step');
+        else b.removeAttribute('aria-current');
+      });
+      playBtn.textContent = reduced() ? (cur >= N ? 'Start over' : 'Next step') : (playing ? 'Pause' : (cur >= N ? 'Play again' : 'Play'));
+    }
+    function restartBar() {
+      var bar = root.querySelector('[aria-current=step] .bar');
+      if (!bar) return;
+      bar.style.animation = 'none'; flush(bar); bar.style.animation = '';
+    }
+    function go(i, animate) {
+      clear();
+      var s = cfg.steps[Math.max(i, 1) - 1];
+      cap.textContent = s.cap;
+      if (!animate) { cfg.render(i, 'instant'); cur = i; ui(); return; }
+      cfg.render(i - 1, 'instant');
+      cur = i;
+      root.style.setProperty('--dur', s.dur + 'ms');
+      ui(); restartBar();
+      cfg.render(i, 'pre');
+      at(s.pre, function () { cfg.render(i, 'main'); });
+      at(s.dur, function () {
+        if (!playing) return;
+        if (i < N) go(i + 1, true); else { playing = false; ui(); }
+      });
+    }
+    playBtn.addEventListener('click', function () {
+      if (reduced()) { go(cur >= N ? 1 : cur + 1, false); return; }
+      if (playing) { playing = false; clear(); cfg.render(cur, 'instant'); ui(); return; }
+      playing = true;
+      go(cur >= N ? 1 : cur + 1, true);
+    });
+    replayBtn.addEventListener('click', function () { playing = !reduced(); go(1, !reduced()); });
+    stepBtns.forEach(function (b) {
+      b.addEventListener('click', function () { playing = false; go(Number(b.getAttribute('data-step')), !reduced()); });
+    });
+    if (mq) {
+      var onChange = function () { if (reduced()) { playing = false; clear(); cfg.render(cur, 'instant'); } ui(); };
+      if (mq.addEventListener) mq.addEventListener('change', onChange); else if (mq.addListener) mq.addListener(onChange);
+    }
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(function () { if (!playing) cfg.render(cur, 'instant'); });
+    }
+    if (reduced()) go(N, false);
+    else { playing = true; go(1, true); }
+  }
+
+  /* ---------- Frames: Figure 4 (a)-(d) in one continuous story, then eviction ---------- */
+  var ORDER = ['P1', 'P2', 'D1'];
+  function ln(n, c, t) { return { n: n, c: c, t: t || null, x: false }; }
+  function setc(b, n, c, t) {
+    var l = b.L.filter(function (z) { return z.n === n; })[0];
+    if (!l) { l = ln(n, c); b.L.push(l); b.L.sort(function (a, z) { return ORDER.indexOf(a.n) - ORDER.indexOf(z.n); }); }
+    l.c = c; l.t = t || null;
+  }
+  function next(prev, fn) {
+    var f = JSON.parse(JSON.stringify(prev));
+    Object.keys(f.blocks).forEach(function (k) { f.blocks[k].L.forEach(function (l) { l.t = null; }); f.blocks[k].hit = false; });
+    f.marks = [];
+    fn(f.blocks, f);
+    return f;
+  }
+  var F = [];
+  F[0] = { marks: [], blocks: {
+    S:  { x: 180, l: 0, o: 'sys', L: [ln('P1', 2)] },
+    H1: { x: 60,  l: 1, p: 'S', o: 'b1', L: [ln('P1', 1)] },
+    H2: { x: 300, l: 1, p: 'S', o: 'b2', L: [ln('P1', 1)] }
+  } };
+  // (a) Consecutive request: only the new block gets a count.
+  F[1] = next(F[0], function (B) { B.N = { x: 60, l: 2, p: 'H1', o: 'new', L: [ln('P1', 1, '+1')] }; });
+  // (b) Compaction: v1 -> v2, old blocks drop to 0, the new context gets a count.
+  F[2] = next(F[1], function (B) {
+    B.N.o = 'b1'; setc(B.N, 'P1', 0, '-1'); setc(B.H1, 'P1', 0, '-1');
+    B.M = { x: 180, l: 1, p: 'S', o: 'new', L: [ln('P1', 1, '+1')] };
+  });
+  // (c) P2P: branch 1 moves from P1 to P2; P2 counts its KV, P1 releases.
+  F[3] = next(F[2], function (B) {
+    B.M.o = 'b1';
+    setc(B.S, 'P1', 1, '-1'); setc(B.S, 'P2', 1, '+1');
+    setc(B.M, 'P1', 0, '-1'); setc(B.M, 'P2', 1, '+1');
+    B.N2 = { x: 180, l: 2, p: 'M', o: 'new', L: [ln('P2', 1, '+1')] };
+  });
+  // (d) P2D: D1 counts the KV it receives; P2 keeps its counts.
+  F[4] = next(F[3], function (B) {
+    B.N2.o = 'b1';
+    setc(B.S, 'D1', 1, '+1'); setc(B.M, 'D1', 1, '+1'); setc(B.N2, 'D1', 1, '+1');
+  });
+  // Eviction on P1: zero-count copies go first; branch 2 keeps its KV.
+  F[5] = next(F[4], function (B, f) {
+    B.H1.ev = true; B.N.ev = true;
+    B.M.L.forEach(function (l) { if (l.n === 'P1') l.x = true; });
+    f.marks.push({ id: 'H2', text: 'LRU evicts\nthis first' });
+  });
+
+  var BR = [
+    { v: 'v1', ctx: ['sys', 'b1'], st: 'on P1' },
+    { v: 'v1', ctx: ['sys', 'b1', 'new'], st: 'new request on P1' },
+    { v: 'v2', ctx: ['sys', 'new'], st: 'compacted on P1' },
+    { v: 'v2', ctx: ['sys', 'b1', 'new'], st: 'moved to P2' },
+    { v: 'v2', ctx: ['sys', 'b1', 'b1'], st: 'decodes on D1' },
+    { v: 'v2', ctx: ['sys', 'b1', 'b1'], st: 'on P2 and D1' }
+  ];
+  var NODES = [
+    { a12: '', a2d: '', full: false },
+    { a12: '', a2d: '', full: false },
+    { a12: '', a2d: '', full: false },
+    { a12: 'on', a2d: '', full: false },
+    { a12: 'past', a2d: 'on', full: false },
+    { a12: 'past', a2d: 'past', full: true }
+  ];
+
+  var root = document.getElementById('kv-demo');
+  var fig = root.querySelector('[data-fig]');
+  var tree = new Tree(root.querySelector('[data-tree]'), { w: 96, vw: 360, levels: [8, 100, 192], elbows: [84, 176], notation: 'R' });
+  var br1 = root.querySelector('.br[data-b="1"]'), br2 = root.querySelector('.br[data-b="2"]');
+  var a12 = root.querySelector('[data-a="12"]'), a2d = root.querySelector('[data-a="2d"]');
+  var p1 = root.querySelector('.nd[data-n="P1"]'), p1l = root.querySelector('[data-ndl]');
+  var ver = br1.querySelector('[data-ver]');
+
+  function setCtx(row, list) {
+    var box = row.querySelector('[data-ctx]');
+    while (box.firstChild) box.removeChild(box.firstChild);
+    list.forEach(function (c) { var i = document.createElement('i'); i.className = c; box.appendChild(i); });
+  }
+  function setArrow(el, state) { el.classList.toggle('on', state === 'on'); el.classList.toggle('past', state === 'past'); }
+  function pre(i) {
+    var n = NODES[i];
+    setArrow(a12, n.a12); setArrow(a2d, n.a2d);
+    p1.classList.toggle('full', n.full);
+    p1l.textContent = n.full ? 'needs room' : 'prefill';
+    br1.querySelector('[data-st]').textContent = BR[i].st;
+  }
+  function main(i, instant) {
+    var v = BR[i].v;
+    if (ver.textContent !== v) {
+      ver.textContent = v;
+      ver.classList.remove('flash');
+      if (!instant) { flush(ver); ver.classList.add('flash'); }
+    }
+    setCtx(br1, BR[i].ctx);
+    setCtx(br2, ['sys', 'b2']);
+  }
+  function render(i, mode) {
+    if (mode === 'instant') {
+      fig.classList.add('instant');
+      tree.render(F[i], true); pre(i); main(i, true);
+      flush(fig);
+      fig.classList.remove('instant');
+    } else if (mode === 'pre') {
+      pre(i);
+    } else {
+      tree.render(F[i], false); main(i, false);
+    }
+  }
+
+  Player(root, {
+    render: render,
+    steps: [
+      { cap: 'A new request counts only its new block.', dur: 4600, pre: 1500 },
+      { cap: 'Compaction makes branch 1 v2. Its old blocks drop to 0.', dur: 4800, pre: 700 },
+      { cap: 'Branch 1 moves to P2. Its counts move with it.', dur: 5200, pre: 1250 },
+      { cap: 'Branch 1 decodes on D1. P2 and D1 both keep counts.', dur: 5200, pre: 1250 },
+      { cap: 'P1 needs room: zero-count copies go first. Branch 2 keeps its KV.', dur: 6000, pre: 900 }
+    ]
+  });
+})();
+</script>
+</body>
+</html>

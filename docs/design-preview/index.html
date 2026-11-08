@@ -43,7 +43,11 @@
     </div>
     </section>
     <section><h2>04 / KV cache management</h2><p class="ask">Kang Hao: animate a tree, like Figure 4 of the report (“Counts follow agent context management and KV transfers”).</p>
-    <p class="ask">The options for 04 are still being built and will appear here.</p>
+    <div class="cards">
+    <a class="card" href="04-a.html"><span class="id">04-A</span><strong>Figure 4, in motion</strong><p>The report’s Figure 4 as one tree that changes step by step: a consecutive request, compaction, a P2P transfer and a P2D transfer. Then P1 runs out of room and evicts the zero-count copies first, while LRU would evict branch 2’s KV.</p><span class="open">Open ↗</span></a>
+    <a class="card" href="04-b.html"><span class="id">04-B</span><strong>Idle is not unused</strong><p>One prefill node. An agent waits while its sub-agent works, compacts and finishes. A host-memory bar ordered by last use shows that LRU would drop the waiting agent’s KV, while the counts keep it.</p><span class="open">Open ↗</span></a>
+    <a class="card" href="04-c.html"><span class="id">04-C</span><strong>Move the branch, free the copy</strong><p>A cluster view next to the tree. The router sends branch 1 to the less busy prefill node, which fetches its KV while the request waits. The counts move with the branch, and P1 evicts the copy left behind, not the KV of the branch waiting for a tool.</p><span class="open">Open ↗</span></a>
+    </div>
     </section>
     <a class="back" href="../">← Back to the page preview</a>
   </main>
