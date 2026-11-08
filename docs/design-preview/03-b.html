@@ -1,0 +1,501 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="robots" content="noindex">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Three clusters, one mix</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f7f5f2;--panel:#fff;--fg:#232328;--muted:#56545d;--faint:#67646d;--red:#c92336;--line:#d9d5cf;--display:'Space Grotesk',Arial,sans-serif;--mono:'IBM Plex Mono',ui-monospace,monospace;--node-p:#3f3c43;--node-d:#d9d6d2;--dyn:#958f96;color-scheme:light}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.6 var(--display);-webkit-font-smoothing:antialiased}
+button{font:inherit;color:inherit;cursor:pointer;background:none;border:0;padding:0;margin:0}
+button:focus-visible,summary:focus-visible{outline:2px solid var(--red);outline-offset:3px}
+h3,h4,p{margin:0}
+
+/* Preview strip: not part of the demo. */
+.preview{background:#eeebe6;border-bottom:1px solid var(--line)}
+.preview p{width:min(1076px,calc(100% - 32px));margin:0 auto;padding:9px 0;display:flex;flex-wrap:wrap;gap:2px 14px;font:12px/1.5 var(--mono);color:var(--muted)}
+.preview b{font-weight:600;color:var(--fg)}
+
+.wrap{width:min(1076px,calc(100% - 32px));margin:28px auto 56px}
+.demo{background:#fffdfaf2;border:1px solid #d7d2cc;border-radius:10px}
+.stage{padding:16px}
+.demo-head{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px 18px;margin-bottom:10px}
+.demo-head h3{font-size:26px;font-weight:500;line-height:1.1;letter-spacing:-.04em}
+.accent{color:var(--red)}
+.controls{display:flex;gap:6px}
+.btn{display:inline-flex;align-items:center;justify-content:center;min-height:36px;padding:7px 12px;border:1px solid transparent;border-radius:4px;font-size:14px;font-weight:500;line-height:1.3;white-space:nowrap;transition:background .2s,border-color .2s}
+.btn-primary{min-width:104px;background:var(--red);color:#fff}
+.btn-primary:hover{background:#ad192b}
+.btn-outline{border-color:#aaa59e}
+.btn-outline:hover{background:#ece8e2;border-color:#817a74}
+.steps{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px;margin-bottom:8px}
+.steps button{position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;gap:7px;min-height:32px;padding:5px 6px;border:1px solid #ded9d2;border-radius:4px;color:#68616a;font-size:13px;line-height:1.3}
+.steps button>span{font:11px var(--mono);opacity:.7}
+.steps button[aria-current="step"]{color:#ae2032;border-color:#ca7a85;background:#fae9eb}
+.steps button::after{content:'';position:absolute;left:0;right:0;bottom:0;height:2px;background:var(--red);transform-origin:left;transform:scaleX(var(--prog,0));opacity:0}
+.steps button[aria-current="step"]::after{opacity:1}
+.caption{min-height:24px;margin-bottom:12px}
+.caption strong{display:block;font-size:17px;font-weight:500;line-height:1.4;letter-spacing:-.02em}
+
+/* Shared agent mix: one round badge per 24 agents. */
+.mix{display:grid;grid-template-columns:auto minmax(0,1fr);grid-template-areas:"top top" "badges track";align-items:center;gap:8px 20px;padding:10px;margin-bottom:12px;border:1px solid #d6d1cb;border-radius:6px;background:#f8f6f2}
+.mix-top{grid-area:top;display:flex;flex-wrap:wrap;align-items:baseline;gap:2px 12px}
+.mix-label{font:500 11px/1.4 var(--mono);letter-spacing:.08em;color:#544a52}
+.mix-text{font-size:15px;font-weight:500;line-height:1.3}
+.mix-key{display:inline-flex;align-items:center;gap:6px;font:11px/1.4 var(--mono);color:var(--faint)}
+.mix-key .agent{width:16px;height:16px}
+.mix-key .agent svg{width:10px;height:10px}
+.mix-keys{display:flex;flex-wrap:wrap;gap:2px 14px;margin-left:auto}
+.badges{grid-area:badges;display:grid;grid-template-columns:repeat(12,24px);gap:4px}
+.agent{display:grid;place-items:center;width:24px;height:24px;border-radius:50%;border:1.5px solid #443c49;transition:opacity .45s,transform .45s,background .45s,color .45s}
+.agent svg{width:13px;height:13px;display:block}
+.agent[data-kind="math"]{background:#69616d;color:#fff}
+.agent[data-kind="cu"]{background:#fff;color:#443c49}
+.agent[data-kind="off"]{opacity:0;transform:scale(.5)}
+.agent .i-cu,.agent[data-kind="cu"] .i-math{display:none}
+.agent[data-kind="cu"] .i-cu{display:block}
+.track{grid-area:track;position:relative;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));height:28px;border:1px solid #d3cbc4;border-radius:5px;overflow:hidden;background:#fff}
+.track span{position:relative;z-index:1;display:flex;align-items:center;justify-content:center;font-size:13px;line-height:1;color:#8a838b;border-left:1px dashed #cfc7c0;transition:color .3s}
+.track span:first-child{border-left:0}
+.track span.is-on{color:var(--fg);font-weight:500}
+.track-fill{position:absolute;left:0;top:0;bottom:0;width:calc(var(--t,0) * 100%);background:#efe9e2}
+.track-cursor{position:absolute;z-index:2;top:-1px;bottom:-1px;left:calc(var(--t,0) * 100%);width:2px;margin-left:-1px;background:var(--fg)}
+.mix-time{font:12px/1.4 var(--mono);color:var(--faint)}
+
+/* Three clusters under the same mix. */
+.rows{display:grid;gap:10px}
+.row{display:grid;grid-template-columns:190px minmax(0,1fr) 200px;grid-template-areas:"label tiles meter" "label status meter";gap:4px 18px;align-items:center;padding:10px;border:1px solid #d6d1cb;border-radius:6px;background:#f8f6f2}
+.row.ours{border-color:#cd929b;background:#fffafa}
+.row-label{grid-area:label;align-self:start}
+.row-label h4{font-size:20px;font-weight:500;line-height:1.2;letter-spacing:-.025em}
+.ours .row-label h4{color:var(--fg)}
+.split-chip{display:block;margin-top:2px;font:13px/1.5 var(--mono);color:#655c65}
+.ours .split-chip{color:var(--red)}
+.tiles{grid-area:tiles;--gap:6px;position:relative;display:grid;grid-template-columns:repeat(9,minmax(0,1fr));gap:var(--gap)}
+.row.has-tag .tiles{margin-top:20px}
+.tile{position:relative;height:52px;display:flex;flex-direction:column;align-items:center;justify-content:center;border:1px solid #39363e;border-radius:5px;background:var(--node-p);color:#fff;transition:background .45s,color .45s,border-color .45s}
+.tile.is-d{background:var(--node-d);color:#343038;border-color:#a9a39d}
+.tile.is-short{background:repeating-linear-gradient(135deg,#fff0f2 0 6px,#f5d8de 6px 12px);color:#b2132a;border:1px dashed #cf6d7e}
+.tile small{position:absolute;top:3px;font:10px/1.2 var(--mono);opacity:.75}
+.tile b{margin-top:8px;font:500 20px/22px var(--display)}
+.tile.is-flip{animation:role-confirm .9s ease both}
+.tile.is-flip b{animation:phase-flip .6s ease both}
+.row:not(.ours) .tile.is-flip{animation-name:role-confirm-gray}
+.frame{position:absolute;top:-5px;bottom:-5px;left:-5px;width:calc(var(--best,3) * (100% + var(--gap)) / 9 - var(--gap) + 10px);border:2px solid var(--fg);border-radius:8px;pointer-events:none;transition:width .5s cubic-bezier(.3,.7,.2,1)}
+.frame-tag{position:absolute;left:4px;bottom:100%;margin-bottom:3px;padding:0 4px;background:#f8f6f2;white-space:nowrap;font:500 11px/1.3 var(--mono);color:var(--fg)}
+.row-status{grid-area:status;font-size:14px;line-height:1.35;font-weight:500;color:#4a434b}
+.row-status.is-cost{color:#b2132a}
+.meter{grid-area:meter;align-self:center;min-width:0}
+.meter-label{display:block;font:500 10px/1.4 var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--faint)}
+.bar{position:relative;height:10px;margin:5px 0 4px;border-radius:5px;background:#e9e3dc}
+.bar i{position:absolute;left:0;top:0;bottom:0;width:calc(var(--v,0) / 4.5 * 100%);border-radius:5px;background:#8e8389;transition:width .6s cubic-bezier(.3,.7,.2,1)}
+.row[data-sys="static"] .bar i{background:#3f3c43}
+.row[data-sys="dyn"] .bar i{background:var(--dyn)}
+.ours .bar i{background:var(--red)}
+.meter b{font:500 15px/1.3 var(--mono)}
+.ours .meter b{color:var(--red)}
+.meter b small{font-size:12px;font-weight:400;color:var(--faint)}
+
+.legend{display:flex;flex-wrap:wrap;gap:6px 18px;margin-top:10px;color:#71666d;font-size:13px;line-height:18px}
+.legend b{font-family:var(--mono);color:#3f3740;margin-right:4px}
+.legend span{display:inline-flex;align-items:center;gap:7px}
+.key-frame{width:24px;height:14px;border:2px solid var(--fg);border-radius:4px}
+.key-short{width:14px;height:16px;border:1px dashed #cf6d7e;border-radius:2px;background:repeating-linear-gradient(135deg,#fff0f2 0 3px,#f5d8de 3px 6px)}
+
+.results{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px 22px;margin-top:14px;padding-top:12px;border-top:1px solid #e1dbd4;transition:opacity .4s}
+.results-label{grid-column:1/-1;font:500 11px/1.4 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--faint)}
+.result{min-width:0}
+.result b{display:block;color:var(--red);font:500 40px/1 var(--display);letter-spacing:-.05em}
+.result span{display:block;margin-top:6px;font-size:15px;line-height:1.3}
+.result small{display:block;margin-top:3px;font:12px/1.4 var(--mono);color:var(--faint)}
+.demo:not([data-result="true"]) .results{opacity:.38}
+
+.scope{margin:0 16px;border-top:1px solid #dfd7d0;padding:12px 0}
+.scope summary{cursor:pointer;font-size:14px;color:#645961}
+.scope p{margin-top:10px;font-size:14px;line-height:1.65;color:#655b63}
+
+@keyframes phase-flip{0%{transform:rotateX(-85deg);opacity:.3}100%{transform:rotateX(0);opacity:1}}
+@keyframes role-confirm{0%,100%{box-shadow:0 0 0 0 #c9233600}45%{box-shadow:0 0 0 5px #c9233633}}
+@keyframes role-confirm-gray{0%,100%{box-shadow:0 0 0 0 #6f677000}45%{box-shadow:0 0 0 5px #6f677033}}
+
+@media (max-width:900px){
+  .row{grid-template-columns:150px minmax(0,1fr);grid-template-areas:"label tiles" "label status" "meter meter"}
+  .meter{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:10px}
+  .bar{margin:0}
+}
+@media (max-width:760px){
+  .stage{padding:14px 10px}
+  .demo-head{display:block}
+  .demo-head h3{font-size:24px}
+  .controls{margin-top:12px}
+  .controls .btn{flex:1}
+  .steps{gap:4px}
+  .steps button{flex-direction:column;gap:2px;min-height:44px;padding-inline:3px;font-size:12px}
+  .caption{min-height:48px}
+  .caption strong{font-size:16px}
+  .mix{grid-template-columns:minmax(0,1fr);grid-template-areas:"top" "badges" "track";padding:9px 8px}
+  .mix-keys{margin-left:0}
+  .badges{grid-template-columns:repeat(12,minmax(0,22px));gap:3px}
+  .agent{width:22px;height:22px}
+  .agent svg{width:12px;height:12px}
+  .row{grid-template-columns:minmax(0,1fr);grid-template-areas:"label" "tiles" "status" "meter";gap:6px;padding:9px 8px}
+  .row-label{display:flex;align-items:baseline;justify-content:space-between;gap:10px}
+  .row-label h4{font-size:18px}
+  .split-chip{margin-top:0}
+  .tiles{--gap:4px}
+  .row.has-tag .tiles{margin-top:22px}
+  .tile{height:44px}
+  .tile small{font-size:9px}
+  .tile b{font-size:17px;line-height:20px}
+  .frame{top:-4px;bottom:-4px;left:-4px;width:calc(var(--best,3) * (100% + var(--gap)) / 9 - var(--gap) + 8px)}
+  .row-status{font-size:13px}
+  .meter{grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"label value" "bar bar";gap:4px 10px}
+  .meter-label{grid-area:label}
+  .bar{grid-area:bar}
+  .meter b{grid-area:value}
+  .legend{gap:6px 12px;font-size:12px}
+  .results{grid-template-columns:1fr;gap:10px}
+  .result{display:grid;grid-template-columns:96px minmax(0,1fr);column-gap:12px;align-items:center}
+  .result b{grid-row:span 2;font-size:34px}
+  .result span{margin-top:0;font-size:14px}
+  .scope{margin-inline:10px}
+}
+@media (prefers-reduced-motion:reduce){
+  .demo *,.demo *::before,.demo *::after{animation:none!important;transition:none!important}
+}
+</style>
+</head>
+<body>
+<header class="preview" aria-label="Design preview, not part of the demo">
+  <p><b>Design 03-B — Three clusters, one mix</b><span>Three nine-node clusters serve the same shifting agent mix; only Evolving Infra’s prefill share grows to fill the best split, and its measured throughput leads in every phase.</span></p>
+</header>
+<main class="wrap">
+  <section class="demo" id="clusters-demo" data-result="false" aria-labelledby="demo-title">
+    <div class="stage">
+      <div class="demo-head">
+        <h3 id="demo-title">Same agents, same nodes. <span class="accent">One split follows.</span></h3>
+        <div class="controls">
+          <button type="button" class="btn btn-primary" data-play aria-pressed="false">Play</button>
+          <button type="button" class="btn btn-outline" data-replay>Replay</button>
+        </div>
+      </div>
+      <div class="steps" role="group" aria-label="Phases of the three-hour run">
+        <button type="button" data-step="0"><span>1</span>Putnam</button>
+        <button type="button" data-step="1"><span>2</span>Mixed</button>
+        <button type="button" data-step="2"><span>3</span>OSWorld</button>
+        <button type="button" data-step="3"><span>4</span>Result</button>
+      </div>
+      <p class="caption"><strong data-caption aria-live="polite" aria-atomic="true">Putnam math agents are decode-heavy. The best split has 3–4 prefill nodes.</strong></p>
+
+      <div class="mix">
+        <div class="mix-top">
+          <span class="mix-label">AGENT MIX</span>
+          <span class="mix-text" data-mix-text>288 Putnam agents</span>
+          <span class="mix-time" data-time>0 min</span>
+          <span class="mix-keys" aria-hidden="true">
+            <span class="mix-key"><i class="agent" data-kind="math"><svg class="i-math" viewBox="0 0 16 16"><path d="M12 3H4l4.5 5L4 13h8" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round" stroke-linecap="round"/></svg></i>Putnam math agent</span>
+            <span class="mix-key"><i class="agent" data-kind="cu"><svg class="i-cu" viewBox="0 0 16 16"><path d="M4 2.5l8.5 6-3.6.7 2 3.9-1.7.9-2-3.9-2.9 2.4z" fill="currentColor"/></svg></i>OSWorld computer-use agent</span>
+            <span class="mix-key">1 badge = 24 agents</span>
+          </span>
+        </div>
+        <div class="badges" data-badges aria-hidden="true"></div>
+        <div class="track" data-track aria-hidden="true"><i class="track-fill"></i><span>Putnam</span><span>Mixed</span><span>OSWorld</span><i class="track-cursor"></i></div>
+      </div>
+
+      <div class="rows">
+        <article class="row has-tag" data-sys="static" aria-label="Best static split">
+          <header class="row-label"><h4>Best static split</h4><span class="split-chip" data-chip>5P · 4D</span></header>
+          <div class="tiles" data-tiles aria-hidden="true"><div class="frame"><span class="frame-tag" data-frame-tag>Best split per 10 min · 3P6D</span></div></div>
+          <p class="row-status" data-status>Fixed at 5P4D: more prefill nodes than the best split.</p>
+          <div class="meter"><span class="meter-label" data-meter-label>Throughput · Putnam phase</span><div class="bar"><i data-bar></i></div><b data-value>3.02 <small>req/s</small></b></div>
+        </article>
+        <article class="row" data-sys="dyn" aria-label="Dynamo planner">
+          <header class="row-label"><h4>Dynamo planner</h4><span class="split-chip" data-chip>4P · 5D</span></header>
+          <div class="tiles" data-tiles aria-hidden="true"><div class="frame"></div></div>
+          <p class="row-status" data-status>Fewer prefill nodes than the best split.</p>
+          <div class="meter"><span class="meter-label" data-meter-label>Throughput · Putnam phase</span><div class="bar"><i data-bar></i></div><b data-value>1.57 <small>req/s</small></b></div>
+        </article>
+        <article class="row ours" data-sys="ours" aria-label="Evolving Infra">
+          <header class="row-label"><h4>Evolving Infra</h4><span class="split-chip" data-chip>3P · 6D</span></header>
+          <div class="tiles" data-tiles aria-hidden="true"><div class="frame"></div></div>
+          <p class="row-status" data-status>Keeps 3P6D for decode-heavy Putnam.</p>
+          <div class="meter"><span class="meter-label" data-meter-label>Throughput · Putnam phase</span><div class="bar"><i data-bar></i></div><b data-value>4.05 <small>req/s</small></b></div>
+        </article>
+      </div>
+      <p class="legend"><span><b>P</b>Prefill node · <b>D</b>Decode node</span><span><i class="key-frame" aria-hidden="true"></i>Best split per 10 min</span><span><i class="key-short" aria-hidden="true"></i>Too few prefill nodes</span></p>
+
+      <div class="results" aria-label="Results over the three hours">
+        <p class="results-label">Over the three hours</p>
+        <div class="result"><b>2.14×</b><span>throughput vs Dynamo</span><small>1.28× vs best static split</small></div>
+        <div class="result"><b>2.15×</b><span>lower mean E2E latency vs Dynamo</span><small>1.33× vs best static split</small></div>
+        <div class="result"><b>3.58×</b><span>lower P95 TTFT vs Dynamo</span><small>1.88× vs best static split</small></div>
+      </div>
+    </div>
+    <details class="scope">
+      <summary>How to read this · sources</summary>
+      <p>Splits follow the report’s shifting-agent-mix run: Kimi K2.6 on nine nodes of 4× GB300, one hour each of 288 Putnam agents, 144 Putnam and 72 OSWorld agents, and 144 OSWorld agents. Throughput is the measured mean of each phase and of the whole run.</p>
+      <p>The best split per 10 min and the best static split are profiled under SGLang PD disaggregation. In the OSWorld phase, Evolving Infra settles at 8P1D, one prefill node more, because its symmetric engines shift the best split.</p>
+    </details>
+  </section>
+</main>
+<script>
+(() => {
+  'use strict';
+
+  // PD split = number of prefill nodes out of 9, read from the report's figure "PD split over time".
+  // Each entry is [minute after warmup, prefill nodes from that minute on]. Dynamo segments shorter
+  // than three minutes (79.9-81.9 and 175.3-175.7) are left out so that tiles do not flicker.
+  const N = 9;
+  const BEST = [[0, 3], [10, 4], [20, 3], [30, 4], [40, 3], [60, 5], [80, 6], [90, 5], [110, 6], [130, 7]];
+  const SPLITS = {
+    static: [[0, 5]],
+    dyn: [[0, 4], [3.4, 3], [16.4, 2], [38.9, 1], [60, 2], [110.2, 3], [120, 2], [139.5, 3], [150.3, 4], [164.8, 5]],
+    ours: [[0, 3], [80.7, 4], [85.9, 5], [91, 6], [139.3, 8]]
+  };
+  // Measured throughput (requests/s) per phase and over the whole run.
+  const THROUGHPUT = {
+    static: [3.02, 3.64, 3.10, 3.25],
+    dyn: [1.57, 2.21, 2.05, 1.94],
+    ours: [4.05, 3.99, 4.43, 4.16]
+  };
+  const METER_LABELS = ['Throughput · Putnam phase', 'Throughput · mixed phase', 'Throughput · OSWorld phase', 'Throughput · whole run'];
+  const STATUS = {
+    static: ['Fixed at 5P4D: more prefill nodes than the best split.', 'Fixed at 5P4D: balanced only in the mixed phase.', 'Fixed at 5P4D: too few prefill nodes.', 'Fixed at 5P4D: balanced only in the mixed phase.'],
+    dyn: ['Fewer prefill nodes than the best split.', 'Fewer prefill nodes than the best split.', 'Still fewer prefill nodes than the best split.', 'Fewer prefill nodes than the best split for most of the run.'],
+    ours: ['Keeps 3P6D for decode-heavy Putnam.', 'Moves nodes to prefill as OSWorld agents join.', 'Settles at 8P1D; its symmetric engines shift the best split.', 'Tracks the best split of each 10-minute window.']
+  };
+  // Status lines shown in red: the split works against the agent mix in that phase.
+  const COST = { static: [true, false, true, true], dyn: [true, true, true, true], ours: [false, false, false, false] };
+  const CAPTIONS = [
+    'Putnam math agents are decode-heavy. The best split has 3–4 prefill nodes.',
+    'OSWorld agents join. Evolving Infra moves nodes to prefill.',
+    'OSWorld is prefill-heavy. Both baselines keep too few prefill nodes.',
+    'Evolving Infra follows the mix: highest throughput in every phase.'
+  ];
+  // One badge per 24 agents: 288 Putnam; 144 Putnam + 72 OSWorld; 144 OSWorld.
+  const MIX = [
+    { text: '288 Putnam agents', math: 12, cu: 0 },
+    { text: '144 Putnam + 72 OSWorld agents', math: 6, cu: 3 },
+    { text: '144 OSWorld agents', math: 0, cu: 6 }
+  ];
+  const STOPS = [59.99, 119.99, 180];
+  const MS_PER_MIN = 75;
+  const HOLD_MS = 900;
+  const END_HOLD_MS = 700;
+
+  const at = (series, t) => { let v = series[0][1]; for (const [s, p] of series) { if (s <= t) v = p; else break; } return v; };
+  const name = (p) => `${p}P${N - p}D`;
+  const phaseOf = (t) => (t < 60 ? 0 : t < 120 ? 1 : 2);
+
+  const root = document.getElementById('clusters-demo');
+  if (!root) return;
+  const playBtn = root.querySelector('[data-play]');
+  const replayBtn = root.querySelector('[data-replay]');
+  const stepBtns = Array.from(root.querySelectorAll('[data-step]'));
+  const captionEl = root.querySelector('[data-caption]');
+  const mixText = root.querySelector('[data-mix-text]');
+  const timeEl = root.querySelector('[data-time]');
+  const track = root.querySelector('[data-track]');
+  const trackLabels = Array.from(track.querySelectorAll('span'));
+  const badgeBox = root.querySelector('[data-badges]');
+
+  const ICONS = '<svg class="i-math" viewBox="0 0 16 16"><path d="M12 3H4l4.5 5L4 13h8" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round" stroke-linecap="round"/></svg>' +
+    '<svg class="i-cu" viewBox="0 0 16 16"><path d="M4 2.5l8.5 6-3.6.7 2 3.9-1.7.9-2-3.9-2.9 2.4z" fill="currentColor"/></svg>';
+  const badges = [];
+  for (let i = 0; i < 12; i++) {
+    const b = document.createElement('i');
+    b.className = 'agent';
+    b.dataset.kind = 'math';
+    b.innerHTML = ICONS;
+    badgeBox.appendChild(b);
+    badges.push(b);
+  }
+
+  const rows = {};
+  root.querySelectorAll('.row[data-sys]').forEach((row) => {
+    const tilesBox = row.querySelector('[data-tiles]');
+    const frame = tilesBox.querySelector('.frame');
+    const tiles = [];
+    for (let i = 0; i < N; i++) {
+      const tile = document.createElement('div');
+      tile.className = 'tile';
+      tile.innerHTML = `<small>N${i + 1}</small><b>P</b>`;
+      tilesBox.insertBefore(tile, frame);
+      tiles.push(tile);
+    }
+    rows[row.dataset.sys] = {
+      row, tilesBox, tiles, shown: null,
+      chip: row.querySelector('[data-chip]'),
+      status: row.querySelector('[data-status]'),
+      meterLabel: row.querySelector('[data-meter-label]'),
+      bar: row.querySelector('[data-bar]'),
+      value: row.querySelector('[data-value]'),
+      tag: row.querySelector('[data-frame-tag]')
+    };
+  });
+
+  const motion = window.matchMedia ? window.matchMedia('(prefers-reduced-motion: reduce)') : null;
+  let reduced = !!(motion && motion.matches);
+  let t = reduced ? 180 : 0;
+  let result = reduced;
+  let playing = false;
+  let raf = 0;
+  let last = 0;
+  let hold = 0;
+
+  const setText = (el, text) => { if (el && el.textContent !== text) el.textContent = text; };
+  const stepIndex = () => (result ? 3 : phaseOf(t));
+
+  function flip(tile) {
+    tile.classList.remove('is-flip');
+    void tile.offsetWidth;
+    tile.classList.add('is-flip');
+    window.setTimeout(() => tile.classList.remove('is-flip'), 950);
+  }
+
+  function renderRow(key, best, step, jump) {
+    const r = rows[key];
+    const p = at(SPLITS[key], t);
+    r.tiles.forEach((tile, i) => {
+      const isP = i < p;
+      tile.classList.toggle('is-d', !isP);
+      tile.classList.toggle('is-short', !isP && i < best);
+      const b = tile.querySelector('b');
+      if (b.textContent !== (isP ? 'P' : 'D')) b.textContent = isP ? 'P' : 'D';
+    });
+    if (r.shown !== null && p !== r.shown && !jump && !reduced) {
+      for (let i = Math.min(p, r.shown); i < Math.max(p, r.shown); i++) flip(r.tiles[i]);
+    }
+    r.shown = p;
+    r.tilesBox.style.setProperty('--best', String(best));
+    if (r.tag) setText(r.tag, `Best split per 10 min · ${name(best)}`);
+    setText(r.chip, `${p}P · ${N - p}D`);
+    setText(r.status, STATUS[key][step]);
+    r.status.classList.toggle('is-cost', COST[key][step]);
+    setText(r.meterLabel, METER_LABELS[step]);
+    const v = THROUGHPUT[key][step];
+    r.bar.style.setProperty('--v', String(v));
+    const html = `${v.toFixed(2)} <small>req/s</small>`;
+    if (r.value.innerHTML !== html) r.value.innerHTML = html;
+  }
+
+  function renderMix() {
+    const ph = phaseOf(t);
+    const mix = MIX[ph];
+    badges.forEach((b, i) => {
+      const kind = i < mix.math ? 'math' : i < mix.math + mix.cu ? 'cu' : 'off';
+      if (b.dataset.kind !== kind) b.dataset.kind = kind;
+    });
+    setText(mixText, mix.text);
+    setText(timeEl, `${Math.round(t)} min`);
+    track.style.setProperty('--t', (t / 180).toFixed(4));
+    trackLabels.forEach((l, i) => l.classList.toggle('is-on', result || i === ph));
+  }
+
+  function render(jump) {
+    root.dataset.result = String(result);
+    const step = stepIndex();
+    const best = at(BEST, t);
+    renderMix();
+    Object.keys(rows).forEach((key) => renderRow(key, best, step, jump));
+    setText(captionEl, CAPTIONS[step]);
+    stepBtns.forEach((b, i) => {
+      const current = i === step;
+      if (current) b.setAttribute('aria-current', 'step'); else b.removeAttribute('aria-current');
+      b.setAttribute('aria-pressed', String(current));
+      const prog = step === 3 ? 1 : Math.min(1, Math.max(0, (t - step * 60) / 60));
+      b.style.setProperty('--prog', current ? prog.toFixed(3) : '0');
+    });
+    updateControls();
+  }
+
+  function updateControls() {
+    let label;
+    if (reduced) label = stepIndex() === 3 ? 'Start over' : 'Next stage';
+    else label = playing ? 'Pause' : result ? 'Play again' : 'Play';
+    setText(playBtn, label);
+    playBtn.setAttribute('aria-pressed', String(playing));
+  }
+
+  function tick(now) {
+    if (!playing) return;
+    const dt = Math.min(64, now - last);
+    last = now;
+    if (hold > 0) {
+      hold -= dt;
+      if (hold <= 0 && t >= 180) {
+        result = true;
+        playing = false;
+        render(false);
+        return;
+      }
+    } else {
+      const prev = t;
+      t = Math.min(180, t + dt / MS_PER_MIN);
+      for (const s of [59.99, 119.99]) if (prev < s && t >= s) { t = s; hold = HOLD_MS; break; }
+      if (t >= 180) hold = END_HOLD_MS;
+    }
+    render(false);
+    raf = window.requestAnimationFrame(tick);
+  }
+
+  function play() {
+    if (playing) return;
+    if (result || t >= 180) { t = 0; result = false; Object.values(rows).forEach((r) => { r.shown = null; }); }
+    playing = true;
+    hold = 0;
+    last = performance.now();
+    render(true);
+    raf = window.requestAnimationFrame(tick);
+  }
+
+  function pause() {
+    playing = false;
+    window.cancelAnimationFrame(raf);
+    updateControls();
+  }
+
+  function setStep(i) {
+    pause();
+    result = i === 3;
+    t = i === 3 ? 180 : STOPS[i];
+    render(true);
+  }
+
+  playBtn.addEventListener('click', () => {
+    if (reduced) setStep((stepIndex() + 1) % 4);
+    else if (playing) pause();
+    else play();
+  });
+  replayBtn.addEventListener('click', () => {
+    pause();
+    if (reduced) { setStep(0); return; }
+    t = 0;
+    result = false;
+    render(true);
+    play();
+  });
+  stepBtns.forEach((b) => b.addEventListener('click', () => setStep(Number(b.dataset.step))));
+  document.addEventListener('visibilitychange', () => { if (document.hidden && playing) pause(); });
+  if (motion) {
+    const onMotion = () => { reduced = motion.matches; if (reduced && playing) pause(); updateControls(); };
+    if (motion.addEventListener) motion.addEventListener('change', onMotion); else if (motion.addListener) motion.addListener(onMotion);
+  }
+  if ('IntersectionObserver' in window) {
+    new IntersectionObserver((entries) => {
+      entries.forEach((e) => { if (!e.isIntersecting && playing) pause(); });
+    }, { threshold: 0 }).observe(root);
+  }
+
+  render(true);
+  if (!reduced) window.setTimeout(play, 600);
+})();
+</script>
+</body>
+</html>
