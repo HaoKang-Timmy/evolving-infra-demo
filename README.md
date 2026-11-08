@@ -122,3 +122,16 @@ log. Revenue and user cost use the GLM-5.2 list price: $1.40 per 1M input tokens
 
 Window icons: [Material Icons](https://github.com/google/material-design-icons), Apache License 2.0
 (`video/font-icons/LICENSE`).
+
+
+## Architecture and evidence
+
+Sections 05 and 06 present the system overview and measured results directly after the three idea demos.
+`docs/research-details.css` scopes their layout to `#architecture` and `#evidence`; `docs/js/evidence.js`
+switches the stationary workload figures and their interpretation. The outline links to these sections and
+the existing Research section, now 07. The original `#architecture` and `#evidence` anchors remain usable.
+
+The wording follows the arXiv paper's three contribution names. The architecture input is agent requests.
+Evidence distinguishes the coding demo run from the report benchmarks, labels the SGLang reference splits,
+shows the Putnam TTFT tradeoff, and attributes the fixed-split gain to infrastructure, routing, and eviction
+together. The 0.3% ablation result describes throughput, not all runtime costs. No new dependencies or build step.

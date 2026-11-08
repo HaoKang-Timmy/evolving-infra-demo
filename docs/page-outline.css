@@ -1,5 +1,5 @@
 /* Outline of the reading view. On wide screens it stays at the right edge of the window, a little above the middle
-   of the area below the header, while the reader is in the three idea sections. Narrow or short screens and the
+   of the area below the header, while the reader is in the idea, architecture, and evidence sections. Narrow or short screens and the
    opening keep their layout. */
 .page-outline { display: none; }
 @media (min-width: 1180px) and (min-height: 480px) {
