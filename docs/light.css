@@ -78,6 +78,8 @@ body, .scene-hero { background: var(--bg); color: var(--fg); }
 .research-section { background: #eeebe6; border-color: var(--line); }
 .paper-title { color: var(--fg); }
 .authors { color: #45424a; }
+.authors a { text-decoration: underline; text-decoration-color: #c4beb6; text-decoration-thickness: 1px; text-underline-offset: 3px; transition: color .2s, text-decoration-color .2s; }
+.authors a:hover, .authors a:focus-visible { color: var(--red); text-decoration-color: currentColor; }
 .affiliations, .research-note { color: var(--muted); }
 .site-footer > span, .site-footer > a:last-child { color: var(--muted); }
 dialog { background: var(--panel); color: var(--fg); border-color: #c4beb6; box-shadow: 0 30px 100px #201c2033; }
