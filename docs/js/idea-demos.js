@@ -14,7 +14,7 @@
       'Each planner sizes the split from what it measures.',
       'Six sub-agents start at once. Prefill work spikes, then drains.',
       'Computer-use agents take over. Screenshots add new prefill work.',
-      'Measured over one hour of Claude Code agents.'
+      'Measured separately: Claude Code, 90 agents, nine nodes, both planners from 6P3D.'
     ],
     durations: [3200, 3800, 3800, 4000, 3600],
     systems: {
@@ -29,7 +29,7 @@
           'High KV use reads as decode demand: N3 moves to decode.',
           'KV use stays high, so prefill stays one node short.',
           'Prefill work grows, but the split stays at 2P4D.',
-          'Measured: 49% below the best static split.'
+          'Measured: 49% less throughput than the best static split.'
         ]
       },
       arrow: {
@@ -43,7 +43,7 @@
           'Prefill looks heavy: N4 moves to prefill. Decode falls short.',
           'The burst looks like lasting demand: N5 moves as well.',
           'Still at 5P1D. Decode is the bottleneck.',
-          'Measured: 65% below the best static split, with 34 switches.'
+          'Measured: 65% less throughput than the best static split, with 34 switches.'
         ]
       },
       evolving: {
@@ -76,7 +76,7 @@
   const LRU = (b1, b2) => rows(BASE, '', b1, `s:n ${b2}`, 'a1:g a2:g a3:g s:o', 'a1:r a2:r a3:r a4:n');
   const KV = {
     titles: [
-      'Agent C spawns sub-agent B, which reuses C’s context on N1.',
+      'Agent C forks branch B, which reuses C’s context on N1.',
       'B’s first request arrives. N1 holds the context but has a long queue.',
       'C compacts its context. Its old history is no longer reused.',
       'N1 needs room for new KV and evicts three blocks.',
@@ -84,11 +84,11 @@
     ],
     durations: [3200, 4200, 3600, 3800, 3600],
     agents: [
-      ['waiting for a tool', '', 'sub-agent of C'],
-      ['waiting for a tool', '', 'sub-agent of C'],
-      ['waiting for a tool', 'compacted', 'sub-agent of C'],
-      ['waiting for a tool', 'compacted', 'sub-agent of C'],
-      ['tool returned', 'compacted', 'sub-agent of C']
+      ['waiting for a tool', '', 'fork of C'],
+      ['waiting for a tool', '', 'fork of C'],
+      ['waiting for a tool', 'compacted', 'fork of C'],
+      ['waiting for a tool', 'compacted', 'fork of C'],
+      ['tool returned', 'compacted', 'fork of C']
     ],
     systems: {
       cache: {
@@ -120,14 +120,14 @@
         ]
       },
       evolving: {
-        chips: ['Routes by predicted TTFT', 'Evicts unreused KV first'],
+        chips: ['Routes by predicted TTFT', 'Evicts zero-count KV first'],
         routeB: 2,
         blocks: rows('a1:o1 a2:o1 a3:o1 a4:- c1:o2 c2:o2 c3:o1 s:- b1:- b2:-',
           '', 'c1:o1 c2:o1 b1:n1 b2:n1', 'c1:d0 c2:d0 c3:d0 s:n1 b1:o1 b2:o1', 'c1:g c2:g c3:g s:o1',
           'a1:h1 a2:h1 a3:h1 a4:n1 c1:- c2:- c3:-'),
         notes: [['', '', ''], ['', 'copies C’s prefix', ''], ['', '', ''], ['evicts count-0 blocks', '', ''], ['reuses A’s blocks', '', '']],
         status: [
-          'Counts show how many branches reuse each block.',
+          'Counts show how many active branches reference each block.',
           'B starts on N2, which copies C’s prefix while B waits.',
           'C’s old history drops to a count of 0.',
           'N1 evicts the count-0 blocks. A’s context stays.',

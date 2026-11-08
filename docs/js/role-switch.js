@@ -50,15 +50,15 @@
       ['Decode demand rises; N3 is selected to switch.', 'Both sides start at 3P3D. R0/R1/R2 KV blocks are on N3: in its local cache on the left, and its host memory on the right.'],
       ['Evolving Infra: R1 → N1 / R2 → N2; N3 finishes R0.', ''],
       ['N3 switches P → D. Evolving Infra keeps KV on N3.', 'N3 now serves decode at 2P4D. Its local cache is lost on the left; all three KV groups stay in N3 host memory on the right.'],
-      ['Evolving Infra: N1 reads a copy from N3; the originals stay.', 'N1 serves R3, which follows R1. The baseline restores or recomputes R1’s blocks on N1; Evolving Infra reads a copy from N3 host memory.'],
-      ['N1 reuses R1’s blocks and prefills R3’s new block.', 'N1 fills R3’s new block. R1’s blocks are restored in N1 local cache on the left; on the right, N1 uses a copy and N3 keeps the originals.']
+      ['Evolving Infra: N1 reads a copy from N3; the originals stay.', 'N1 serves R3, which follows R1. The baseline recomputes R1’s blocks on N1; Evolving Infra reads a copy from N3 host memory.'],
+      ['N1 reuses R1’s blocks and prefills R3’s new block.', 'N1 fills R3’s new block. R1’s blocks are recomputed into N1 local cache on the left; on the right, N1 uses a copy and N3 keeps the originals.']
     ];
     // Each row is engine state, cache state, and a panel explanation.
     const labels = {
       evolving: [
         ['N3 running', 'KV stored on N3', 'R0/R1/R2 cached KV blocks all reside in N3 host memory.'],
         ['N3 drains R0', 'KV stays on N3', 'Queued R1 goes to N1 and R2 to N2; running R0 finishes on N3.'],
-        ['N3 now serves decode', 'KV stays on N3', 'N3 changes role; all three KV groups remain in its host memory.'],
+        ['N3 now serves decode', 'KV stays on N3', 'N3 switches to decode; all three KV groups remain in its host memory.'],
         ['N3 serving decode', 'N1 reads a copy from N3', 'N1 reads R1’s blocks from N3 host memory into its GPU.'],
         ['N3 serving decode', 'N1 reuses its R1 copy', 'N1 uses its copy for R3; all three original groups remain in N3 host memory.']
       ],
@@ -66,15 +66,15 @@
         ['N3 running', 'R0/R1/R2 cached on N3', 'N3’s local cache holds all three groups of cached KV blocks.'],
         ['N3 waits until idle', 'N3 local cache awaits reset', 'The caller stops new arrivals and waits until N3 is fully idle.'],
         ['N3 now serves decode', 'N3 local KV reset', 'N3 changes to decode and resets its local KV cache without a restart.'],
-        ['N3 serving decode', 'Restore/recompute on N1', 'N1 restores or recomputes R1’s blocks for R3; N3’s old local groups stay lost.'],
-        ['N3 serving decode', 'R1 restored on N1', 'R1’s blocks are restored on N1. N3’s original local KV groups remain lost.']
+        ['N3 serving decode', 'Recompute on N1', 'N1 recomputes R1’s blocks for R3; N3’s old local groups stay lost.'],
+        ['N3 serving decode', 'R1 recomputed on N1', 'N1 recomputes R1’s blocks. N3’s original local KV groups remain lost.']
       ],
       restart: [
         ['N3 running', 'R0/R1/R2 cached on N3', 'N3’s local cache holds all three groups of cached KV blocks.'],
         ['N3 restarting', 'N3 local KV lost', 'N3 is restarting; the other nodes keep serving.'],
         ['N3 now serves decode', 'N3 local KV lost', 'N3 returns as decode with an empty local KV cache.'],
-        ['N3 serving decode', 'Restore/recompute on N1', 'N1 restores or recomputes R1’s blocks for R3; N3’s old local groups stay lost.'],
-        ['N3 serving decode', 'R1 restored on N1', 'R1’s blocks are restored on N1. N3’s original local KV groups remain lost.']
+        ['N3 serving decode', 'Recompute on N1', 'N1 recomputes R1’s blocks for R3; N3’s old local groups stay lost.'],
+        ['N3 serving decode', 'R1 recomputed on N1', 'N1 recomputes R1’s blocks. N3’s original local KV groups remain lost.']
       ]
     };
     // These cards distinguish the cost of changing roles from the loss and
@@ -83,22 +83,22 @@
       evolving: [
         ['Queued requests can reroute; running R0 must finish on N3.', 'R0/R1/R2 cached KV blocks are in N3 host memory.'],
         ['R1 moves to N1; R2 moves to N2. N3 drains R0.', 'All three KV groups stay in N3 host memory.'],
-        ['N3 serves decode after R0 finishes; no engine restart.', 'Changing N3’s role leaves its cached KV blocks in place.'],
+        ['N3 serves decode after R0 finishes; no engine restart.', 'Switching N3’s phase leaves its cached KV blocks in place.'],
         ['N1 handles R3 under the new 2P4D split.', 'R1’s blocks are copied to N1’s GPU; all three groups stay on N3.'],
-        ['The role change included rerouting R1/R2 and draining R0.', 'N1 reuses its copy; N3 still retains all three source groups.']
+        ['The phase switch included rerouting R1/R2 and draining R0.', 'N1 reuses its copy; N3 still retains all three source groups.']
       ],
       sglang: [
-        ['N3 must be fully idle before changing role.', 'Switching will reset N3’s local cached KV blocks.'],
-        ['Wait for N3 to become idle, then change its role.', 'N3’s local KV groups will be reset when the role changes.'],
+        ['N3 must be fully idle before switching phase.', 'Switching will reset N3’s local cached KV blocks.'],
+        ['Wait for N3 to become idle, then switch its phase.', 'N3’s local KV groups will be reset when the phase changes.'],
         ['N3 serves decode after the idle-and-switch sequence.', 'All three original groups in N3 local cache are lost.'],
-        ['N3 serves decode while N1 restores R1’s blocks for R3.', 'Restore or recompute R1’s cached KV blocks on N1.'],
+        ['N3 serves decode while N1 recomputes R1’s blocks for R3.', 'Recompute R1’s KV blocks on N1.'],
         ['N3 is serving decode after the idle-and-switch sequence.', 'R1’s blocks are in N1 local cache; N3’s old groups remain lost.']
       ],
       restart: [
-        ['N3 must stop serving and restart in its new role.', 'Restarting will clear N3’s local cached KV blocks.'],
+        ['N3 must stop serving and relaunch in its new phase.', 'Restarting will clear N3’s local cached KV blocks.'],
         ['N3 cannot serve requests while restarting.', 'N3’s local R0/R1/R2 cached KV blocks are lost.'],
         ['N3 returns to service as decode.', 'N3 returns without its original local cached KV groups.'],
-        ['N3 serves decode while N1 restores R1’s blocks for R3.', 'Restore or recompute R1’s cached KV blocks on N1.'],
+        ['N3 serves decode while N1 recomputes R1’s blocks for R3.', 'Recompute R1’s KV blocks on N1.'],
         ['N3 is serving decode after the restart.', 'R1’s blocks are in N1 local cache; N3’s old groups remain lost.']
       ]
     };
@@ -157,7 +157,7 @@
         const detail = detailPanels[system] || panel;
         if (system === 'baseline') {
           setText(panel.querySelector('[data-engine-family]'), baseline === 'restart'
-            ? 'Engine examples: vLLM · SGLang · TRT-LLM'
+            ? 'Engine examples: vLLM · SGLang'
             : 'In-place role switch · KV caching enabled');
           setText(panel.querySelector('[data-path-label]'), baseline === 'restart'
             ? 'Restart-based reconfiguration'
