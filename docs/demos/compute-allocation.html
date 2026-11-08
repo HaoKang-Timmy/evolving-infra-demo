@@ -1,0 +1,288 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Compute allocation demo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--fg:#232328;--muted:#56545d;--faint:#67646d;--red:#c92336;--display:'Space Grotesk',Arial,sans-serif;--mono:'IBM Plex Mono',ui-monospace,monospace;--node-p:#3f3c43;--node-d:#d9d6d2;color-scheme:light}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:transparent;color:var(--fg);font:16px/1.6 var(--display);-webkit-font-smoothing:antialiased}
+button{font:inherit;color:inherit;cursor:pointer;background:none;border:0;padding:0;margin:0}
+button:focus-visible{outline:2px solid var(--red);outline-offset:3px}
+h3,h4,p{margin:0}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+
+/* Same box as the site's role-switch demo. */
+.demo{background:#fffdfaf2;border:1px solid #d7d2cc;border-radius:10px;padding:16px}
+.head{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px 18px;margin-bottom:14px}
+.head h3{font-size:26px;font-weight:500;line-height:1.1;letter-spacing:-.04em}
+.accent{color:var(--red)}
+.controls{display:flex;gap:6px}
+.btn{display:inline-flex;align-items:center;justify-content:center;min-height:36px;padding:7px 12px;border:1px solid #aaa59e;border-radius:4px;font-size:14px;font-weight:500;line-height:1.3;white-space:nowrap;transition:background .2s,border-color .2s}
+.btn:hover{background:#ece8e2;border-color:#817a74}
+.demo.reduced .controls{display:none}
+
+/* Nine nodes: Evolving Infra's PD split at the current minute. */
+.nodes-head{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:2px 12px;margin-bottom:8px}
+.nodes-head h4{font-size:18px;font-weight:500;letter-spacing:-.02em;color:var(--red)}
+.split{font:13px/1.4 var(--mono);color:var(--fg)}
+.tiles{display:grid;grid-template-columns:repeat(9,minmax(0,1fr));gap:6px}
+.tile{position:relative;height:56px;display:flex;align-items:center;justify-content:center;border:1px solid #39363e;border-radius:5px;background:var(--node-p);color:#fff;transition:background .45s,color .45s,border-color .45s}
+.tile.is-d{background:var(--node-d);color:#343038;border-color:#a9a39d}
+.tile small{position:absolute;top:4px;left:0;right:0;text-align:center;font:10px/1.2 var(--mono);opacity:.75}
+.tile b{margin-top:10px;font:500 22px/24px var(--display)}
+.tile.is-flip{animation:flip .8s ease both}
+.key{margin-top:6px;font:12px/1.5 var(--mono);color:var(--faint)}
+
+/* Chart: the PD split over the three hours. */
+.chart{margin-top:16px}
+.chart svg{display:block;width:100%;height:auto;overflow:visible}
+.ax{font:11px var(--mono);fill:#6f6870}
+.ph{font:500 13px var(--display);fill:#9a939b;transition:fill .3s}
+.ph.is-on{fill:var(--fg)}
+.band{fill:#f3efe9;opacity:0;transition:opacity .3s}
+.band.is-on{opacity:1}
+.grid{stroke:#ece7e1;stroke-width:1}
+.sep{stroke:#aaa49d;stroke-width:1;stroke-dasharray:2 3}
+.l-best{fill:none;stroke:#232328;stroke-width:4.5}
+.l-ours{fill:none;stroke:var(--red);stroke-width:2.6}
+.cursor{stroke:#232328;stroke-opacity:.3;stroke-width:1}
+.dot{stroke:#fff;stroke-width:1.5}
+.dot-best{fill:#232328}
+.dot-ours{fill:var(--red)}
+.legend{display:flex;flex-wrap:wrap;gap:4px 22px;margin-top:8px;font-size:14px;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:8px}
+.legend i{display:inline-block;width:24px;border-top:4px solid #232328}
+.legend .ours i{border-top:3px solid var(--red)}
+.legend .ours{color:var(--red)}
+
+@keyframes flip{0%{transform:rotateX(-80deg)}100%{transform:rotateX(0)}}
+@media (max-width:760px){
+  .head h3{font-size:24px}
+  .tiles{gap:4px}
+  .tile{height:48px}
+  .tile small{font-size:9px}
+  .tile b{font-size:18px;margin-top:8px}
+}
+@media (prefers-reduced-motion:reduce){
+  .demo *{animation:none!important;transition:none!important}
+}
+</style>
+</head>
+<body>
+<section class="demo" id="demo" aria-labelledby="demo-title">
+  <div class="head">
+    <h3 id="demo-title">The workload shifts. <span class="accent">The PD split follows.</span></h3>
+    <div class="controls">
+      <button type="button" class="btn" id="play">Play</button>
+      <button type="button" class="btn" id="replay">Replay</button>
+    </div>
+  </div>
+
+  <div aria-hidden="true">
+    <div class="nodes-head"><h4>Evolving Infra</h4><span class="split" id="split">3 prefill · 6 decode</span></div>
+    <div class="tiles" id="tiles"></div>
+    <p class="key">P = prefill node · D = decode node</p>
+    <div class="chart" id="chart"><svg id="svg"></svg></div>
+    <div class="legend"><span><i></i>Best split per 10 minutes</span><span class="ours"><i></i>Evolving Infra</span></div>
+  </div>
+
+  <p class="sr-only">Animation over three hours of serving on nine nodes. The workload shifts from math agents (Putnam) to a mix and then to computer-use agents (OSWorld). The best split per 10 minutes rises from 3 prefill and 6 decode nodes to 7 prefill and 2 decode nodes. Evolving Infra follows it, from 3P6D to 6P3D and then 8P1D, by switching decode nodes to prefill.</p>
+</section>
+
+<script>
+(() => {
+  'use strict';
+
+  // Number of prefill nodes out of 9, read from the paper's figure of the PD split over time.
+  // Each entry is [minute after warmup, prefill nodes from that minute on].
+  const N = 9;
+  const BEST = [[0, 3], [10, 4], [20, 3], [30, 4], [40, 3], [60, 5], [80, 6], [90, 5], [110, 6], [130, 7]];
+  const OURS = [[0, 3], [80.7, 4], [85.9, 5], [91, 6], [139.3, 8]];
+  const PHASES = ['Putnam · math agents', 'Mixed', 'OSWorld · computer-use agents'];
+  const PHASES_SHORT = ['Putnam', 'Mixed', 'OSWorld'];
+  const SECONDS_PER_HOUR = 6;   // one hour of the run plays in 6 s
+  const END_HOLD = 3;           // seconds on the full chart before the loop restarts
+
+  const at = (series, t) => { let v = series[0][1]; for (const [s, p] of series) { if (s <= t) v = p; else break; } return v; };
+  const phaseOf = (t) => (t < 60 ? 0 : t < 120 ? 1 : 2);
+  const $ = (id) => document.getElementById(id);
+  const demo = $('demo');
+  const svg = $('svg');
+  const chartBox = $('chart');
+  const splitEl = $('split');
+  const playBtn = $('play');
+
+  const tiles = [];
+  for (let i = 0; i < N; i++) {
+    const tile = document.createElement('div');
+    tile.className = 'tile';
+    tile.innerHTML = `<small>N${i + 1}</small><b>P</b>`;
+    $('tiles').appendChild(tile);
+    tiles.push(tile);
+  }
+
+  // ------------------------------------------------------------------ chart
+  const NS = 'http://www.w3.org/2000/svg';
+  const make = (tag, attrs, parent) => {
+    const e = document.createElementNS(NS, tag);
+    for (const k in attrs) e.setAttribute(k, attrs[k]);
+    if (parent) parent.appendChild(e);
+    return e;
+  };
+  let G = null;
+  function buildChart() {
+    const W = Math.max(260, Math.round(chartBox.clientWidth));
+    const small = W < 560;
+    const H = small ? 210 : 250;
+    const m = { l: small ? 40 : 50, r: 10, t: 28, b: 22 };
+    const top = m.t + 4, bottom = H - m.b - 8;
+    const x = (t) => m.l + (t / 180) * (W - m.l - m.r);
+    const y = (p) => bottom - ((p - 1) / 7) * (bottom - top);
+    svg.textContent = '';
+    svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+    const clip = make('clipPath', { id: 'reveal' }, make('defs', {}, svg));
+    const clipRect = make('rect', { x: 0, y: 0, width: 0, height: H }, clip);
+    const bands = [0, 60, 120].map((s) => make('rect', { class: 'band', x: x(s), y: top - 8, width: x(s + 60) - x(s), height: bottom - top + 16 }, svg));
+    for (let p = 1; p <= 8; p++) {
+      make('line', { class: 'grid', x1: m.l, x2: W - m.r, y1: y(p), y2: y(p) }, svg);
+      make('text', { class: 'ax', x: m.l - 6, y: y(p) + 4, 'text-anchor': 'end' }, svg).textContent = `${p}P${N - p}D`;
+    }
+    [60, 120].forEach((s) => make('line', { class: 'sep', x1: x(s), x2: x(s), y1: top - 10, y2: bottom + 6 }, svg));
+    [0, 60, 120, 180].forEach((s) => {
+      make('text', { class: 'ax', x: x(s), y: H - 4, 'text-anchor': s === 0 ? 'start' : s === 180 ? 'end' : 'middle' }, svg)
+        .textContent = s === 180 ? '180 min' : String(s);
+    });
+    const labels = (small ? PHASES_SHORT : PHASES).map((name, i) => {
+      const label = make('text', { class: 'ph', x: x(i * 60 + 30), y: 16, 'text-anchor': 'middle' }, svg);
+      label.textContent = name;
+      return label;
+    });
+    const path = (s) => {
+      let d = `M${x(0)} ${y(s[0][1])}`;
+      for (let i = 1; i < s.length; i++) d += `H${x(s[i][0])}V${y(s[i][1])}`;
+      return `${d}H${x(180)}`;
+    };
+    const lines = make('g', { 'clip-path': 'url(#reveal)' }, svg);
+    make('path', { class: 'l-best', d: path(BEST) }, lines);
+    make('path', { class: 'l-ours', d: path(OURS) }, lines);
+    const cursor = make('line', { class: 'cursor', y1: top - 10, y2: bottom + 6 }, svg);
+    const dotBest = make('circle', { class: 'dot dot-best', r: 4.5 }, svg);
+    const dotOurs = make('circle', { class: 'dot dot-ours', r: 4 }, svg);
+    G = { x, y, clipRect, bands, labels, cursor, dotBest, dotOurs };
+  }
+
+  // ------------------------------------------------------------------ frame
+  let shownP = null;
+  function render(t, done) {
+    const p = at(OURS, t);
+    tiles.forEach((tile, i) => {
+      const isP = i < p;
+      tile.classList.toggle('is-d', !isP);
+      tile.querySelector('b').textContent = isP ? 'P' : 'D';
+    });
+    if (shownP !== null && p !== shownP && !done) {
+      for (let i = Math.min(p, shownP); i < Math.max(p, shownP); i++) {
+        tiles[i].classList.remove('is-flip');
+        void tiles[i].offsetWidth;
+        tiles[i].classList.add('is-flip');
+      }
+    }
+    shownP = p;
+    splitEl.textContent = `${p} prefill · ${N - p} decode`;
+    if (!G) return;
+    const cx = G.x(t);
+    G.clipRect.setAttribute('width', String(cx + 3));
+    G.cursor.setAttribute('x1', cx);
+    G.cursor.setAttribute('x2', cx);
+    G.cursor.style.opacity = done ? 0 : 1;
+    G.dotBest.setAttribute('cx', cx);
+    G.dotBest.setAttribute('cy', G.y(at(BEST, t)));
+    G.dotOurs.setAttribute('cx', cx);
+    G.dotOurs.setAttribute('cy', G.y(p));
+    const ph = phaseOf(t);
+    G.bands.forEach((b, i) => b.classList.toggle('is-on', !done && i === ph));
+    G.labels.forEach((l, i) => l.classList.toggle('is-on', done || i === ph));
+  }
+
+  // ------------------------------------------------------------------ playback
+  // Wide screens loop while at least 45% of the demo is visible, as the other demos on the site start.
+  // Narrow screens and reduced motion open on the full chart; narrow screens play on request.
+  const reduced = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const wide = () => {
+    try { return window.parent.matchMedia('(min-width: 820px)').matches; } catch (e) { return window.matchMedia('(min-width: 820px)').matches; }
+  };
+  const LOOP = 3 * SECONDS_PER_HOUR + END_HOLD;
+  let clock = 0;                       // seconds into the loop
+  let playing = !reduced && wide();
+  let started = playing;
+  let onScreen = false;
+  let last = 0;
+  const minuteAt = (c) => Math.min(180, (c / SECONDS_PER_HOUR) * 60);
+  const show = () => render(minuteAt(clock), !started || clock >= 3 * SECONDS_PER_HOUR);
+  const setBtn = () => { playBtn.textContent = playing ? 'Pause' : 'Play'; };
+
+  playBtn.addEventListener('click', () => {
+    if (!started) { started = true; clock = 0; shownP = null; }
+    playing = !playing;
+    last = 0;
+    setBtn();
+  });
+  $('replay').addEventListener('click', () => {
+    started = true; clock = 0; shownP = null; playing = true; last = 0;
+    setBtn();
+    show();
+  });
+  function tick(now) {
+    if (!last) last = now;
+    const dt = Math.min((now - last) / 1000, 0.1);
+    last = now;
+    if (playing && onScreen && !document.hidden) {
+      clock += dt;
+      if (clock >= LOOP) { clock = 0; shownP = null; }
+      show();
+    }
+    window.requestAnimationFrame(tick);
+  }
+
+  let lastWidth = 0;
+  const relayout = () => {
+    const w = chartBox.clientWidth;
+    if (!w || w === lastWidth) return;
+    lastWidth = w;
+    buildChart();
+    show();
+  };
+  if ('ResizeObserver' in window) new ResizeObserver(relayout).observe(chartBox);
+  else window.addEventListener('resize', relayout);
+
+  if (!started) clock = 3 * SECONDS_PER_HOUR;   // open on the full chart
+  relayout();
+  show();
+  if (reduced) {
+    demo.classList.add('reduced');
+  } else {
+    setBtn();
+    if ('IntersectionObserver' in window) {
+      new IntersectionObserver((es) => { onScreen = es[0].intersectionRatio >= 0.45; }, { threshold: [0, 0.45] }).observe(demo);
+    } else onScreen = true;
+    window.requestAnimationFrame(tick);
+  }
+
+  // Size the frame on the site to this page (js/demo-frames.js on the parent page).
+  const postHeight = () => {
+    if (window.parent === window) return;
+    window.parent.postMessage({ type: 'demo-height', height: Math.ceil(document.body.getBoundingClientRect().height) }, '*');
+  };
+  if ('ResizeObserver' in window) new ResizeObserver(postHeight).observe(document.body);
+  window.addEventListener('load', postHeight);
+  postHeight();
+})();
+</script>
+</body>
+</html>
