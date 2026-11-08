@@ -24,7 +24,7 @@
   <div class="section-heading"><h1>Three ideas.<br><em>One serving system.</em></h1><p>The planner changes where compute runs. The router and directory decide where context is reused. Symmetric engines and a shared KV pool let those decisions evolve independently.</p></div>
 
   <figure class="system-figure" aria-labelledby="system-caption">
-    <div class="request-flow">Agent requests <span>+</span> context management events</div>
+    <div class="request-flow">Agent requests</div>
     <div class="flow-arrow" aria-hidden="true">↓</div>
     <div class="router">
       <p class="diagram-kicker">ROUTER</p>
@@ -47,7 +47,7 @@
   <div class="architecture-notes">
     <article><span class="number">01</span><h3>Decouple compute and KV.</h3><p>A phase switch changes the work a node serves. Its cached KV remains readable across the cluster.</p></article>
     <article><span class="number">02</span><h3>Learn from execution.</h3><p>Online iteration-time models guide the PD split and predict the time to first token for request placement.</p></article>
-    <article><span class="number">03</span><h3>Follow agent context.</h3><p>Branch counts follow forks, compactions, finishes, and KV transfers. Unreferenced KV is evicted first.</p></article>
+    <article><span class="number">03</span><h3>Follow agent context.</h3><p>The directory tracks KV placement and active branch references across requests. Unreferenced KV is evicted first.</p></article>
   </div>
   <a class="text-link" href="../../fig/arch.svg" target="_blank" rel="noopener">Open the report’s architecture figure ↗</a>
 </section>
