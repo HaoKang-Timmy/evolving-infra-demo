@@ -1,4 +1,4 @@
-"""Extract a compact per-request timeline for the side-by-side demo (Dynamo vs Ambidex, CC c126).
+"""Extract a compact per-request timeline for the side-by-side demo (Dynamo vs Evolving Infra, Claude Code, 126 agents).
 
 Times are seconds after the benchmark start (continuous-timing.json benchmark_start_monotonic_ns), client clock.
 Per request: [slot, t_start, t_first, t_end, status, prompt_tokens, cached_tokens, completion_tokens]

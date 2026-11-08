@@ -1,6 +1,6 @@
 # Evolving Infra demo
 
-Evolving Infra is a serving system that adapts to agent workload at runtime. This repository holds its
+Evolving Infra is an agent-adaptive LLM serving framework that adapts compute allocation to agent workloads and KV cache management to agent context management at runtime. This repository holds its
 project page, the demo video, and the code that renders the video.
 
 - Project page: https://inference-rsi.com/ (source in `docs/`, served by GitHub Pages)
@@ -62,7 +62,7 @@ R0 uses dark blocks, R1 red blocks, and R2 striped gray blocks. The same groups 
 in storage. R3 continues R1’s context, showing the retained R1 blocks plus an outlined
 new-input block that becomes solid after prefill. No separate request-card symbol is used.
 The storage boxes align with their owning nodes. N3 holds the three original KV groups.
-The baseline shows separate local caches, with R1 restored on N1 after the switch; the
+The baseline shows separate local caches, with R1 recomputed on N1 after the switch; the
 Evolving Infra side shows per-node host memory with a shared-access rail. Its read arrow
 runs from N3 host memory to N1 GPU, retaining the original groups on N3.
 Solid arrows reroute execution; red dashed arrows read/copy KV while stored copies remain.
@@ -71,7 +71,7 @@ detailed explanations and sources are in the following disclosure. Controls supp
 pause, replay and direct stage selection; desktop playback loops, while reduced-motion
 users advance one stage at a time. The sequence is qualitative, not a timed benchmark. The
 comparison scope includes pinned upstream source links and does not claim that vLLM or SGLang
-universally lack KV transfer or dynamic role assignment.
+universally lack KV transfer or runtime phase switching.
 
 The opening uses two transparent 2×2 illustration atlases in `docs/media/scene/`, with generation
 prompts alongside them. They are conceptual artwork, not product photographs or a list of validated
@@ -111,10 +111,10 @@ Light Silver Gray, Green, Yellow, Blue) on the page's dark background. The rende
   0 = failed, 2 = warmup.
 - `tasks`: one row per agent session, `[slot, t_start, t_end, ok]`.
 - `check`: summary values of the scored window, used to verify the rendered counters.
-- `roles` (Evolving Infra only): the prefill/decode role of each of the 9 nodes over time.
+- `roles` (Evolving Infra only): the phase (prefill or decode) of each of the 9 nodes over time.
 
 The video covers minutes 30 to 90 of each run, after a 30-minute warmup, and labels them 00:00 to 60:00. The
-Dynamo node timeline (drain, restart and new role of each switch) is written in `render.py` from the Dynamo planner
+Dynamo node timeline (drain, restart and new phase of each switch) is written in `render.py` from the Dynamo planner
 log. Revenue and user cost use the GLM-5.2 list price: $1.40 per 1M input tokens ($0.26 if cached) and $4.40 per
 1M output tokens.
 
