@@ -250,7 +250,7 @@
           <h2 id="planning-heading"><span class="accent-text">Adapt</span> compute allocation<br>to dynamic agent workloads.</h2>
           <div><p class="lead">When the workload composition shifts, Evolving Infra moves nodes between prefill and decode, so neither side becomes the bottleneck.</p><p>It learns how long prefill and decode take online, with KV reuse taken into account, so it needs no offline profiling, and it moves a node only when the gain lasts. As the workload shifts from math agents to computer-use agents, it achieves 2.1× the throughput of Dynamo and 28% more than the best static split.</p></div>
         </div>
-        <div class="demo-frame" id="planning-demo"><iframe src="demos/compute-allocation.html?v=4" title="Demo: as the workload shifts, Evolving Infra reaches the optimal PD split sooner than an existing planner" style="height:880px"></iframe></div>
+        <div class="demo-frame" id="planning-demo"><iframe src="demos/compute-allocation.html?v=5" title="Demo: as the workload shifts, Evolving Infra reaches the optimal PD split sooner than an existing planner" style="height:880px"></iframe></div>
       </div>
     </section>
     <section class="idea-section" id="kv-management" aria-labelledby="kv-heading">
