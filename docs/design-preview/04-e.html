@@ -1,0 +1,366 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="robots" content="noindex">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Design 04-E – Keep the right branches</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f7f5f2;--panel:#ffffff;--fg:#232328;--muted:#56545d;--faint:#67646d;--red:#c92336;--line:#d9d5cf;
+  --display:'Space Grotesk',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --mono:'IBM Plex Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+  /* agent tints (never red: red is Evolving Infra) */
+  --a:#3f64a3;--a-t:#dfe7f5;--b:#8f6312;--b-t:#f5e8cc;--c:#3d7f5f;--c-t:#dcefe4;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--display);font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+button{font:inherit;color:inherit;background:none;border:0;margin:0;cursor:pointer;-webkit-tap-highlight-color:transparent}
+button:focus-visible{outline:2px solid var(--red);outline-offset:3px}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+
+/* Preview strip: not part of the demo. */
+.preview{background:#ebe7e1;border-bottom:1px dashed #bdb6ad;padding:10px 16px}
+.preview p{width:min(1076px,100%);margin:0 auto;font:12px/1.55 var(--mono);color:var(--muted)}
+.preview b{color:var(--fg);font-weight:600}
+
+/* Demo box */
+.page{width:min(1076px,calc(100% - 32px));margin:28px auto 56px}
+.demo{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:clamp(14px,2.4vw,26px)}
+.head{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px 18px}
+.head h3{margin:0;font-size:clamp(22px,1.6vw + 14px,32px);font-weight:500;line-height:1.12;letter-spacing:-.035em}
+.accent{color:var(--red)}
+.controls{display:flex;gap:6px;flex:none}
+.btn{display:inline-flex;align-items:center;gap:7px;min-height:36px;padding:6px 13px;border:1px solid #aaa59e;border-radius:4px;font-size:14px;font-weight:500;line-height:1.2;transition:background .2s,border-color .2s}
+.btn:hover{background:#efebe5;border-color:#817a74}
+.btn svg{width:12px;height:12px;flex:none}
+.line{margin:6px 0 0;font:13px/1.5 var(--mono);color:var(--faint)}
+
+/* Main tree (Evolving Infra) and a small LRU panel */
+.grid{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(0,1fr);gap:16px;margin-top:18px;align-items:start}
+.panel{min-width:0;border:1px solid var(--line);border-top:3px solid #8f8a84;border-radius:8px;padding:12px clamp(10px,1.6vw,16px);background:#fcfbf9}
+.panel.ei{border-top-color:var(--red)}
+.panel h4{margin:0 0 8px;font-size:16px;font-weight:600;letter-spacing:-.01em}
+.panel.ei h4{color:var(--red)}
+.panel svg{display:block;width:100%;height:auto;margin:0 auto}
+.panel.ei svg{max-width:460px}
+.panel.lru svg{max-width:340px}
+.out{display:flex;align-items:center;justify-content:center;gap:9px;min-height:30px;margin-top:10px;font-size:16px;font-weight:600;letter-spacing:-.01em}
+.out svg{width:20px !important;height:20px;flex:none;margin:0 !important}
+
+/* SVG parts */
+.frame{fill:#f4f1ec;stroke:#c4beb6;stroke-width:1.5;transition:stroke .25s}
+.frame.full{stroke:var(--fg)}
+.con{fill:none;stroke:#9b958e;stroke-width:1.6;stroke-linejoin:round;stroke-linecap:round}
+.k{stroke-width:1.5}
+.k.r{fill:#4a4850;stroke:var(--fg)}
+.k.a{fill:var(--a-t);stroke:var(--a)}.k.b{fill:var(--b-t);stroke:var(--b)}.k.c{fill:var(--c-t);stroke:var(--c)}
+.k.pending{fill:none;stroke-dasharray:4 3}
+.faded .k{fill:#fff;stroke-dasharray:4 3}
+.faded .con{stroke-dasharray:4 3}
+.bc.a{fill:var(--a)}.bc.b{fill:var(--b)}.bc.c{fill:var(--c)}
+.bl{fill:#fff;font:600 13px var(--mono)}
+.ov{fill:#fff;stroke:var(--fg);stroke-width:1.1}
+.ovi{fill:none;stroke:var(--fg);stroke-width:1.3;stroke-linecap:round;stroke-linejoin:round}
+.ovi.play{fill:var(--red);stroke:none}
+.lt{font:600 12.5px var(--mono);fill:var(--fg)}
+.lt.red{fill:var(--red)}
+.snip line{stroke-width:2.2;stroke-linecap:round}
+
+.demo.reduced .controls{display:none}
+@media (max-width:760px){
+  .grid{grid-template-columns:minmax(0,1fr)}
+  .panel.lru svg{max-width:300px}
+}
+</style>
+</head>
+<body>
+<div class="preview"><p><b>Design 04-E – Keep the right branches.</b> A context tree that grows as agents work: when memory is full, Evolving Infra cuts the faded branches nobody will reuse, while LRU cuts the branch of the agent that is waiting for a tool, which then has to regrow it.</p></div>
+
+<main class="page">
+<div class="demo" id="demo">
+  <div class="head">
+    <h3>Prune done branches, <span class="accent">keep waiting ones</span></h3>
+    <div class="controls">
+      <button type="button" class="btn" id="play"></button>
+      <button type="button" class="btn" id="replay"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2.2 6a3.8 3.8 0 1 0 1.2-2.8" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M1.6 1.4v2.8h2.8" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Replay</button>
+    </div>
+  </div>
+  <p class="line">Branches = agents’ context in GPU memory. Faded = done.</p>
+
+  <div class="grid" id="anim" aria-hidden="true">
+    <section class="panel ei">
+      <h4>Evolving Infra</h4>
+      <svg id="treeEI" viewBox="0 0 330 290"></svg>
+    </section>
+    <section class="panel lru">
+      <h4>Existing systems (LRU)</h4>
+      <svg id="treeLRU" viewBox="0 0 330 290"></svg>
+      <div class="out" id="outL">
+        <svg viewBox="0 0 20 20"><circle cx="10" cy="10" r="8.2" fill="none" stroke="currentColor" stroke-width="1.6"/><line id="handOut" x1="10" y1="10" x2="10" y2="4.4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><circle cx="10" cy="10" r="1.3" fill="currentColor"/></svg>
+        <span>A recomputes</span>
+      </div>
+    </section>
+  </div>
+
+  <p class="sr-only">Animation. A tree of context grows as three agents work. Agent A waits for a tool. Agent C finishes and agent B compacts its history, so their old branches fade. B needs room for new context and memory is full. Evolving Infra cuts the faded branches, so when A's tool returns, A resumes at once. Existing systems with LRU cut the branch of A, because A was idle the longest, so A has to regrow its branch by recomputing it.</p>
+</div>
+</main>
+
+<script>
+(function(){
+  'use strict';
+  var D = 12.0, STATIC_T = 9.6;
+  var $ = function(id){ return document.getElementById(id); };
+  var demo = $('demo');
+  var reduce = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+
+  var cl = function(x){ return x < 0 ? 0 : x > 1 ? 1 : x; };
+  var ease = function(x){ x = cl(x); return x < .5 ? 2*x*x : 1 - Math.pow(-2*x + 2, 2) / 2; };
+  var R = function(t, a, b){ return ease((t - a) / (b - a)); };
+  var Lr = function(t, a, b){ return cl((t - a) / (b - a)); };
+  var mix = function(a, b, p){ return a + (b - a) * p; };
+
+  /* ---- tree geometry (one shared layout for both trees) ---- */
+  var NS = 'http://www.w3.org/2000/svg';
+  var X = [76, 130, 184, 238, 292];          /* block columns */
+  var Y = { A: 50, B: 120, C: 180, N: 250 }; /* branch rows */
+  var RY = 150;                              /* root row */
+  function E(tag, at, p){
+    var e = document.createElementNS(NS, tag);
+    for (var k in at) e.setAttribute(k, at[k]);
+    if (p) p.appendChild(e);
+    return e;
+  }
+  function block(p, x, y, cls){
+    var g = E('g', {}, p);
+    g._x = x; g._y = y;
+    g._r = E('rect', { x: 0, y: -13, width: 44, height: 26, rx: 4, 'class': 'k ' + cls }, g);
+    return g;
+  }
+  function setB(g, p){
+    g.setAttribute('transform', 'translate(' + g._x + ' ' + g._y + ') scale(' + Math.max(p, .001).toFixed(3) + ')');
+    g.setAttribute('opacity', p.toFixed(3));
+  }
+  function op(e, v){ e.setAttribute('opacity', v.toFixed(3)); }
+  function seg(p, d){ return E('path', { d: d, 'class': 'con' }, p); }
+  function elbow(y){ return 'M54 ' + RY + ' H64 V' + y + ' H76'; }
+  function badge(p, letter){
+    var g = E('g', {}, p);
+    E('circle', { r: 13, 'class': 'bc ' + letter.toLowerCase() }, g);
+    var tx = E('text', { y: 4.6, 'text-anchor': 'middle', 'class': 'bl' }, g);
+    tx.textContent = letter;
+    return g;
+  }
+  function overlay(b, kind){
+    var o = E('g', { transform: 'translate(10 10)', opacity: 0 }, b);
+    E('circle', { r: 7.5, 'class': 'ov' }, o);
+    if (kind === 'wait') E('path', { d: 'M-3 -4.3h6M-3 4.3h6M-2.4 -4.3c0 2.7 4.8 2.7 4.8 4.3s-4.8 1.6-4.8 4.3M2.4 -4.3c0 2.7-4.8 2.7-4.8 4.3s4.8 1.6 4.8 4.3', 'class': 'ovi' }, o);
+    if (kind === 'done') E('path', { d: 'M-3.4 .3l2.2 2.3 4.6-4.9', 'class': 'ovi' }, o);
+    if (kind === 'play') E('path', { d: 'M-2.1 -3.7v7.4l5.8-3.7z', 'class': 'ovi play' }, o);
+    if (kind === 'clock'){
+      E('circle', { r: 4.3, 'class': 'ovi' }, o);
+      o._hand = E('line', { x1: 0, y1: 0, x2: 0, y2: -3, 'class': 'ovi' }, o);
+    }
+    return o;
+  }
+  function snip(p, x, y, color){
+    var g = E('g', { 'class': 'snip', opacity: 0 }, p);
+    g._x = x; g._y = y;
+    E('rect', { x: -4, y: -4, width: 8, height: 8, fill: '#f4f1ec' }, g);  /* gap in the line */
+    E('line', { x1: -4.5, y1: -7, x2: 4.5, y2: 7, stroke: color }, g);
+    E('line', { x1: -4.5, y1: 7, x2: 4.5, y2: -7, stroke: color }, g);
+    return g;
+  }
+
+  function buildTree(svg, ei){
+    var T = { ei: ei };
+    var hid = 'hatch-' + (ei ? 'ei' : 'lru');
+    var defs = E('defs', {}, svg);
+    var pat = E('pattern', { id: hid, width: 6, height: 6, patternUnits: 'userSpaceOnUse', patternTransform: 'rotate(45)' }, defs);
+    E('rect', { width: 6, height: 6, fill: '#e3dfd9' }, pat);
+    E('rect', { width: 3, height: 6, fill: '#a9a39c' }, pat);
+    T.frame = E('rect', { x: 1.5, y: 1.5, width: 327, height: 287, rx: 12, 'class': 'frame' }, svg);
+    T.g = E('g', {}, svg);  /* shakes when memory is full */
+    var g = T.g, i;
+
+    /* A branch */
+    T.gA = E('g', {}, g);
+    T.cA = seg(T.gA, elbow(Y.A));
+    T.A = []; T.lA = [];
+    for (i = 0; i < 4; i++){
+      if (i > 0) T.lA.push(seg(T.gA, 'M' + (X[i] - 10) + ' ' + Y.A + ' H' + X[i]));
+      T.A.push(block(T.gA, X[i], Y.A, 'a'));
+    }
+    /* A regrown after LRU cut it (recomputed, hatched) */
+    T.gA2 = E('g', {}, g);
+    T.cA2 = seg(T.gA2, elbow(Y.A));
+    T.A2 = []; T.lA2 = [];
+    for (i = 0; i < 3; i++){
+      if (i > 0) T.lA2.push(seg(T.gA2, 'M' + (X[i] - 10) + ' ' + Y.A + ' H' + X[i]));
+      var bb = block(T.gA2, X[i], Y.A, 'a');
+      bb._r.style.fill = 'url(#' + hid + ')';   /* inline style: beats the .k.a tint */
+      bb._r.style.stroke = '#7d7871';
+      T.A2.push(bb);
+    }
+
+    /* old B branch with its finished sub-agent C (cut together) */
+    T.gBC = E('g', {}, g);
+    T.gB = E('g', {}, T.gBC);
+    T.cB = seg(T.gB, elbow(Y.B));
+    T.B = []; T.lB = [];
+    for (i = 0; i < 3; i++){
+      if (i > 0) T.lB.push(seg(T.gB, 'M' + (X[i] - 10) + ' ' + Y.B + ' H' + X[i]));
+      T.B.push(block(T.gB, X[i], Y.B, 'b'));
+    }
+    T.gC = E('g', {}, T.gBC);
+    T.cC = seg(T.gC, 'M174 ' + Y.B + ' H179 V' + Y.C + ' H184');
+    T.C = [block(T.gC, X[2], Y.C, 'c'), block(T.gC, X[3], Y.C, 'c')];
+    T.lC = seg(T.gC, 'M228 ' + Y.C + ' H238');
+    T.bC = badge(T.gC, 'C');
+    T.ovC = overlay(T.bC, 'done');
+
+    /* B after compaction: a new short branch */
+    T.gN = E('g', {}, g);
+    T.cN = seg(T.gN, elbow(Y.N));
+    T.N = []; T.lN = [];
+    for (i = 0; i < 3; i++){
+      if (i > 0) T.lN.push(seg(T.gN, 'M' + (X[i] - 10) + ' ' + Y.N + ' H' + X[i]));
+      T.N.push(block(T.gN, X[i], Y.N, 'b'));
+    }
+
+    /* root (shared start of every branch) */
+    T.root = block(g, 10, RY, 'r');
+    T.root._r.setAttribute('width', 44); T.root._r.setAttribute('height', 30); T.root._r.setAttribute('y', -15);
+
+    /* badges on live leaves */
+    T.bA = badge(g, 'A');
+    T.ovWait = overlay(T.bA, 'wait');
+    T.ovBack = overlay(T.bA, ei ? 'play' : 'clock');
+    T.bB = badge(g, 'B');
+
+    /* cut mark */
+    T.snip = snip(g, 70, ei ? Y.B : Y.A, ei ? '#c92336' : '#232328');
+
+    /* A label (main tree only) */
+    if (ei){
+      T.lt1 = E('text', { y: 24, 'text-anchor': 'end', 'class': 'lt' }, g); T.lt1.textContent = 'waiting for a tool';
+      T.lt2 = E('text', { y: 24, 'text-anchor': 'end', 'class': 'lt red' }, g); T.lt2.textContent = 'resumes at once';
+    }
+    return T;
+  }
+
+  function renderTree(T, t){
+    var ei = T.ei, i;
+    var gr = function(t0, d){ return R(t, t0, t0 + (d || .28)); };
+    /* 1. grow */
+    setB(T.root, gr(.15));
+    var pA = [gr(.45), gr(.8), gr(1.15), ei ? gr(7.9) : 0];
+    var pB = [gr(.55), gr(.9), gr(1.25)];
+    var pC = [gr(1.45), gr(1.75)];
+    for (i = 0; i < 4; i++) setB(T.A[i], pA[i]);
+    op(T.cA, pA[0]); for (i = 0; i < 3; i++) op(T.lA[i], pA[i + 1]);
+    for (i = 0; i < 3; i++) setB(T.B[i], pB[i]);
+    op(T.cB, pB[0]); op(T.lB[0], pB[1]); op(T.lB[1], pB[2]);
+    setB(T.C[0], pC[0]); setB(T.C[1], pC[1]); op(T.cC, pC[0]); op(T.lC, pC[1]);
+
+    /* 2. C is done, B compacts: their old branches fade */
+    var fC = R(t, 3.2, 3.6), fB = R(t, 4.0, 4.4);
+    op(T.gC, 1 - .62 * fC); T.gC.classList.toggle('faded', fC > .5); op(T.ovC, fC);
+    op(T.gB, 1 - .62 * fB); T.gB.classList.toggle('faded', fB > .5);
+    var kC = pC[0] + pC[1];
+    T.bC.setAttribute('transform', 'translate(' + (194 + 54 * kC).toFixed(1) + ' ' + Y.C + ')');
+    op(T.bC, pC[0]);
+
+    /* 3. B's new branch; its next blocks wait for room */
+    var n1 = gr(4.1, .3), pend = R(t, 4.9, 5.2), fill = R(t, 6.8, 7.2);
+    setB(T.N[0], n1); op(T.cN, n1);
+    for (i = 1; i < 3; i++){
+      setB(T.N[i], Math.max(pend, fill));
+      T.N[i]._r.classList.toggle('pending', fill < .5);
+      op(T.lN[i - 1], Math.max(pend, fill));
+    }
+    var kB = pB[0] + pB[1] + pB[2], m = R(t, 4.0, 4.5), kN = 1 + 2 * fill;
+    var bx = mix(86 + 54 * kB, 86 + 54 * kN, m), by = mix(Y.B, Y.N, m);
+    T.bB.setAttribute('transform', 'translate(' + bx.toFixed(1) + ' ' + by.toFixed(1) + ')');
+    op(T.bB, pB[0]);
+
+    /* memory is full */
+    var k = Lr(t, 5.1, 5.8);
+    var amp = (k > 0 && k < 1) ? Math.sin(k * Math.PI * 6) * 2.4 * (1 - k) : 0;
+    T.g.setAttribute('transform', amp ? 'translate(' + amp.toFixed(2) + ' 0)' : '');
+    T.frame.classList.toggle('full', t >= 5.1 && t < 6.2);
+
+    /* 4. cut: Evolving Infra cuts the faded branches, LRU cuts A */
+    var sn = R(t, 5.9, 6.1), cut = R(t, 6.1, 6.7), snOut = R(t, 6.7, 7.0);
+    T.snip.setAttribute('transform', 'translate(' + T.snip._x + ' ' + (ei ? Y.B : Y.A) + ') scale(' + (.6 + .4 * sn).toFixed(3) + ')');
+    op(T.snip, sn * (1 - snOut));
+    var cutG = ei ? T.gBC : T.gA;
+    cutG.setAttribute('transform', cut ? 'translate(' + (8 * cut).toFixed(1) + ' ' + (16 * cut).toFixed(1) + ')' : '');
+    if (ei){ op(T.gBC, 1 - cut); op(T.gA, 1); } else { op(T.gA, 1 - cut); op(T.gBC, 1); }
+
+    /* 5. A's tool returns */
+    var wait = R(t, 2.3, 2.6) * (1 - R(t, 7.8, 8.0)), back = R(t, 7.8, 8.0);
+    op(T.ovWait, wait); op(T.ovBack, back);
+    var kA = pA[0] + pA[1] + pA[2] + pA[3];
+    var ax = 86 + 54 * kA;
+    T.bA.setAttribute('transform', 'translate(' + ax.toFixed(1) + ' ' + Y.A + ')');
+    op(T.bA, pA[0]);
+    if (ei){
+      T.lt1.setAttribute('x', (ax + 13).toFixed(1)); op(T.lt1, wait);
+      T.lt2.setAttribute('x', (ax + 13).toFixed(1)); op(T.lt2, R(t, 7.85, 8.1));
+      op(T.gA2, 0);
+    } else {
+      /* LRU: A regrows its branch slowly */
+      var q = [gr(8.1, .6), gr(8.9, .6), gr(9.7, .6)];
+      op(T.gA2, 1);
+      for (i = 0; i < 3; i++) setB(T.A2[i], q[i]);
+      op(T.cA2, q[0]); op(T.lA2[0], q[1]); op(T.lA2[1], q[2]);
+      T.ovBack._hand.setAttribute('transform', 'rotate(' + (Math.max(0, t - 7.8) * 300).toFixed(0) + ')');
+    }
+  }
+
+  var TE = buildTree($('treeEI'), true);
+  var TL = buildTree($('treeLRU'), false);
+
+  function render(t){
+    $('anim').style.opacity = Math.min(R(t, 0, .4), 1 - R(t, 11.3, 11.9)).toFixed(3);
+    renderTree(TE, t);
+    renderTree(TL, t);
+    $('outL').style.opacity = R(t, 7.8, 8.1).toFixed(3);
+    $('handOut').setAttribute('transform', 'rotate(' + (Math.max(0, t - 7.8) * 300).toFixed(0) + ' 10 10)');
+  }
+
+  /* ---- playback: autoplay loop, Pause/Play, Replay ---- */
+  var t = 0, playing = !reduce, onScreen = true, last = 0;
+  var btn = $('play');
+  var ICON_PAUSE = '<svg viewBox="0 0 12 12" aria-hidden="true"><rect x="2" y="1.5" width="2.6" height="9" rx=".6" fill="currentColor"/><rect x="7.4" y="1.5" width="2.6" height="9" rx=".6" fill="currentColor"/></svg>';
+  var ICON_PLAY = '<svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 1.4v9.2L10.4 6z" fill="currentColor"/></svg>';
+  function setBtn(){ btn.innerHTML = (playing ? ICON_PAUSE + 'Pause' : ICON_PLAY + 'Play'); }
+  btn.addEventListener('click', function(){ playing = !playing; last = 0; setBtn(); });
+  $('replay').addEventListener('click', function(){ t = 0; playing = true; last = 0; setBtn(); render(t); });
+  function tick(now){
+    if (!last) last = now;
+    var dt = Math.min((now - last) / 1000, .1);
+    last = now;
+    if (playing && onScreen){ t += dt; if (t >= D) t -= D; render(t); }
+    requestAnimationFrame(tick);
+  }
+  if (reduce){
+    demo.classList.add('reduced');
+    render(STATIC_T);
+  } else {
+    if ('IntersectionObserver' in window){
+      new IntersectionObserver(function(es){ onScreen = es[0].isIntersecting; }).observe(demo);
+    }
+    setBtn();
+    render(0);
+    requestAnimationFrame(tick);
+  }
+})();
+</script>
+</body>
+</html>
