@@ -247,7 +247,7 @@
       <div class="wrap">
         <div class="section-topline" data-reveal><span class="eyebrow">03 / AGENT-ADAPTIVE COMPUTE ALLOCATION</span><span class="mono-note">NO OFFLINE PROFILING.</span></div>
         <div class="idea-heading idea-decoupling" data-reveal>
-          <h2 id="planning-heading"><span class="accent-text">Shift</span> compute as<br>the agent workload shifts.</h2>
+          <h2 id="planning-heading"><span class="accent-text">Adapt</span> compute allocation<br>to diverse agent workloads.</h2>
           <div><p class="lead">When the workload composition shifts, Evolving Infra moves nodes between prefill and decode, so neither side becomes the bottleneck.</p><p>It learns how long prefill and decode take online, with KV reuse taken into account, so it needs no offline profiling, and it moves a node only when the gain lasts. As the workload shifts from math agents to computer-use agents, it achieves 2.1× the throughput of Dynamo and 28% more than the best static split.</p></div>
         </div>
         <div class="demo-frame" id="planning-demo"><iframe src="demos/compute-allocation.html?v=1" title="Demo: the PD split of Evolving Infra follows the workload as it shifts" style="height:880px"></iframe></div>
@@ -257,7 +257,7 @@
       <div class="wrap">
         <div class="section-topline" data-reveal><span class="eyebrow">04 / AGENT-ADAPTIVE KV CACHE MANAGEMENT</span><span class="mono-note">FINISHED CONTEXT GOES FIRST.</span></div>
         <div class="idea-heading idea-decoupling" data-reveal>
-          <h2 id="kv-heading"><span class="accent-text">Keep</span> the KV that<br>agents come back to.</h2>
+          <h2 id="kv-heading"><span class="accent-text">Guide</span> KV management<br>with signals from agent<br>context management.</h2>
           <div><p class="lead">When the cache is full, Evolving Infra evicts finished and replaced context first. Agents that wait for a tool keep their KV.</p><p>It tracks how agents fork, spawn sub-agents, compact, and finish, so it knows which KV someone will still reuse. Least-recently-used eviction instead drops the KV of waiting agents, because they have been idle the longest. The router also sends each request to the prefill node with the shortest predicted TTFT and fetches its KV while the request waits.</p></div>
         </div>
         <div class="demo-frame" id="kv-demo"><iframe src="demos/kv-cache.html?v=1" title="Demo: when the cache is full, Evolving Infra prunes finished branches and keeps the context of a waiting agent" style="height:620px"></iframe></div>
