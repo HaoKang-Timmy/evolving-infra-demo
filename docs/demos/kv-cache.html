@@ -43,15 +43,13 @@ button:focus-visible{outline:2px solid var(--red);outline-offset:3px}
 .scope summary:focus-visible{outline:2px solid var(--red);outline-offset:3px}
 .scope p{margin:10px 0 0;font-size:14px;line-height:1.65;color:#655b63}
 
-/* Main tree (Evolving Infra) and a small LRU panel */
-.grid{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(0,1fr);gap:16px;margin-top:18px;align-items:start}
+/* Two equal panels: the existing KV manager on the left and Evolving Infra on the right, as in the role-switch demo */
+.grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;margin-top:18px;align-items:start}
 .panel{min-width:0;border:1px solid var(--line);border-top:3px solid #8f8a84;border-radius:8px;padding:12px clamp(10px,1.6vw,16px);background:#fcfbf9}
 .panel.ei{border-top-color:var(--red)}
 .panel h4{margin:0 0 8px;font-size:16px;font-weight:600;letter-spacing:-.01em}
 .panel.ei h4{color:var(--red)}
-.panel svg{display:block;width:100%;height:auto;margin:0 auto}
-.panel.ei svg{max-width:460px}
-.panel.lru svg{max-width:340px}
+.panel svg{display:block;width:100%;max-width:400px;height:auto;margin:0 auto}
 .out{display:flex;align-items:center;justify-content:center;gap:9px;min-height:30px;margin-top:10px;font-size:16px;font-weight:600;letter-spacing:-.01em}
 .out svg{width:20px !important;height:20px;flex:none;margin:0 !important}
 
@@ -71,7 +69,6 @@ button:focus-visible{outline:2px solid var(--red);outline-offset:3px}
 .ovi{fill:none;stroke:var(--fg);stroke-width:1.3;stroke-linecap:round;stroke-linejoin:round}
 .ovi.play{fill:var(--red);stroke:none}
 .lt{font:600 12.5px var(--mono);fill:var(--fg)}
-.lt.red{fill:var(--red)}
 .snip line{stroke-width:2.2;stroke-linecap:round}
 
 .demo.reduced .controls{display:none}
@@ -79,7 +76,6 @@ button:focus-visible{outline:2px solid var(--red);outline-offset:3px}
   .head h3{font-size:24px}
   .cap{min-height:4.2em;font-size:16px}
   .grid{grid-template-columns:minmax(0,1fr)}
-  .panel.lru svg{max-width:300px}
 }
 </style>
 </head>
@@ -87,31 +83,35 @@ button:focus-visible{outline:2px solid var(--red);outline-offset:3px}
 <main class="page">
 <div class="demo" id="demo">
   <div class="head">
-    <h3>Prune finished branches, <span class="accent">keep waiting ones</span></h3>
+    <h3>Evict KV that no active branch needs.<br><span class="accent">Keep the KV of branches that wait for tools.</span></h3>
     <div class="controls">
       <button type="button" class="btn" id="play"></button>
       <button type="button" class="btn" id="replay"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2.2 6a3.8 3.8 0 1 0 1.2-2.8" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M1.6 1.4v2.8h2.8" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Replay</button>
     </div>
   </div>
-  <p class="line">Each branch is one agent’s context in the KV cache.</p>
+  <p class="line">Each branch is a context in the KV cache. It stays active until it finishes.</p>
   <p class="cap" id="cap" aria-hidden="true"></p>
 
   <div class="grid" id="anim" aria-hidden="true">
-    <section class="panel ei">
-      <h4>Evolving Infra</h4>
-      <svg id="treeEI" viewBox="0 0 330 290"></svg>
-    </section>
     <section class="panel lru">
-      <h4>Existing systems (LRU)</h4>
+      <h4>Existing KV manager</h4>
       <svg id="treeLRU" viewBox="0 0 330 290"></svg>
       <div class="out" id="outL">
         <svg viewBox="0 0 20 20"><circle cx="10" cy="10" r="8.2" fill="none" stroke="currentColor" stroke-width="1.6"/><line id="handOut" x1="10" y1="10" x2="10" y2="4.4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><circle cx="10" cy="10" r="1.3" fill="currentColor"/></svg>
-        <span>A recomputes</span>
+        <span>A recomputes its context</span>
+      </div>
+    </section>
+    <section class="panel ei">
+      <h4>Evolving Infra</h4>
+      <svg id="treeEI" viewBox="0 0 330 290"></svg>
+      <div class="out" id="outE">
+        <svg viewBox="0 0 20 20"><circle cx="10" cy="10" r="8.2" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M8.2 6.3v7.4l5.8-3.7z" fill="#c92336"/></svg>
+        <span>A reuses its KV</span>
       </div>
     </section>
   </div>
 
-  <p class="sr-only">Animation. A tree of context grows as agents A and B work; C is a fork of B. Agent A waits for a tool. C finishes and B compacts its history, so their old branches fade. B needs room for new context and the cache is full. Evolving Infra prunes the faded branches, so when A's tool returns, A resumes at once. Existing systems with LRU prune the branch of A, because A was idle the longest, so A has to recompute its context.</p>
+  <p class="sr-only">Animation of two trees of context in the KV cache, one for an existing KV manager and one for Evolving Infra. Agents A and B build up context, and B forks C. A waits for a tool. C finishes and B compacts its history, so no active branch needs their old KV. B needs room for new context and the cache is full. The existing KV manager evicts in LRU order and drops the KV of A, so when the tool returns, A recomputes its context. Evolving Infra evicts the KV that no active branch needs, so A reuses its KV.</p>
   <details class="scope">
     <summary>How it works</summary>
     <p><strong>KV directory:</strong> the router keeps a cluster-wide prefix tree of the KV in GPU and host memory of every node, and counts for each block on each node how many active agent branches reference it there. A fork or a sub-agent adds one count to each block it reuses. A consecutive request of the same branch counts only its new blocks. When compaction rewrites a context, the router releases the branch’s counts on the blocks that the new context drops. A transfer between two prefill nodes moves the counts of the branch to the target, so the source copy is left with a count of zero.</p>
@@ -128,13 +128,13 @@ button:focus-visible{outline:2px solid var(--red);outline-offset:3px}
      code below uses and shows one caption; the long beats leave time to read. */
   var D = 24.0, STATIC_T = 20.4;
   var BEATS = [
-    [0.0, 0.0, 'Agents A and B build up context. C is a fork of B.'],
-    [3.0, 2.0, 'A waits for a tool. Its context sits idle, but A will need it again.'],
-    [5.5, 2.8, 'C finishes, and B compacts its history. Nobody will reuse these old branches.'],
+    [0.0, 0.0, 'Agents A and B build up context. B forks C, which reuses B’s context.'],
+    [3.0, 2.0, 'A waits for a tool. Its KV sits idle, but A reuses it when it resumes.'],
+    [5.5, 2.8, 'C finishes, and B compacts its history. No active branch needs their old KV.'],
     [9.0, 4.6, 'B needs room for new context, but the cache is full.'],
-    [11.5, 5.85, 'Evolving Infra prunes the finished branches. LRU prunes A’s branch, idle the longest.'],
+    [11.5, 5.85, 'The existing KV manager evicts in LRU order and drops A’s KV. Evolving Infra evicts the KV that no active branch needs.'],
     [15.0, 7.3, 'A’s tool returns.'],
-    [17.5, 8.2, 'Evolving Infra: A resumes at once. LRU: A has to recompute its context.'],
+    [17.5, 8.2, 'Existing KV manager: A recomputes its context. Evolving Infra: A reuses its KV.'],
     [22.5, 10.6, null],
     [24.0, 12.0, null]
   ];
@@ -281,11 +281,8 @@ button:focus-visible{outline:2px solid var(--red);outline-offset:3px}
     /* cut mark */
     T.snip = snip(g, 70, ei ? Y.B : Y.A, ei ? '#c92336' : '#232328');
 
-    /* A label (main tree only) */
-    if (ei){
-      T.lt1 = E('text', { y: 24, 'text-anchor': 'end', 'class': 'lt' }, g); T.lt1.textContent = 'waiting for a tool';
-      T.lt2 = E('text', { y: 24, 'text-anchor': 'end', 'class': 'lt red' }, g); T.lt2.textContent = 'resumes at once';
-    }
+    /* A label */
+    T.lt1 = E('text', { y: 24, 'text-anchor': 'end', 'class': 'lt' }, g); T.lt1.textContent = 'waiting for a tool';
     return T;
   }
 
@@ -345,9 +342,8 @@ button:focus-visible{outline:2px solid var(--red);outline-offset:3px}
     var ax = 86 + 54 * kA;
     T.bA.setAttribute('transform', 'translate(' + ax.toFixed(1) + ' ' + Y.A + ')');
     op(T.bA, pA[0]);
+    T.lt1.setAttribute('x', (ax + 13).toFixed(1)); op(T.lt1, wait);
     if (ei){
-      T.lt1.setAttribute('x', (ax + 13).toFixed(1)); op(T.lt1, wait);
-      T.lt2.setAttribute('x', (ax + 13).toFixed(1)); op(T.lt2, R(t, 7.85, 8.1));
       op(T.gA2, 0);
     } else {
       /* LRU: A regrows its branch slowly */
@@ -377,6 +373,7 @@ button:focus-visible{outline:2px solid var(--red);outline-offset:3px}
     renderTree(TE, t);
     renderTree(TL, t);
     $('outL').style.opacity = R(t, 7.8, 8.1).toFixed(3);
+    $('outE').style.opacity = R(t, 7.85, 8.1).toFixed(3);
     $('handOut').setAttribute('transform', 'rotate(' + (Math.max(0, t - 7.8) * 300).toFixed(0) + ' 10 10)');
     setCaption(captionAt(T), now);
   }
