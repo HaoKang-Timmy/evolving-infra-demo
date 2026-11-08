@@ -112,7 +112,7 @@ h3,h4,p{margin:0}
     <div class="legend"><span><i class="sw-opt"></i>Optimal split</span><span><i></i>Existing planner</span><span><i class="sw-dyn-r"></i>Existing planner, a node restarting</span><span><i class="sw-ours"></i>Evolving Infra</span></div>
   </div>
 
-  <p class="sr-only">Animation over three hours of serving on nine nodes. The workload shifts from math agents (Putnam) to a mix and then to computer-use agents (OSWorld), and the optimal split rises from 3 to 4 prefill nodes, to 5 to 6, and then to 7 to 8. An existing planner (Dynamo) keeps fewer prefill nodes than the optimal split for most of the run, and for most of the run one of its nodes is restarting. Evolving Infra moves decode nodes to prefill and reaches the optimal split in each phase, from 3P6D to 6P3D and then 8P1D.</p>
+  <p class="sr-only">Animation over three hours of serving on nine nodes. The workload shifts from decode-heavy to a mix and then to prefill-heavy, and the optimal split rises from 3 to 4 prefill nodes, to 5 to 6, and then to 7 to 8. An existing planner (Dynamo) keeps fewer prefill nodes than the optimal split for most of the run, and for most of the run one of its nodes is restarting. Evolving Infra moves decode nodes to prefill and reaches the optimal split in each phase, from 3P6D to 6P3D and then 8P1D.</p>
 </section>
 
 <script>
@@ -133,8 +133,9 @@ h3,h4,p{margin:0}
   // Optimal split of each phase: [from, to, fewest, most prefill nodes]. Putnam and mixed: the range of the
   // best split per 10-minute window in the paper. OSWorld: 7P2D under SGLang, 8P1D on the symmetric engines.
   const OPT = [[0, 60, 3, 4], [60, 120, 5, 6], [120, 180, 7, 8]];
-  const PHASES = ['Putnam · math agents', 'Mixed', 'OSWorld · computer-use agents'];
-  const PHASES_SHORT = ['Putnam', 'Mixed', 'OSWorld'];
+  // The run of the paper: Putnam math agents (decode-heavy), then a mix, then OSWorld computer-use agents (prefill-heavy).
+  const PHASES = ['Decode-heavy workload', 'Mixed', 'Prefill-heavy workload'];
+  const PHASES_SHORT = ['Decode-heavy', 'Mixed', 'Prefill-heavy'];
   const SECONDS_PER_HOUR = 6;   // one hour of the run plays in 6 s
   const END_HOLD = 3;           // seconds on the full chart before the loop restarts
 
