@@ -157,7 +157,7 @@
         const detail = detailPanels[system] || panel;
         if (system === 'baseline') {
           setText(panel.querySelector('[data-engine-family]'), baseline === 'restart'
-            ? 'Engine examples: vLLM · SGLang'
+            ? 'Engine example: SGLang'
             : 'In-place role switch · KV caching enabled');
           setText(panel.querySelector('[data-path-label]'), baseline === 'restart'
             ? 'Restart-based reconfiguration'
