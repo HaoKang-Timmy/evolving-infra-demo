@@ -36,14 +36,10 @@ h3,h4,p{margin:0}
 .tiles{display:grid;grid-template-columns:repeat(9,minmax(0,1fr));gap:6px}
 .tile{position:relative;height:50px;display:flex;align-items:center;justify-content:center;border:1px solid #39363e;border-radius:5px;background:var(--node-p);color:#fff;transition:background .45s,color .45s,border-color .45s}
 .tile.is-d{background:var(--node-d);color:#343038;border-color:#a9a39d}
-.tile.is-r{background:repeating-linear-gradient(135deg,#f5f1eb 0 5px,#e7e2db 5px 10px);color:#57525a;border:1px dashed #8a837c}
 .tile small{position:absolute;top:3px;left:0;right:0;text-align:center;font:10px/1.2 var(--mono);opacity:.75}
 .tile b{margin-top:10px;font:500 21px/24px var(--display)}
-.tile .ic{margin-top:10px;width:19px;height:19px}
-.tile.is-r .ic{animation:spin 1.6s linear infinite}
 .tile.is-flip{animation:flip .8s ease both}
-.key{display:flex;flex-wrap:wrap;align-items:center;gap:0 6px;margin-top:8px;font:12px/1.5 var(--mono);color:var(--faint)}
-.key .ic{width:13px;height:13px;vertical-align:-2px}
+.key{margin-top:8px;font:12px/1.5 var(--mono);color:var(--faint)}
 
 /* Chart: the PD split of both systems over the three hours. */
 .chart{margin-top:16px}
@@ -56,7 +52,6 @@ h3,h4,p{margin:0}
 .sep{stroke:#c3bcb5;stroke-width:1}
 .l-ours{fill:none;stroke:var(--red);stroke-width:2.6}
 .l-dyn{fill:none;stroke:var(--dyn);stroke-width:2.4}
-.l-dyn.is-r{stroke-width:2.8;stroke-linecap:round;stroke-dasharray:0 5.5}
 .cursor{stroke:#232328;stroke-opacity:.3;stroke-width:1}
 .dot{stroke:#fff;stroke-width:1.5}
 .dot-ours{fill:var(--red)}
@@ -66,17 +61,14 @@ h3,h4,p{margin:0}
 .legend i{display:inline-block;width:24px;border-top:3px solid var(--dyn)}
 .legend .sw-opt{width:20px;height:12px;border:0;background:var(--opt)}
 .legend .sw-ours{border-top-color:var(--red)}
-.legend .sw-dyn-r{border-top-style:dotted}
 
 @keyframes flip{0%{transform:rotateX(-80deg)}100%{transform:rotateX(0)}}
-@keyframes spin{100%{transform:rotate(360deg)}}
 @media (max-width:760px){
   .head h3{font-size:24px}
   .tiles{gap:4px}
   .tile{height:44px}
   .tile small{font-size:9px}
   .tile b{font-size:18px;margin-top:8px}
-  .tile .ic{width:16px;height:16px;margin-top:8px}
 }
 @media (prefers-reduced-motion:reduce){
   .demo *{animation:none!important;transition:none!important}
@@ -84,9 +76,6 @@ h3,h4,p{margin:0}
 </style>
 </head>
 <body>
-<svg width="0" height="0" style="position:absolute" aria-hidden="true">
-  <symbol id="restart" viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.34-5.66" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/><path d="M20 3.5V9h-5.5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></symbol>
-</svg>
 <section class="demo" id="demo" aria-labelledby="demo-title">
   <div class="head">
     <h3 id="demo-title">The workload shifts. <span class="accent">Evolving Infra reaches the optimal split sooner.</span></h3>
@@ -107,12 +96,12 @@ h3,h4,p{margin:0}
         <div class="tiles" id="tiles-ours"></div>
       </div>
     </div>
-    <p class="key"><span>P = prefill node ·</span><span>D = decode node ·</span><span><svg class="ic"><use href="#restart"/></svg> = node restarting</span></p>
+    <p class="key">P = prefill node · D = decode node</p>
     <div class="chart" id="chart"><svg id="svg"></svg></div>
-    <div class="legend"><span><i class="sw-opt"></i>Optimal split</span><span><i></i>Existing planner</span><span><i class="sw-dyn-r"></i>Existing planner, a node restarting</span><span><i class="sw-ours"></i>Evolving Infra</span></div>
+    <div class="legend"><span><i class="sw-opt"></i>Optimal split</span><span><i></i>Existing planner</span><span><i class="sw-ours"></i>Evolving Infra</span></div>
   </div>
 
-  <p class="sr-only">Animation over three hours of serving on nine nodes. The workload shifts from decode-heavy to a mix and then to prefill-heavy, and the optimal split rises from 3 to 4 prefill nodes, to 5 to 6, and then to 7 to 8. An existing planner (Dynamo) keeps fewer prefill nodes than the optimal split for most of the run, and for most of the run one of its nodes is restarting. Evolving Infra moves decode nodes to prefill and reaches the optimal split in each phase, from 3P6D to 6P3D and then 8P1D.</p>
+  <p class="sr-only">Animation over three hours of serving on nine nodes. The workload shifts from decode-heavy to a mix and then to prefill-heavy, and the optimal split rises from 3 to 4 prefill nodes, to 5 to 6, and then to 7 to 8. An existing planner (Dynamo) keeps fewer prefill nodes than the optimal split for most of the run. Evolving Infra moves decode nodes to prefill and reaches the optimal split in each phase, from 3P6D to 6P3D and then 8P1D.</p>
 </section>
 
 <script>
@@ -123,11 +112,9 @@ h3,h4,p{margin:0}
   // Evolving Infra: [minute after warmup, prefill nodes from that minute on].
   const N = 9;
   const OURS = [[0, 3], [80.7, 4], [85.9, 5], [91, 6], [139.3, 8]];
-  // Existing planner (Dynamo in the paper): [minute, prefill nodes that serve, 1 while a node relaunches (dotted in the figure)].
-  const DYN = [[0, 4, 1], [3.2, 4, 0], [3.4, 3, 1], [16.2, 3, 0], [16.4, 2, 1], [29.4, 2, 0], [39, 1, 1], [52, 1, 0],
-    [52.4, 1, 1], [60, 2, 1], [68.2, 2, 0], [69.2, 2, 1], [79.9, 3, 0], [81.9, 2, 1], [92.4, 2, 0], [99.8, 2, 1],
-    [110.2, 3, 0], [120, 2, 1], [129.5, 2, 0], [129.7, 2, 1], [139.5, 3, 0], [139.7, 3, 1], [150.3, 4, 0],
-    [154.6, 4, 1], [164.8, 5, 0], [165.1, 5, 1], [175.4, 6, 0], [175.7, 5, 1]];
+  // Existing planner (Dynamo in the paper): [minute, prefill nodes that serve from that minute on].
+  const DYN = [[0, 4], [3.4, 3], [16.4, 2], [39, 1], [60, 2], [79.9, 3], [81.9, 2], [110.2, 3], [120, 2], [139.5, 3],
+    [150.3, 4], [164.8, 5], [175.4, 6], [175.7, 5]];
   // The tiles skip states of the existing planner shorter than a minute so that they do not flicker; the chart keeps them.
   const DYN_TILES = DYN.filter((s, i) => i === 0 || (i + 1 < DYN.length ? DYN[i + 1][0] : 180) - s[0] >= 1);
   // Optimal split of each phase: [from, to, fewest, most prefill nodes]. Putnam and mixed: the range of the
@@ -146,7 +133,6 @@ h3,h4,p{margin:0}
   const svg = $('svg');
   const chartBox = $('chart');
   const playBtn = $('play');
-  const icon = '<svg class="ic" aria-hidden="true"><use href="#restart"/></svg>';
 
   const makeRow = (id) => {
     const tiles = [];
@@ -162,14 +148,13 @@ h3,h4,p{margin:0}
   const rowOurs = makeRow('tiles-ours');
   const rowDyn = makeRow('tiles-dyn');
 
-  // Tiles 1..p prefill, then the restarting node (if any), then decode.
-  function setRow(row, p, restarting, animate) {
-    const states = row.tiles.map((_, i) => (i < p ? 'P' : restarting && i === p ? 'R' : 'D'));
+  // Tiles 1..p prefill, the rest decode.
+  function setRow(row, p, animate) {
+    const states = row.tiles.map((_, i) => (i < p ? 'P' : 'D'));
     row.tiles.forEach((tile, i) => {
       if (row.shown && row.shown[i] === states[i]) return;
       tile.classList.toggle('is-d', states[i] === 'D');
-      tile.classList.toggle('is-r', states[i] === 'R');
-      tile.innerHTML = `<small>N${i + 1}</small>${states[i] === 'R' ? icon : `<b>${states[i]}</b>`}`;
+      tile.querySelector('b').textContent = states[i];
       if (row.shown && animate) {
         tile.classList.remove('is-flip');
         void tile.offsetWidth;
@@ -216,15 +201,13 @@ h3,h4,p{margin:0}
       return label;
     });
     const lines = make('g', { 'clip-path': 'url(#reveal)' }, svg);
-    // Existing planner: each state is its own segment, dotted while a node restarts; the steps between states are solid.
-    DYN.forEach(([s, p, r], i) => {
-      const e = i + 1 < DYN.length ? DYN[i + 1][0] : 180;
-      make('path', { class: r ? 'l-dyn is-r' : 'l-dyn', d: `M${x(s)} ${y(p)}H${x(e)}` }, lines);
-      if (i + 1 < DYN.length && DYN[i + 1][1] !== p) make('path', { class: 'l-dyn', d: `M${x(e)} ${y(p)}V${y(DYN[i + 1][1])}` }, lines);
-    });
-    let d = `M${x(0)} ${y(OURS[0][1])}`;
-    for (let i = 1; i < OURS.length; i++) d += `H${x(OURS[i][0])}V${y(OURS[i][1])}`;
-    make('path', { class: 'l-ours', d: `${d}H${x(180)}` }, lines);
+    const path = (series) => {
+      let d = `M${x(0)} ${y(series[0][1])}`;
+      for (let i = 1; i < series.length; i++) d += `H${x(series[i][0])}V${y(series[i][1])}`;
+      return `${d}H${x(180)}`;
+    };
+    make('path', { class: 'l-dyn', d: path(DYN) }, lines);
+    make('path', { class: 'l-ours', d: path(OURS) }, lines);
     const cursor = make('line', { class: 'cursor', y1: top - 10, y2: bottom + 6 }, svg);
     const dotDyn = make('circle', { class: 'dot dot-dyn', r: 4.5 }, svg);
     const dotOurs = make('circle', { class: 'dot dot-ours', r: 4.5 }, svg);
@@ -234,11 +217,11 @@ h3,h4,p{margin:0}
   // ------------------------------------------------------------------ frame
   function render(t, done) {
     const p = at(OURS, t)[1];
-    const [, q, r] = at(DYN_TILES, t);
-    setRow(rowOurs, p, false, !done);
-    setRow(rowDyn, q, !!r, !done);
+    const q = at(DYN_TILES, t)[1];
+    setRow(rowOurs, p, !done);
+    setRow(rowDyn, q, !done);
     $('split-ours').textContent = `${p} prefill · ${N - p} decode`;
-    $('split-dyn').textContent = `${q} prefill · ${N - q - r} decode${r ? ' · 1 restarting' : ''}`;
+    $('split-dyn').textContent = `${q} prefill · ${N - q} decode`;
     if (!G) return;
     const cx = G.x(t);
     G.clipRect.setAttribute('width', String(cx + 3));
