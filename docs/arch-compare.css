@@ -24,13 +24,11 @@ body.content-active #architecture .arch-heading .lead { max-width: 62ch; margin-
 #architecture .arch-band.is-compute { grid-row: 2 / 4; }
 #architecture .arch-band.is-kv { grid-row: 5 / 7; }
 #architecture .is-ours .arch-band { border-color: #efc9d0; background: #fcecef; }
-#architecture .arch-layer { margin: 0 0 3px; color: var(--fg); font: 500 12px/1.4 var(--mono); letter-spacing: .08em; text-transform: uppercase; }
-#architecture .is-ours .arch-layer { color: #a8182d; }
-#architecture .arch-say { margin: 0; font-size: 15px; line-height: 1.45; color: var(--muted); }
-#architecture .is-ours .arch-say { color: var(--fg); }
-/* The phrase that differs between the two panels stands out. */
-#architecture .arch-say em { font-style: normal; font-weight: 500; color: var(--fg); }
-#architecture .is-ours .arch-say em { color: var(--red); }
+/* One short label per layer: what the layer is, and how it decides. */
+#architecture .arch-layer { font-size: 16px; font-weight: 500; line-height: 1.35; color: var(--muted); }
+#architecture .arch-layer em { font-style: normal; color: var(--fg); }
+#architecture .is-ours .arch-layer { color: var(--fg); }
+#architecture .is-ours .arch-layer em { color: var(--red); }
 
 #architecture .arch-row { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 7px; }
 #architecture .arch-node { display: grid; place-items: center; height: 54px; border: 1px solid #39363e; border-radius: 6px; background: #3f3c43; color: #fff; }
@@ -84,7 +82,7 @@ body.content-active #architecture .arch-heading .lead { max-width: 62ch; margin-
   #architecture .arch-panel { padding: 16px 18px 18px; }
   #architecture .arch-title { margin-bottom: 24px; font-size: 21px; }
   #architecture .arch-band { margin: -11px -10px; }
-  #architecture .arch-say { font-size: 14px; }
+  #architecture .arch-layer { font-size: 15px; }
   #architecture .arch-row { gap: 4px; }
   #architecture .arch-node { height: 46px; }
   #architecture .arch-node b { font-size: 18px; }
