@@ -31,7 +31,7 @@
   <link rel="stylesheet" href="idea-demos.css?v=demo-frames-1">
   <link rel="stylesheet" href="page-outline.css?v=outline-5">
   <link rel="stylesheet" href="research-details.css?v=evidence-box-1">
-  <link rel="stylesheet" href="arch-compare.css?v=layers-4">
+  <link rel="stylesheet" href="arch-compare.css?v=two-problems-1">
   <link rel="preload" as="image" href="media/scene/apps-atlas.png">
   <link rel="preload" as="image" href="media/scene/hardware-atlas.png">
   <script src="js/site.js?v=light-motion" defer></script>
@@ -161,7 +161,7 @@
               <div class="arch-mid" aria-hidden="true"><div class="arch-row"><span></span><span></span><span></span><span></span><span></span><span></span></div><span class="arch-pill">COUPLED</span></div>
               <div class="arch-row arch-kv" aria-hidden="true"><span class="arch-cache"><i></i><i></i></span><span class="arch-cache"><i></i><i></i><i></i></span><span class="arch-cache"><i></i><i></i></span><span class="arch-cache"><i></i></span><span class="arch-cache"><i></i><i></i></span><span class="arch-cache"><i></i></span></div>
               <p class="arch-bottom arch-layer"><em><span class="arch-nowrap">Recency-based</span></em> KV cache management</p>
-              <ul class="arch-results"><li><i aria-hidden="true">✕</i>Costly phase switches</li><li><i aria-hidden="true">✕</i>Load imbalance</li><li><i aria-hidden="true">✕</i>Reusable KV evicted</li></ul>
+              <ul class="arch-results"><li><p class="arch-cause"><i aria-hidden="true">✕</i>Costly adaptation</p><p class="arch-effects"><span>Downtime</span><span>Lost KV</span></p></li><li><p class="arch-cause"><i aria-hidden="true">✕</i>Wrong adaptation</p><p class="arch-effects"><span>Load imbalance</span><span>Reusable KV evicted</span></p></li></ul>
             </article>
             <article class="arch-panel is-ours" aria-labelledby="arch-ours-title">
               <h3 class="arch-title" id="arch-ours-title">Evolving Infra</h3>
@@ -172,7 +172,7 @@
               <div class="arch-mid" aria-hidden="true"><span class="arch-pill"><img src="fig/decoupled-link.svg" alt="">DECOUPLED</span></div>
               <div class="arch-kv" aria-hidden="true"><div class="arch-pool arch-row"><span><i></i><i></i></span><span><i></i><i></i><i></i></span><span><i></i><i></i></span><span><i></i></span><span><i></i><i></i></span><span><i></i></span></div></div>
               <p class="arch-bottom arch-layer"><em>Agent-aware</em> KV cache management</p>
-              <ul class="arch-results"><li><i aria-hidden="true">✓</i>Efficient phase switches</li><li><i aria-hidden="true">✓</i>Balanced load</li><li><i aria-hidden="true">✓</i>Reusable KV kept</li></ul>
+              <ul class="arch-results"><li><p class="arch-cause"><i aria-hidden="true">✓</i>Efficient adaptation</p><p class="arch-effects"><span>No downtime</span><span>No lost KV</span></p></li><li><p class="arch-cause"><i aria-hidden="true">✓</i>Accurate adaptation</p><p class="arch-effects"><span>Balanced load</span><span>Reusable KV kept</span></p></li></ul>
             </article>
           </div>
           <figcaption class="arch-key"><span><b>P</b> = prefill node</span><span><b>D</b> = decode node</span></figcaption>

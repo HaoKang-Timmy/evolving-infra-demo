@@ -63,12 +63,14 @@ body.content-active #architecture .arch-heading .lead { max-width: 62ch; margin-
   #architecture .arch-node.is-switch .as-both { display: block; }
 }
 
-/* What each design leads to, in the order of the three ideas: phase switches, load balance, KV reuse. */
-#architecture .arch-results { display: flex; flex-direction: column; align-items: flex-start; gap: 7px; margin: 32px 0 0; padding: 0; list-style: none; }
-#architecture .arch-results li { display: inline-flex; align-items: center; gap: 7px; padding: 5px 12px 5px 6px; border-radius: 999px; background: #ebe7e2; color: #4f4952; font-size: 14px; line-height: 1.3; }
-#architecture .is-ours .arch-results li { background: #fbe4e8; color: #9e1529; font-weight: 500; }
-#architecture .arch-results i { display: inline-grid; place-items: center; flex: none; width: 18px; height: 18px; border-radius: 50%; background: #d6cfc9; color: #4f4952; font: 600 10px/1 var(--mono); font-style: normal; }
-#architecture .is-ours .arch-results i { background: var(--red); color: #fff; }
+/* What each design leads to: two points first (is adaptation costly, is it right), each with its concrete results. */
+#architecture .arch-results { display: grid; align-content: start; gap: 14px; margin: 32px 0 0; padding: 0; list-style: none; }
+#architecture .arch-cause { display: flex; align-items: center; gap: 8px; font-size: 16px; font-weight: 500; line-height: 1.3; color: var(--fg); }
+#architecture .arch-cause i { display: inline-grid; place-items: center; flex: none; width: 19px; height: 19px; border-radius: 50%; background: #d6cfc9; color: #4f4952; font: 600 10px/1 var(--mono); font-style: normal; }
+#architecture .is-ours .arch-cause i { background: var(--red); color: #fff; }
+#architecture .arch-effects { display: flex; flex-wrap: wrap; gap: 6px; margin: 7px 0 0 27px; }
+#architecture .arch-effects span { padding: 4px 11px; border-radius: 999px; background: #ebe7e2; color: #4f4952; font-size: 13.5px; line-height: 1.3; }
+#architecture .is-ours .arch-effects span { background: #fbe4e8; color: #9e1529; font-weight: 500; }
 
 #architecture .arch-key { display: flex; flex-wrap: wrap; gap: 6px 20px; margin-top: 14px; color: #625b63; font: 12px/1.5 var(--mono); }
 #architecture .arch-key b { font: 500 13px/1 var(--display); color: var(--fg); }
@@ -93,7 +95,8 @@ body.content-active #architecture .arch-heading .lead { max-width: 62ch; margin-
   #architecture :is(.arch-cache, .arch-pool > span) { gap: 2px; }
   #architecture .arch-pill { padding: 3px 9px; font-size: 10px; }
   #architecture .arch-results { margin-top: 28px; }
-  #architecture .arch-results li { font-size: 13px; }
+  #architecture .arch-cause { font-size: 15px; }
+  #architecture .arch-effects span { font-size: 13px; }
 }
 @media (max-width: 340px) {
   #architecture .arch-kv i { width: 6px; }
