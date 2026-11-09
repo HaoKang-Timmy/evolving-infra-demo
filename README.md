@@ -127,9 +127,12 @@ Window icons: [Material Icons](https://github.com/google/material-design-icons),
 ## Architecture and evidence
 
 Section 02 (`#architecture`) comes directly after the demo and before the three idea demos (03–05). It sets
-existing PD disaggregation next to Evolving Infra in two aligned panels: coupled versus decoupled KV, and coarse
-signals versus agent-adaptive planning, routing, and eviction. Its numbers 1–3 mark the three ideas, and its
-cards link to sections 03–05. `docs/arch-compare.css` holds its layout. Section 06 (`#evidence`) presents the
+existing PD disaggregation next to Evolving Infra in two aligned panels: KV inside each node versus one shared
+KV pool (coupled versus decoupled), compute allocation from coarse versus fine-grained signals, and LRU versus
+agent-aware KV management. One node keeps switching between prefill and decode; with reduced motion it shows
+"P→D". The chips under each panel name the result: costly versus efficient phase switches, load imbalance versus
+balanced load, reusable KV evicted versus kept (the paper's abstract and motivation).
+`docs/arch-compare.css` holds its layout. Section 06 (`#evidence`) presents the
 measured results; `docs/research-details.css` scopes its layout, and `docs/js/evidence.js` switches the
 stationary workload figures and their interpretation.
 
