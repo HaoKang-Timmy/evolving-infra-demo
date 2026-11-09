@@ -1,0 +1,119 @@
+/* Section 02: existing PD disaggregation next to Evolving Infra. Node and KV colors follow the 02 demo (role-switch.css). */
+#architecture .arch-compare { margin: 0; }
+#architecture .arch-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: repeat(6, auto); gap: 12px 18px; }
+/* Each panel shares the six row tracks, so the same layer lines up across the two panels. */
+#architecture .arch-panel { grid-row: span 6; display: grid; grid-template-rows: subgrid; min-width: 0; padding: 18px 18px 16px; border: 1px solid #d6d1cb; border-radius: 10px; background: #f8f6f2; }
+#architecture .arch-panel.is-ours { border-color: #cd929b; background: #fffafa; }
+
+#architecture .arch-head { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; padding-bottom: 13px; border-bottom: 1px solid #e2dcd5; }
+#architecture .is-ours .arch-head { border-bottom-color: #f0d5da; }
+#architecture .arch-head h3 { margin: 0; font-size: 23px; font-weight: 500; line-height: 1.2; letter-spacing: -.03em; }
+#architecture .arch-tags { display: flex; flex-wrap: wrap; gap: 6px; margin: 0; }
+#architecture .arch-tags span { padding: 3px 9px; border: 1px solid #cdc6be; border-radius: 999px; background: #fffdfa; color: #625b63; font: 500 11px/1.4 var(--mono); letter-spacing: .07em; text-transform: uppercase; }
+#architecture .is-ours .arch-tags span { border-color: #e3aab4; background: #fff0f2; color: #b2132a; }
+
+#architecture .arch-control { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; align-items: stretch; }
+#architecture .arch-box { position: relative; min-width: 0; padding: 11px 13px 12px; border: 1px solid #d3ccc5; border-radius: 6px; background: #fffdfa; }
+#architecture .is-ours .arch-box { border-color: #e0aab3; }
+#architecture .arch-box b { display: block; margin-bottom: 7px; font-size: 15px; font-weight: 500; line-height: 1.3; }
+/* One line per decision: the signal it reads, then what it decides. */
+#architecture .arch-box p { display: flex; flex-wrap: wrap; align-items: baseline; gap: 1px 6px; margin: 0; font-size: 13.5px; line-height: 1.45; color: var(--muted); }
+#architecture .arch-box p + p { margin-top: 4px; }
+#architecture .arch-box p i { font-style: normal; color: #9a9198; }
+#architecture .arch-box p .arch-to { white-space: nowrap; color: var(--fg); }
+#architecture .is-ours .arch-box p span:first-child { color: #a8182d; }
+
+#architecture .arch-nowrap { white-space: nowrap; }
+#architecture .arch-num { display: inline-grid; place-items: center; flex: none; width: 22px; height: 22px; border-radius: 50%; background: var(--red); color: #fff; font: 600 12px/1 var(--mono); }
+#architecture .arch-box .arch-num { position: absolute; top: -10px; right: 10px; }
+
+#architecture .arch-label { display: block; margin-bottom: 6px; color: #6f666d; font: 10.5px/1.4 var(--mono); letter-spacing: .08em; }
+#architecture .arch-row { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 6px; }
+#architecture .arch-node { position: relative; display: flex; align-items: center; justify-content: center; height: 54px; border: 1px solid #39363e; border-radius: 5px; background: #3f3c43; color: #fff; }
+#architecture .arch-node small { position: absolute; top: 4px; left: 6px; font: 9px/1 var(--mono); opacity: .72; }
+#architecture .arch-node b { font: 500 20px/1 var(--display); }
+#architecture .arch-node.is-d { border-color: #a9a39d; background: #d9d6d2; color: #343038; }
+#architecture .arch-node.is-switch b { font-size: 15px; letter-spacing: -.02em; white-space: nowrap; }
+#architecture .arch-node svg { position: absolute; right: 5px; bottom: 5px; width: 13px; height: 13px; }
+/* Existing: the switching node relaunches. Evolving Infra: it keeps serving, now as a decode node. */
+#architecture .is-existing .arch-node.is-switch { border: 1px dashed #8f8790; background: repeating-linear-gradient(135deg, #efebe6 0 4px, #e2ddd7 4px 8px); color: #5d5660; }
+#architecture .is-ours .arch-node.is-switch { border-color: #a9a39d; background: #d9d6d2; color: #343038; outline: 2px solid var(--red); outline-offset: 2px; }
+
+/* Between the nodes and the KV: solid stems tie each cache to its node; dashed stems reach one shared pool. */
+#architecture .arch-divider { position: relative; height: 30px; }
+#architecture .arch-divider .arch-row { position: absolute; inset: 0; }
+#architecture .arch-divider .arch-row i { justify-self: center; width: 0; border-left: 2px solid #a39ba1; }
+#architecture .is-ours .arch-divider .arch-row i { border-left: 1.5px dashed #c26d80; }
+#architecture .arch-link { position: absolute; top: 50%; right: 0; display: flex; align-items: center; gap: 6px; transform: translateY(-50%); }
+#architecture .arch-link > span:last-child { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border: 1px solid #cdc6be; border-radius: 999px; background: #ebe7e2; color: #57505a; font: 500 11px/1.2 var(--mono); letter-spacing: .1em; }
+#architecture .is-ours .arch-link > span:last-child { border-color: #e3aab4; background: #fff0f2; color: #b2132a; }
+#architecture .arch-link img { display: block; width: 14px; height: 14px; }
+
+#architecture .arch-kv i { display: block; width: 9px; height: 14px; border: 1px solid #443c49; border-radius: 2px; background: #69616d; }
+#architecture .arch-kv i.r { border-color: #b01c38; background: #d95e75; }
+#architecture .arch-cache { position: relative; display: flex; align-items: center; justify-content: center; gap: 3px; height: 38px; border: 1px solid #cfc6bf; border-bottom: 3px solid #bdb0a7; border-radius: 4px; background: #f3efe9; }
+#architecture .arch-cache.is-lost i { border-style: dashed; border-color: #b5abb1; background: transparent; }
+#architecture .arch-cache.is-lost::after { content: ''; position: absolute; inset: 7px 18%; background: linear-gradient(to top right, transparent calc(50% - 1px), #c92336 calc(50% - 1px) calc(50% + 1px), transparent calc(50% + 1px)), linear-gradient(to bottom right, transparent calc(50% - 1px), #c92336 calc(50% - 1px) calc(50% + 1px), transparent calc(50% + 1px)); }
+#architecture .arch-pool { padding: 7px 0; border: 1px solid #d79aa6; border-bottom: 3px solid #c26d80; border-radius: 6px; background: #fff3f5; }
+#architecture .arch-pool .arch-row > span { display: flex; align-items: center; justify-content: center; gap: 3px; height: 24px; }
+
+#architecture .arch-outcome-list { display: grid; align-content: start; gap: 7px; margin: 0; padding: 0; list-style: none; }
+#architecture .arch-outcome { display: flex; align-items: flex-start; gap: 9px; font-size: 14.5px; line-height: 1.5; color: var(--muted); }
+#architecture .arch-outcome > i { display: inline-grid; place-items: center; flex: none; width: 19px; height: 19px; margin-top: 1px; border-radius: 50%; background: #e2ddd8; color: #57505a; font: 600 11px/1 var(--mono); font-style: normal; }
+#architecture .is-ours .arch-outcome { color: var(--fg); }
+#architecture .is-ours .arch-outcome > i { background: var(--red); color: #fff; }
+
+#architecture .arch-key { display: flex; flex-wrap: wrap; gap: 6px 20px; margin: 14px 0 0; color: #625b63; font: 12px/1.5 var(--mono); }
+#architecture .arch-key > span { display: inline-flex; align-items: center; gap: 7px; }
+#architecture .arch-key b { font: 500 13px/1 var(--display); color: var(--fg); }
+#architecture .arch-key i { display: block; width: 9px; height: 14px; border: 1px solid #443c49; border-radius: 2px; background: #69616d; }
+#architecture .arch-key i.r { border-color: #b01c38; background: #d95e75; }
+
+/* The three ideas, in the order of the next three sections. */
+#architecture .arch-ideas { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin: 30px 0 0; padding: 0; list-style: none; }
+#architecture .arch-ideas a { display: flex; flex-direction: column; gap: 9px; height: 100%; padding: 17px 19px 16px; border: 1px solid #ded8d1; border-radius: 8px; background: #fffdfa; color: inherit; text-decoration: none; transition: border-color .2s, background-color .2s; }
+#architecture .arch-ideas a:hover { border-color: #cd929b; background: #fffafa; }
+#architecture .arch-ideas a:focus-visible { outline: 3px solid var(--red); outline-offset: 3px; }
+#architecture .arch-ideas .arch-idea-kicker { display: flex; align-items: center; gap: 9px; color: var(--red); font: 500 12px/1 var(--mono); letter-spacing: .1em; }
+#architecture .arch-ideas strong { font-size: 19px; font-weight: 500; line-height: 1.3; letter-spacing: -.02em; }
+#architecture .arch-ideas small { font-size: 14.5px; line-height: 1.55; color: var(--muted); }
+#architecture .arch-ideas .arch-idea-go { margin-top: auto; padding-top: 4px; color: #6f666d; font: 12px/1.4 var(--mono); }
+#architecture .arch-ideas a:hover .arch-idea-go { color: var(--red); }
+
+#architecture .arch-scope { margin-top: 22px; border-top: 1px solid #ddd6ce; font-size: 14px; line-height: 1.7; color: var(--muted); }
+#architecture .arch-scope summary { padding: 14px 0; cursor: pointer; }
+#architecture .arch-scope summary:focus-visible { outline: 3px solid var(--red); outline-offset: 4px; }
+#architecture .arch-scope > div { max-width: 860px; padding: 2px 0 14px; }
+#architecture .arch-scope p { margin: 0; }
+#architecture .arch-scope p + p { margin-top: 10px; }
+#architecture .arch-scope a { color: inherit; text-decoration: underline; text-underline-offset: 3px; }
+
+@media (max-width: 760px) {
+  #architecture .arch-grid { grid-template-columns: minmax(0, 1fr); grid-template-rows: none; row-gap: 14px; }
+  #architecture .arch-panel { grid-row: auto; grid-template-rows: none; gap: 12px; padding: 15px 14px 14px; }
+  #architecture .arch-ideas { grid-template-columns: minmax(0, 1fr); gap: 10px; margin-top: 22px; }
+  #architecture .arch-ideas strong { font-size: 18px; }
+}
+@media (max-width: 420px) {
+  #architecture .arch-head h3 { font-size: 20px; }
+  #architecture .arch-control { gap: 8px; }
+  #architecture .arch-box { padding: 10px 10px 11px; }
+  #architecture .arch-box b { font-size: 14px; }
+  #architecture .arch-box p { font-size: 12.5px; }
+  #architecture .arch-row { gap: 4px; }
+  #architecture .arch-node { height: 48px; }
+  #architecture .arch-node small { top: 3px; left: 4px; font-size: 8px; }
+  #architecture .arch-node b { font-size: 17px; }
+  #architecture .arch-node.is-switch b { font-size: 12px; }
+  #architecture .arch-node svg { right: 3px; bottom: 3px; width: 11px; height: 11px; }
+  #architecture .arch-kv i, #architecture .arch-key i { width: 7px; height: 12px; }
+  #architecture .arch-cache { gap: 2px; height: 34px; }
+  #architecture .arch-link > span:last-child { padding: 3px 8px; font-size: 10px; }
+  #architecture .arch-outcome { font-size: 14px; }
+  #architecture .arch-key { gap: 4px 14px; font-size: 11px; }
+}
+@media (max-width: 340px) {
+  #architecture .arch-control { grid-template-columns: minmax(0, 1fr); }
+  #architecture .arch-cache { gap: 1px; }
+  #architecture .arch-kv i { width: 6px; }
+}

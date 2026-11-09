@@ -23,12 +23,13 @@
   <link rel="stylesheet" href="workload.css?v=logo-cta-fix">
   <link rel="stylesheet" href="affiliations.css?v=logo-names">
   <link rel="stylesheet" href="reading-view.css?v=follow-scroll">
-  <link rel="stylesheet" href="reading-typography.css?v=idea-sections">
+  <link rel="stylesheet" href="reading-typography.css?v=arch-first">
   <link rel="stylesheet" href="reading-compact.css?v=compact-content">
   <link rel="stylesheet" href="role-switch.css?v=compact-motion">
   <link rel="stylesheet" href="idea-demos.css?v=demo-frames-1">
-  <link rel="stylesheet" href="page-outline.css?v=outline-4">
-  <link rel="stylesheet" href="research-details.css?v=arxiv-1">
+  <link rel="stylesheet" href="page-outline.css?v=outline-5">
+  <link rel="stylesheet" href="research-details.css?v=arxiv-2">
+  <link rel="stylesheet" href="arch-compare.css?v=1">
   <link rel="preload" as="image" href="media/scene/apps-atlas.png">
   <link rel="preload" as="image" href="media/scene/hardware-atlas.png">
   <script src="js/site.js?v=light-motion" defer></script>
@@ -126,10 +127,10 @@
       <p class="page-outline-title">ON THIS PAGE</p>
       <ol>
         <li><a href="#demo"><span>01</span>Demo</a></li>
-        <li><a href="#why-evolve"><span>02</span>Decoupled infrastructure</a></li>
-        <li><a href="#workload-planning"><span>03</span>Compute allocation</a></li>
-        <li><a href="#kv-management"><span>04</span>KV cache management</a></li>
-        <li><a href="#architecture"><span>05</span>Architecture</a></li>
+        <li><a href="#architecture"><span>02</span>Architecture</a></li>
+        <li><a href="#why-evolve"><span>03</span>Decoupled infrastructure</a></li>
+        <li><a href="#workload-planning"><span>04</span>Compute allocation</a></li>
+        <li><a href="#kv-management"><span>05</span>KV cache management</a></li>
         <li><a href="#evidence"><span>06</span>Evidence</a></li>
         <li><a href="#research"><span>07</span>Research</a></li>
       </ol>
@@ -141,9 +142,79 @@
       </div>
     </section>
 
+    <section class="idea-section" id="architecture" aria-labelledby="architecture-heading">
+      <div class="wrap">
+        <div class="section-topline" data-reveal><span class="eyebrow">02 / ARCHITECTURE</span><span class="mono-note">DECOUPLE FIRST. THEN ADAPT.</span></div>
+        <div class="idea-heading idea-decoupling" data-reveal>
+          <h2 id="architecture-heading"><span class="accent-text">Decoupled</span> and <span class="accent-text arch-nowrap">agent-adaptive</span><br>PD disaggregation.</h2>
+          <div><p class="lead">Evolving Infra decouples compute allocation from KV cache management, then adapts both to agents at runtime.</p><p>In existing PD disaggregation, engines index cached KV in local state, so switching a node from prefill to decode discards or strands its cached KV. The planner, router, and memory pool rely on coarse signals, such as request latency, input lengths, and access history.</p></div>
+        </div>
+        <figure class="arch-compare" aria-labelledby="arch-caption">
+          <div class="arch-grid">
+            <article class="arch-panel is-existing" aria-labelledby="arch-existing-title">
+              <header class="arch-head"><h3 id="arch-existing-title">Existing PD disaggregation</h3><p class="arch-tags"><span>Coupled</span><span>Coarse signals</span></p></header>
+              <div class="arch-control">
+                <div class="arch-box"><b>Planner</b><p><span>Queue depth or TTFT</span><span class="arch-to"><i aria-hidden="true">→</i> PD split</span></p></div>
+                <div class="arch-box"><b>Router · memory pool</b><p><span>Prefix match</span><span class="arch-to"><i aria-hidden="true">→</i> route</span></p><p><span>LRU order</span><span class="arch-to"><i aria-hidden="true">→</i> evict</span></p></div>
+              </div>
+              <div class="arch-nodes" role="img" aria-label="Six GPU nodes. N1 to N3 serve prefill and N4 to N6 serve decode. N3 relaunches to switch from prefill to decode.">
+                <span class="arch-label">GPU NODES</span>
+                <div class="arch-row"><span class="arch-node"><small>N1</small><b>P</b></span><span class="arch-node"><small>N2</small><b>P</b></span><span class="arch-node is-switch"><small>N3</small><b>P→D</b><svg viewBox="0 0 16 16"><path d="M13.2 8.4A5.2 5.2 0 1 1 11.6 4.3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M12.4 1.4v3.4H9" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="arch-node is-d"><small>N4</small><b>D</b></span><span class="arch-node is-d"><small>N5</small><b>D</b></span><span class="arch-node is-d"><small>N6</small><b>D</b></span></div>
+              </div>
+              <div class="arch-divider" aria-hidden="true">
+                <div class="arch-row"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+                <span class="arch-link"><span>COUPLED</span></span>
+              </div>
+              <div class="arch-kv" role="img" aria-label="Each node keeps its KV in its own local cache. The KV that N3 cached is lost when N3 switches.">
+                <span class="arch-label">LOCAL KV, TIED TO EACH NODE</span>
+                <div class="arch-row"><span class="arch-cache"><i></i><i></i></span><span class="arch-cache"><i></i><i></i><i></i></span><span class="arch-cache is-lost"><i class="r"></i><i class="r"></i><i class="r"></i></span><span class="arch-cache"><i></i></span><span class="arch-cache"><i></i><i></i></span><span class="arch-cache"><i></i></span></div>
+              </div>
+              <ul class="arch-outcome-list">
+                <li class="arch-outcome"><i aria-hidden="true">✕</i><span>A phase switch relaunches N3 or strands its KV.</span></li>
+                <li class="arch-outcome"><i aria-hidden="true">✕</i><span>Coarse signals misestimate compute demand and misjudge KV reuse.</span></li>
+              </ul>
+            </article>
+            <article class="arch-panel is-ours" aria-labelledby="arch-ours-title">
+              <header class="arch-head"><h3 id="arch-ours-title">Evolving Infra</h3><p class="arch-tags"><span>Decoupled</span><span>Agent-adaptive</span></p></header>
+              <div class="arch-control">
+                <div class="arch-box"><span class="arch-num" aria-hidden="true">2</span><b>Online planner</b><p><span>Learned prefill and decode time</span><span class="arch-to"><i aria-hidden="true">→</i> PD split</span></p></div>
+                <div class="arch-box"><span class="arch-num" aria-hidden="true">3</span><b>Router · KV directory</b><p><span>Predicted TTFT</span><span class="arch-to"><i aria-hidden="true">→</i> route</span></p><p><span>Active branches</span><span class="arch-to"><i aria-hidden="true">→</i> evict</span></p></div>
+              </div>
+              <div class="arch-nodes" role="img" aria-label="Six GPU nodes on symmetric engines. N3 switches from prefill to decode without a restart.">
+                <span class="arch-label">GPU NODES</span>
+                <div class="arch-row"><span class="arch-node"><small>N1</small><b>P</b></span><span class="arch-node"><small>N2</small><b>P</b></span><span class="arch-node is-switch"><small>N3</small><b>P→D</b></span><span class="arch-node is-d"><small>N4</small><b>D</b></span><span class="arch-node is-d"><small>N5</small><b>D</b></span><span class="arch-node is-d"><small>N6</small><b>D</b></span></div>
+              </div>
+              <div class="arch-divider" aria-hidden="true">
+                <div class="arch-row"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+                <span class="arch-link"><span class="arch-num">1</span><span><img src="fig/decoupled-link.svg" alt="">DECOUPLED</span></span>
+              </div>
+              <div class="arch-kv" role="img" aria-label="One shared KV pool in the host memory of all nodes. The KV that N3 cached stays in the pool.">
+                <span class="arch-label">SHARED HOST-MEMORY KV POOL</span>
+                <div class="arch-pool"><div class="arch-row"><span><i></i><i></i></span><span><i></i><i></i><i></i></span><span><i class="r"></i><i class="r"></i><i class="r"></i></span><span><i></i></span><span><i></i><i></i></span><span><i></i></span></div></div>
+              </div>
+              <ul class="arch-outcome-list">
+                <li class="arch-outcome"><i aria-hidden="true">✓</i><span>N3 switches without a restart. Its KV stays readable by all nodes.</span></li>
+                <li class="arch-outcome"><i aria-hidden="true">✓</i><span>The PD split follows the agent workload. Eviction keeps the KV that active branches need.</span></li>
+              </ul>
+            </article>
+          </div>
+          <figcaption class="arch-key" id="arch-caption"><span><b>P</b>prefill node</span><span><b>D</b>decode node</span><span><i></i>cached KV</span><span><i class="r"></i>KV that N3 cached</span></figcaption>
+        </figure>
+        <details class="arch-scope"><summary>Comparison scope and sources</summary><div>
+          <p><strong>Existing PD disaggregation.</strong> By default, vLLM and SGLang fix the phase of each engine at launch, and each engine indexes its cached KV in local state. A planner that switches a node either relaunches its engine, which takes minutes, or reassigns the node without a relaunch and strands its cached KV. Shared KV pools avoid this coupling, but keep the allocation fixed or change it by relaunching nodes.</p>
+          <p><strong>Evolving Infra.</strong> Each node supports both phases, and the planner reassigns its phase at runtime without a restart. KV resides in a shared pool formed by the host memory of all nodes. A cluster-wide KV directory records the number of active branches that reference each copy. <a href="fig/arch.svg" target="_blank" rel="noopener">Open the report’s architecture figure ↗</a></p>
+        </div></details>
+        <ol class="arch-ideas" aria-label="The three ideas">
+          <li><a href="#why-evolve"><span class="arch-idea-kicker"><span class="arch-num" aria-hidden="true">1</span>DECOUPLE</span><strong>Decouple compute allocation from KV cache management.</strong><small>A node switches from prefill to decode without a restart.</small><span class="arch-idea-go">03 · Demo ↓</span></a></li>
+          <li><a href="#workload-planning"><span class="arch-idea-kicker"><span class="arch-num" aria-hidden="true">2</span>ADAPT</span><strong>Adapt compute allocation to dynamic agent workloads.</strong><small>As the workload shifts, the PD split reaches the optimal split sooner.</small><span class="arch-idea-go">04 · Demo ↓</span></a></li>
+          <li><a href="#kv-management"><span class="arch-idea-kicker"><span class="arch-num" aria-hidden="true">3</span>ADAPT</span><strong>Adapt KV cache management to agent context management.</strong><small>When the cache is full, KV that no active branch needs goes first.</small><span class="arch-idea-go">05 · Demo ↓</span></a></li>
+        </ol>
+      </div>
+    </section>
+
     <section class="idea-section" id="why-evolve" aria-labelledby="idea-heading">
       <div class="wrap">
-        <div class="section-topline" data-reveal><span class="eyebrow">02 / DECOUPLED INFRASTRUCTURE</span><span class="mono-note">DECOUPLING IS THE FIRST STEP.</span></div>
+        <div class="section-topline" data-reveal><span class="eyebrow">03 / DECOUPLED INFRASTRUCTURE</span><span class="mono-note">DECOUPLING IS THE FIRST STEP.</span></div>
         <div class="idea-heading idea-decoupling" data-reveal>
           <h2 id="idea-heading"><span class="accent-text idea-decouple-word"><img class="decouple-icon" src="fig/decoupled-link.svg" alt="" aria-hidden="true">Decouple</span> compute allocation<br>from KV cache management.</h2>
           <div><p class="lead">Reallocate compute as workloads change. Keep reusable KV available.</p><p>Change which nodes run prefill and decode independently of where useful context is retained, fetched, and evicted. Symmetric engines let every node serve prefill or decode without a restart. A shared host-memory KV pool keeps reusable KV readable by all nodes when a node switches phases. Decoupling gives infrastructure the freedom to evolve.</p></div>
@@ -248,7 +319,7 @@
     </section>
     <section class="idea-section" id="workload-planning" aria-labelledby="planning-heading">
       <div class="wrap">
-        <div class="section-topline" data-reveal><span class="eyebrow">03 / AGENT-ADAPTIVE COMPUTE ALLOCATION</span><span class="mono-note">NO OFFLINE PROFILING.</span></div>
+        <div class="section-topline" data-reveal><span class="eyebrow">04 / AGENT-ADAPTIVE COMPUTE ALLOCATION</span><span class="mono-note">NO OFFLINE PROFILING.</span></div>
         <div class="idea-heading idea-decoupling" data-reveal>
           <h2 id="planning-heading"><span class="accent-text">Adapt</span> compute allocation<br>to dynamic agent workloads.</h2>
           <div><p class="lead">When the workload composition shifts, Evolving Infra moves nodes between prefill and decode, so neither side becomes the bottleneck.</p><p>It learns prefill and decode iteration-time models online, without offline profiling. The prefill model incorporates KV reuse, and the planner switches only when the predicted throughput gain of a new split persists across the planning window. As the workload shifts from math agents to computer-use agents, it achieves 2.1× the throughput of Dynamo and 28% more than the best static split.</p></div>
@@ -258,7 +329,7 @@
     </section>
     <section class="idea-section" id="kv-management" aria-labelledby="kv-heading">
       <div class="wrap">
-        <div class="section-topline" data-reveal><span class="eyebrow">04 / AGENT-ADAPTIVE KV CACHE MANAGEMENT</span><span class="mono-note">UNREFERENCED KV GOES FIRST.</span></div>
+        <div class="section-topline" data-reveal><span class="eyebrow">05 / AGENT-ADAPTIVE KV CACHE MANAGEMENT</span><span class="mono-note">UNREFERENCED KV GOES FIRST.</span></div>
         <div class="idea-heading idea-decoupling" data-reveal>
           <h2 id="kv-heading"><span class="accent-text">Adapt</span> KV cache management<br>to agent context management.</h2>
           <div><p class="lead">Evolving Infra adapts KV cache management to agent context management. When the cache is full, KV that no active branch references is evicted first.</p><p>The cluster-wide KV directory counts the active branches that reference each KV block on each node. This lets eviction prioritize replaced histories and unreferenced copies before the KV of branches waiting for tools, sub-agents, or users. The router sends each prefill request to the node with the shortest predicted TTFT; that node fetches remote KV while the request waits in its queue.</p></div>
@@ -266,41 +337,6 @@
         <div class="demo-frame" id="kv-demo"><iframe src="demos/kv-cache.html?v=5" title="Demo: when the cache is full, an existing KV manager evicts in LRU order, while Evolving Infra evicts KV that no active branch needs and keeps the KV of a branch that waits for a tool" style="height:620px"></iframe></div>
       </div>
     </section>
-<section id="architecture" class="idea-section" aria-labelledby="architecture-heading">
-  <div class="wrap">
-  <p class="eyebrow">05 / THE SYSTEM</p>
-  <div class="section-heading"><h2 id="architecture-heading">Three ideas.<br><em>One serving system.</em></h2><p>Evolving Infra adapts compute allocation to agent workloads and KV cache management to agent context management at runtime. Symmetric engines and a shared host-memory KV pool decouple the two.</p></div>
-
-  <figure class="system-figure" aria-labelledby="system-caption">
-    <div class="request-flow">Agent requests</div>
-    <div class="flow-arrow" aria-hidden="true">↓</div>
-    <div class="router">
-      <p class="diagram-kicker">ROUTER</p>
-      <div class="control-parts">
-        <div><b>Online planner</b><span>How many nodes <br>run each phase?</span></div>
-        <div><b>Request routing</b><span>Which prefill node has <br>the shortest predicted TTFT?</span></div>
-        <div><b>KV directory</b><span>Where is its KV? <br>Which branches still need it?</span></div>
-      </div>
-    </div>
-    <div class="flow-label"><span>Assign phases and route requests</span><span aria-hidden="true">↓</span></div>
-    <div class="workers">
-      <article class="worker"><div class="worker-head"><span>NODE 1</span><b class="phase prefill">P · Prefill</b></div><div class="engine">Symmetric engine</div><div class="host"><span>Host memory</span><span class="blocks" aria-label="Cached KV blocks"><i></i><i></i><i></i></span></div></article>
-      <article class="worker"><div class="worker-head"><span>NODE 2</span><b class="phase prefill">P · Prefill</b></div><div class="engine">Symmetric engine</div><div class="host"><span>Host memory</span><span class="blocks" aria-label="Cached KV blocks"><i></i><i></i><i></i></span></div></article>
-      <article class="worker"><div class="worker-head"><span>NODE 3</span><b class="phase decode">D · Decode</b></div><div class="engine">Symmetric engine</div><div class="host"><span>Host memory</span><span class="blocks" aria-label="Cached KV blocks"><i></i><i></i><i></i></span></div></article>
-    </div>
-    <div class="pool-rail"><span>Shared host-memory KV pool</span><p>A phase switch leaves KV readable by all nodes. Prefill nodes fetch it from peers over RDMA.</p></div>
-    <figcaption id="system-caption">Every node can serve either phase. Prefill sends request KV to decode through GPU-to-GPU transfer; reusable context stays in host memory for later requests.</figcaption>
-  </figure>
-
-  <div class="architecture-notes">
-    <article><span class="number">01</span><h3>Decoupled compute allocation and KV cache management.</h3><p>Symmetric engines let nodes switch between prefill and decode without a restart. A shared host-memory KV pool keeps their KV readable by all nodes.</p></article>
-    <article><span class="number">02</span><h3>Agent-adaptive compute allocation.</h3><p>The online planner matches the PD split to workload composition. It learns prefill and decode iteration-time models without offline profiling, and the prefill model incorporates KV reuse.</p></article>
-    <article><span class="number">03</span><h3>Agent-adaptive KV cache management.</h3><p>KV-reuse-aware eviction and routing preserve the KV that active branches still reuse and balance prefill work across nodes. Remote KV is fetched while a request is queued, and KV that no active branch references is evicted first.</p></article>
-  </div>
-  <a class="text-link" href="fig/arch.svg" target="_blank" rel="noopener">Open the report’s architecture figure ↗</a>
-  </div>
-</section>
-
 <section id="evidence" class="idea-section evidence-section" aria-labelledby="evidence-heading">
   <div class="wrap">
     <p class="eyebrow">06 / THE EVIDENCE</p>

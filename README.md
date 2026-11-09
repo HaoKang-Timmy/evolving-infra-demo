@@ -126,12 +126,14 @@ Window icons: [Material Icons](https://github.com/google/material-design-icons),
 
 ## Architecture and evidence
 
-Sections 05 and 06 present the system overview and measured results directly after the three idea demos.
-`docs/research-details.css` scopes their layout to `#architecture` and `#evidence`; `docs/js/evidence.js`
-switches the stationary workload figures and their interpretation. The outline links to these sections and
-the existing Research section, now 07. The original `#architecture` and `#evidence` anchors remain usable.
+Section 02 (`#architecture`) comes directly after the demo and before the three idea demos (03–05). It sets
+existing PD disaggregation next to Evolving Infra in two aligned panels: coupled versus decoupled KV, and coarse
+signals versus agent-adaptive planning, routing, and eviction. Its numbers 1–3 mark the three ideas, and its
+cards link to sections 03–05. `docs/arch-compare.css` holds its layout. Section 06 (`#evidence`) presents the
+measured results; `docs/research-details.css` scopes its layout, and `docs/js/evidence.js` switches the
+stationary workload figures and their interpretation.
 
-The wording follows the arXiv paper's three contribution names. The architecture input is agent requests.
+The wording follows the arXiv paper's three contribution names and its three problems of existing systems.
 Evidence distinguishes the coding demo run from the report benchmarks, labels the SGLang reference splits,
 shows the Putnam TTFT tradeoff, and attributes the fixed-split gain to infrastructure, routing, and eviction
 together. The 0.3% ablation result describes throughput, not all runtime costs. No new dependencies or build step.
