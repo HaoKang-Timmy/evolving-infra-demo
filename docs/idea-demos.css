@@ -1,4 +1,4 @@
-/* Idea sections 02-04. Section 02 holds the role-switch demo (role-switch.css); sections 03 and 04 embed their demos
+/* Idea sections 03-05. Section 03 holds the role-switch demo (role-switch.css); sections 04 and 05 embed their demos
    as pages in docs/demos/ (js/demo-frames.js sizes the frames). */
 /* Each idea section ends with its demo; drop the stacked bottom margins before the next section. */
 .idea-section .wrap > .role-story:last-child { margin-bottom: 0; }
