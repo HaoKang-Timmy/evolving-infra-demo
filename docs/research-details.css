@@ -1,112 +1,84 @@
-/* Evidence section (06). */
-#evidence { --paper: #fffdfa; font-size: 17px; line-height: 1.65; }
-#evidence :is(h2,h3,h4,p,figure) { margin: 0; }
-#evidence :is(h2,h3,h4) { font-weight: 500; line-height: 1.15; }
-#evidence em { font-style: normal; color: var(--red); }
-#evidence button { font-family: inherit; cursor: pointer; }
-#evidence :is(button,a,summary):focus-visible { outline: 3px solid var(--red); outline-offset: 5px; }
-#evidence .eyebrow { font: 12px/1.6 var(--mono); letter-spacing: .12em; color: var(--red); margin-bottom: 25px; }
-body.content-active #evidence { background: #eeebe6; }
-#evidence .section-heading { display:grid;grid-template-columns:1.05fr 1fr;gap:70px;align-items:end;margin-bottom:42px }
-#evidence .section-heading h1,
-#evidence .section-heading h2 { font-size:48px;line-height:1.07;letter-spacing:-.055em }
-#evidence .section-heading p { color:var(--muted);font-size:18px;line-height:1.65 }
-#evidence .diagram-kicker { font:11px var(--mono);letter-spacing:.1em;color:var(--muted) }
-#evidence .number { font:12px var(--mono);color:var(--red) }
-#evidence .setup-strip { display:flex;gap:26px;font:12px var(--mono);padding:15px 0;border-block:1px solid #cfc8bd;color:var(--muted) }
-#evidence .evidence-story { padding-top:60px }
-#evidence .evidence-story+.evidence-story { margin-top:55px;border-top:1px solid #cfc8bd }
-#evidence .story-title { display:flex;gap:23px;align-items:baseline }
-#evidence .question { font-size:14px;color:var(--muted);margin-bottom:10px }
-#evidence .story-title h3 { font-size:32px;letter-spacing:-.035em;line-height:1.15 }
-#evidence .workload-controls { display:flex;gap:8px;margin-top:28px }
-#evidence .workload-controls button { padding:11px 18px;background:transparent;border:1px solid #c6bfb5;border-radius:4px;color:var(--fg);font-size:15px;min-height:48px }
-#evidence .workload-controls button span { font-size:12px;color:var(--muted);margin-left:10px }
-#evidence .workload-controls button[aria-pressed=true] { background:var(--fg);border-color:var(--fg);color:#fff }
-#evidence .workload-controls button[aria-pressed=true] span { color:#e0dce3 }
-#evidence .result-context { display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin:20px 0 16px;font-size:13px;color:var(--muted) }
-#evidence .legend { display:flex;gap:18px;flex-wrap:wrap;font-size:12px;color:var(--muted) }
-#evidence .legend>span { display:flex;gap:7px;align-items:center }
-#evidence .legend i { width:15px;height:9px;display:inline-block }
-#evidence .legend .ours { background:#ae2038 }
-#evidence .legend .baseline { background:#b6b5b3 }
-#evidence .legend .reference { height:3px;background:#111 }
-#evidence .legend .static-ref { height:0;border-top:3px dashed #111 }
-#evidence .latency-plots { display:grid;grid-template-columns:1fr 1fr;gap:22px }
-#evidence .latency-plots figure,
-#evidence .attribution-layout>figure,
-#evidence .ablation { background:var(--paper);padding:22px 25px;border-radius:4px }
-#evidence .latency-plots h4,
-#evidence .attribution-layout h4 { font-size:18px }
-#evidence .axis-note { font-size:12px;color:var(--muted);margin-top:5px }
-#evidence .latency-plots img { width:100%;display:block;margin-top:15px;height:240px;object-fit:contain }
-#evidence .finding { border-left:3px solid var(--red);padding:3px 0 3px 17px;margin:24px 0;font-size:21px;line-height:1.5;max-width:1040px;text-wrap:pretty }
-#evidence .method { border-top:1px solid #cfc8bd;margin-top:22px;font-size:14px }
-#evidence .method summary { padding:15px 0;cursor:pointer;color:var(--muted) }
-#evidence .method>div { padding:5px 0 16px;max-width:850px;color:var(--muted) }
-#evidence .method p+p { margin-top:12px }
-#evidence .story-intro { color:var(--muted);max-width:790px;margin:23px 0 26px;font-size:17px }
-#evidence .adaptation-layout { display:grid;grid-template-columns:1fr 235px;gap:36px;align-items:center }
-#evidence .timeline { background:var(--paper);padding:25px;border-radius:4px }
-#evidence .timeline img { width:100%;display:block;margin:20px auto;max-width:660px }
-#evidence .timeline-legend { gap:10px 18px }
-#evidence .timeline figcaption,
-#evidence .attribution-layout figcaption { font-size:12px;color:var(--muted);line-height:1.6 }
-#evidence .measured-gains>p:not(:first-child) { margin-top:24px }
-#evidence .measured-gains strong { font-size:48px;line-height:1;color:var(--red);font-weight:500;letter-spacing:-.06em;display:block }
-#evidence .measured-gains span { font-size:15px;display:block;margin-top:6px }
-#evidence .gain-note { font-size:13px;color:var(--muted);border-top:1px solid #cfc8bd;margin-top:22px;padding-top:15px }
-#evidence .attribution-layout { display:grid;grid-template-columns:1fr 1fr;gap:22px;margin-top:30px;align-items:stretch }
-#evidence .attribution-layout h4+p { font-size:13px;color:var(--muted);margin:10px 0 20px }
-#evidence .attribution-layout>figure>img { width:100%;height:205px;object-fit:contain;display:block;margin-top:12px }
-#evidence .attribution-layout figcaption { margin-top:18px }
-#evidence .bar-label { display:flex;justify-content:space-between;gap:10px;align-items:baseline;margin-bottom:7px;font-size:13px }
-#evidence .bar-label b { font-weight:500;white-space:nowrap }
-#evidence .bar-track { height:28px;margin-bottom:24px }
-#evidence .bar { height:100% }
-#evidence .gray { background:#b6b5b3 }
-#evidence .red { background:#ae2038 }
-#evidence .ablation-result { border-top:1px solid var(--line);margin-top:23px;padding-top:18px;font-size:16px }
-#evidence .ablation-result strong { color:var(--red);font-weight:500 }
-@media(max-width:800px) {
-#evidence .section-heading { grid-template-columns:1fr;gap:22px }
-#evidence .section-heading h1,
-#evidence .section-heading h2 { font-size:42px }
-#evidence .adaptation-layout { grid-template-columns:1fr }
-#evidence .measured-gains { display:grid;grid-template-columns:1fr 1fr;gap:20px }
-#evidence .measured-gains>p:first-child { grid-column:1/-1 }
-#evidence .measured-gains>p:not(:first-child) { margin:0 }
-#evidence .gain-note { grid-column:1/-1 }
-#evidence .latency-plots img { height:210px }
-#evidence .latency-plots figure,
-#evidence .attribution-layout>figure,
-#evidence .ablation { padding:20px }
-#evidence .setup-strip { gap:12px;flex-wrap:wrap }
+/* Evidence section (06), in the type scale and boxes of sections 02-05: the heading is an idea heading
+   (reading-typography.css), each story sits in a box like the demo boxes (demos/kv-cache.html .demo), and its
+   figures sit in panels like the demo panels (.panel). */
+#evidence .evidence-story { margin: 0 0 42px; padding: 16px; border: 1px solid #d7d2cc; border-radius: 10px; background: #fffdfaf2; }
+#evidence .evidence-story:last-child { margin-bottom: 0; }
+#evidence .ev-title { margin: 0; font-size: 26px; font-weight: 500; line-height: 1.12; letter-spacing: -.035em; }
+#evidence .ev-line { margin: 6px 0 0; font: 13px/1.5 var(--mono); color: var(--faint); }
+#evidence .ev-intro { max-width: 70ch; margin: 12px 0 0; font-size: 16px; line-height: 1.6; color: var(--muted); }
+#evidence .ev-kicker { margin: 0; font: 12px/1.5 var(--mono); letter-spacing: .08em; color: var(--muted); }
+
+/* Workload choice, styled like the step bar of the demos. */
+#evidence .workload-controls { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 5px; margin-top: 14px; }
+#evidence .workload-controls button { display: flex; align-items: baseline; justify-content: center; gap: 8px; min-height: 36px; padding: 6px 8px; border: 1px solid #ded9d2; border-radius: 4px; background: transparent; color: #68616a; font: inherit; font-size: 14px; line-height: 1.3; cursor: pointer; }
+#evidence .workload-controls button span { font: 12px var(--mono); opacity: .75; }
+#evidence .workload-controls button:hover { border-color: #c9c2ba; }
+#evidence .workload-controls button[aria-pressed="true"] { border-color: #ca7a85; background: #fae9eb; color: #ae2032; }
+#evidence .workload-controls button:focus-visible { outline: 2px solid var(--red); outline-offset: 3px; }
+
+/* Panels, like the two panels of the demos. */
+#evidence .ev-panel { min-width: 0; margin: 0; padding: 12px 16px 14px; border: 1px solid var(--line); border-radius: 8px; background: #fcfbf9; }
+#evidence .ev-panel h4 { margin: 0; font-size: 16px; font-weight: 600; line-height: 1.3; letter-spacing: -.01em; }
+#evidence .axis-note { margin: 4px 0 0; font-size: 13px; line-height: 1.5; color: var(--muted); }
+#evidence .ev-panel figcaption { margin-top: 12px; font-size: 13px; line-height: 1.6; color: var(--muted); }
+
+#evidence .latency-plots { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; margin-top: 16px; }
+#evidence .latency-plots img { display: block; width: 100%; height: 240px; margin-top: 12px; object-fit: contain; }
+
+#evidence .legend { display: flex; flex-wrap: wrap; gap: 4px 20px; margin-top: 12px; font-size: 14px; color: var(--muted); }
+#evidence .legend > span { display: inline-flex; align-items: center; gap: 8px; }
+#evidence .legend i { display: inline-block; width: 16px; height: 10px; }
+#evidence .legend .ours { background: #ae2038; }
+#evidence .legend .baseline { background: #b6b5b3; }
+#evidence .legend .reference { width: 24px; height: 0; border-top: 3px solid #111; }
+#evidence .legend .static-ref { width: 24px; height: 0; border-top: 3px dashed #111; }
+#evidence .timeline-legend { margin-top: 0; }
+
+/* The result in words: a demo caption, one step larger. */
+#evidence .finding { max-width: 1040px; margin: 16px 0 0; padding: 2px 0 2px 16px; border-left: 3px solid var(--red); font-size: 20px; font-weight: 500; line-height: 1.45; letter-spacing: -.015em; text-wrap: pretty; }
+
+/* Details, like "How it works" in the demos. */
+#evidence .method { margin-top: 16px; padding-top: 12px; border-top: 1px solid #dfd7d0; }
+#evidence .method summary { cursor: pointer; font-size: 14px; color: #645961; }
+#evidence .method summary:focus-visible { outline: 2px solid var(--red); outline-offset: 3px; }
+#evidence .method > div { max-width: 860px; }
+#evidence .method p { margin: 10px 0 0; font-size: 14px; line-height: 1.65; color: #655b63; }
+
+#evidence .adaptation-layout { display: grid; grid-template-columns: minmax(0, 1fr) 240px; gap: 16px; align-items: stretch; margin-top: 16px; }
+#evidence .timeline img { display: block; width: 100%; max-width: 680px; margin: 14px auto 0; }
+#evidence .measured-gains { display: flex; flex-direction: column; justify-content: center; gap: 20px; padding: 4px 4px 4px 8px; }
+#evidence .measured-gains p { margin: 0; }
+#evidence .measured-gains strong { display: block; color: var(--red); font-size: 44px; font-weight: 500; line-height: 1; letter-spacing: -.05em; }
+#evidence .measured-gains span { display: block; margin-top: 6px; font-size: 15px; line-height: 1.45; }
+#evidence .gain-note { padding-top: 14px; border-top: 1px solid #dfd7d0; font-size: 14px; line-height: 1.55; color: var(--muted); }
+
+#evidence .attribution-layout { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; margin-top: 16px; }
+#evidence .attribution-layout > figure > img { display: block; width: 100%; height: 205px; margin-top: 12px; object-fit: contain; }
+#evidence .ablation-bars { margin: 18px 0 0; }
+#evidence .bar-label { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; margin-bottom: 7px; font-size: 14px; }
+#evidence .bar-label b { font-weight: 500; white-space: nowrap; }
+#evidence .bar-track { height: 28px; margin-bottom: 20px; }
+#evidence .bar { height: 100%; border-radius: 0 3px 3px 0; }
+#evidence .bar.gray { background: #b6b5b3; }
+#evidence .bar.red { background: #ae2038; }
+#evidence .ablation-bars figcaption { margin-top: 0; }
+#evidence .ablation-result { margin: 18px 0 0; padding-top: 16px; border-top: 1px solid var(--line); font-size: 16px; line-height: 1.5; }
+#evidence .ablation-result strong { color: var(--red); font-weight: 500; }
+
+@media (max-width: 800px) {
+  #evidence .adaptation-layout { grid-template-columns: minmax(0, 1fr); }
+  #evidence .measured-gains { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; padding: 4px 0 0; }
+  #evidence .measured-gains :is(.ev-kicker, .gain-note) { grid-column: 1 / -1; }
+  #evidence .latency-plots img { height: 210px; }
 }
-@media(max-width:540px) {
-#evidence .section-heading h1,
-#evidence .section-heading h2 { font-size:39px }
-#evidence .section-heading p { font-size:17px }
-#evidence .story-title { gap:13px }
-#evidence .story-title h3 { font-size:28px }
-#evidence .question { font-size:13px }
-#evidence .workload-controls { gap:6px }
-#evidence .workload-controls button { flex:1;padding:10px 7px;font-size:13px }
-#evidence .workload-controls button span { display:block;font-size:10px;margin:2px 0 0 }
-#evidence .latency-plots,
-#evidence .attribution-layout { grid-template-columns:1fr }
-#evidence .latency-plots img { height:230px }
-#evidence .result-context { font-size:12px }
-#evidence .timeline { padding:15px }
-#evidence .legend { font-size:11px }
-#evidence .measured-gains strong { font-size:42px }
-#evidence .setup-strip { font-size:11px }
-#evidence .story-intro { font-size:16px }
-#evidence .finding { font-size:18px }
-#evidence .evidence-story { padding-top:40px }
-#evidence .evidence-story+.evidence-story { margin-top:35px }
-}
-@media(max-width:540px) {
-#evidence .latency-plots img,
-#evidence .attribution-layout>figure>img { height:auto;max-height:260px }
+@media (max-width: 640px) {
+  #evidence .evidence-story { padding: 14px; }
+  #evidence .ev-title { font-size: 24px; }
+  #evidence :is(.latency-plots, .attribution-layout) { grid-template-columns: minmax(0, 1fr); }
+  #evidence .workload-controls button { flex-direction: column; align-items: center; gap: 1px; font-size: 13px; }
+  #evidence .workload-controls button span { font-size: 11px; }
+  #evidence .finding { font-size: 18px; }
+  #evidence .measured-gains strong { font-size: 40px; }
+  #evidence :is(.latency-plots img, .attribution-layout > figure > img) { height: auto; max-height: 260px; }
+  #evidence .ev-panel { padding: 12px 12px 14px; }
 }
