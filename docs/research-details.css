@@ -1,176 +1,112 @@
-/* Architecture and evidence, scoped to the two new reading sections. */
-:is(#architecture, #evidence) { --paper: #fffdfa; font-size: 17px; line-height: 1.65; }
-:is(#architecture, #evidence) :is(h2,h3,h4,p,figure) { margin: 0; }
-:is(#architecture, #evidence) :is(h2,h3,h4) { font-weight: 500; line-height: 1.15; }
-:is(#architecture, #evidence) em { font-style: normal; color: var(--red); }
-:is(#architecture, #evidence) button { font-family: inherit; cursor: pointer; }
-:is(#architecture, #evidence) :is(button,a,summary):focus-visible { outline: 3px solid var(--red); outline-offset: 5px; }
-:is(#architecture, #evidence) .eyebrow { font: 12px/1.6 var(--mono); letter-spacing: .12em; color: var(--red); margin-bottom: 25px; }
-:is(#architecture, #evidence) .text-link { text-decoration: underline; }
+/* Evidence section (06). */
+#evidence { --paper: #fffdfa; font-size: 17px; line-height: 1.65; }
+#evidence :is(h2,h3,h4,p,figure) { margin: 0; }
+#evidence :is(h2,h3,h4) { font-weight: 500; line-height: 1.15; }
+#evidence em { font-style: normal; color: var(--red); }
+#evidence button { font-family: inherit; cursor: pointer; }
+#evidence :is(button,a,summary):focus-visible { outline: 3px solid var(--red); outline-offset: 5px; }
+#evidence .eyebrow { font: 12px/1.6 var(--mono); letter-spacing: .12em; color: var(--red); margin-bottom: 25px; }
 body.content-active #evidence { background: #eeebe6; }
-:is(#architecture, #evidence) .section-heading { display:grid;grid-template-columns:1.05fr 1fr;gap:70px;align-items:end;margin-bottom:42px }
-:is(#architecture, #evidence) .section-heading h1,
-:is(#architecture, #evidence) .section-heading h2 { font-size:48px;line-height:1.07;letter-spacing:-.055em }
-:is(#architecture, #evidence) .section-heading p { color:var(--muted);font-size:18px;line-height:1.65 }
-:is(#architecture, #evidence) .system-figure { padding:30px 40px;background:var(--paper);border:1px solid var(--line);border-radius:6px }
-:is(#architecture, #evidence) .request-flow { text-align:center;font-size:16px }
-:is(#architecture, #evidence) .request-flow>span { color:var(--red);padding-inline:12px }
-:is(#architecture, #evidence) .flow-arrow { text-align:center;font-size:26px;line-height:1.3;margin:6px }
-:is(#architecture, #evidence) .router { border:1px solid #bfb8ae;border-radius:4px;padding:15px 24px 20px }
-:is(#architecture, #evidence) .diagram-kicker { font:11px var(--mono);letter-spacing:.1em;color:var(--muted) }
-:is(#architecture, #evidence) .control-parts { display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:12px }
-:is(#architecture, #evidence) .control-parts>div { display:flex;flex-direction:column;gap:7px }
-:is(#architecture, #evidence) .control-parts b { font-size:18px;font-weight:500 }
-:is(#architecture, #evidence) .control-parts span { font-size:14px;color:var(--muted);line-height:1.5 }
-:is(#architecture, #evidence) .flow-label { display:flex;justify-content:center;align-items:center;gap:15px;font-size:13px;padding:14px }
-:is(#architecture, #evidence) .flow-label>span:last-child { font-size:25px }
-:is(#architecture, #evidence) .workers { display:grid;grid-template-columns:repeat(3,1fr);gap:22px }
-:is(#architecture, #evidence) .worker { border:1px solid #beb8b0;border-radius:4px;overflow:hidden }
-:is(#architecture, #evidence) .worker-head { padding:12px;display:flex;justify-content:space-between;align-items:center;gap:8px }
-:is(#architecture, #evidence) .worker-head>span { font:10px var(--mono);color:var(--muted) }
-:is(#architecture, #evidence) .phase { padding:3px 8px;font-size:12px;font-weight:500 }
-:is(#architecture, #evidence) .prefill { color:#fff;background:#46434b }
-:is(#architecture, #evidence) .decode { background:#e3dfda;color:var(--fg) }
-:is(#architecture, #evidence) .engine { padding:3px 12px 16px;font-size:16px }
-:is(#architecture, #evidence) .host { border-top:1px solid var(--line);background:#efede8;padding:12px;display:flex;justify-content:space-between;align-items:center;font-size:12px }
-:is(#architecture, #evidence) .blocks { display:flex;gap:4px }
-:is(#architecture, #evidence) .blocks i { width:16px;height:17px;display:block;background:#aaa5a0 }
-:is(#architecture, #evidence) .blocks i:first-child { background:var(--red) }
-:is(#architecture, #evidence) .pool-rail { margin-top:16px;padding-top:14px;border-top:2px solid var(--red);text-align:center }
-:is(#architecture, #evidence) .pool-rail>span { font-size:17px;font-weight:500 }
-:is(#architecture, #evidence) .pool-rail p { font-size:14px;color:var(--muted);margin-top:3px }
-:is(#architecture, #evidence) .system-figure figcaption { margin-top:22px;border-top:1px solid var(--line);padding-top:15px;font-size:13px;color:var(--muted) }
-:is(#architecture, #evidence) .architecture-notes { display:grid;grid-template-columns:repeat(3,1fr);gap:32px;margin:30px 0 20px }
-:is(#architecture, #evidence) .number { font:12px var(--mono);color:var(--red) }
-:is(#architecture, #evidence) .architecture-notes h3 { font-size:20px;margin:10px 0 }
-:is(#architecture, #evidence) .architecture-notes p { font-size:15px;color:var(--muted);line-height:1.6 }
-:is(#architecture, #evidence) .text-link { font-size:14px;text-underline-offset:5px }
-:is(#architecture, #evidence) .setup-strip { display:flex;gap:26px;font:12px var(--mono);padding:15px 0;border-block:1px solid #cfc8bd;color:var(--muted) }
-:is(#architecture, #evidence) .evidence-story { padding-top:60px }
-:is(#architecture, #evidence) .evidence-story+.evidence-story { margin-top:55px;border-top:1px solid #cfc8bd }
-:is(#architecture, #evidence) .story-title { display:flex;gap:23px;align-items:baseline }
-:is(#architecture, #evidence) .question { font-size:14px;color:var(--muted);margin-bottom:10px }
-:is(#architecture, #evidence) .story-title h3 { font-size:32px;letter-spacing:-.035em;line-height:1.15 }
-:is(#architecture, #evidence) .workload-controls { display:flex;gap:8px;margin-top:28px }
-:is(#architecture, #evidence) .workload-controls button { padding:11px 18px;background:transparent;border:1px solid #c6bfb5;border-radius:4px;color:var(--fg);font-size:15px;min-height:48px }
-:is(#architecture, #evidence) .workload-controls button span { font-size:12px;color:var(--muted);margin-left:10px }
-:is(#architecture, #evidence) .workload-controls button[aria-pressed=true] { background:var(--fg);border-color:var(--fg);color:#fff }
-:is(#architecture, #evidence) .workload-controls button[aria-pressed=true] span { color:#e0dce3 }
-:is(#architecture, #evidence) .result-context { display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin:20px 0 16px;font-size:13px;color:var(--muted) }
-:is(#architecture, #evidence) .legend { display:flex;gap:18px;flex-wrap:wrap;font-size:12px;color:var(--muted) }
-:is(#architecture, #evidence) .legend>span { display:flex;gap:7px;align-items:center }
-:is(#architecture, #evidence) .legend i { width:15px;height:9px;display:inline-block }
-:is(#architecture, #evidence) .legend .ours { background:#ae2038 }
-:is(#architecture, #evidence) .legend .baseline { background:#b6b5b3 }
-:is(#architecture, #evidence) .legend .reference { height:3px;background:#111 }
-:is(#architecture, #evidence) .legend .static-ref { height:0;border-top:3px dashed #111 }
-:is(#architecture, #evidence) .latency-plots { display:grid;grid-template-columns:1fr 1fr;gap:22px }
-:is(#architecture, #evidence) .latency-plots figure,
-:is(#architecture, #evidence) .attribution-layout>figure,
-:is(#architecture, #evidence) .ablation { background:var(--paper);padding:22px 25px;border-radius:4px }
-:is(#architecture, #evidence) .latency-plots h4,
-:is(#architecture, #evidence) .attribution-layout h4 { font-size:18px }
-:is(#architecture, #evidence) .axis-note { font-size:12px;color:var(--muted);margin-top:5px }
-:is(#architecture, #evidence) .latency-plots img { width:100%;display:block;margin-top:15px;height:240px;object-fit:contain }
-:is(#architecture, #evidence) .finding { border-left:3px solid var(--red);padding:3px 0 3px 17px;margin:24px 0;font-size:17px;max-width:900px }
-:is(#architecture, #evidence) .method { border-top:1px solid #cfc8bd;margin-top:22px;font-size:14px }
-:is(#architecture, #evidence) .method summary { padding:15px 0;cursor:pointer;color:var(--muted) }
-:is(#architecture, #evidence) .method>div { padding:5px 0 16px;max-width:850px;color:var(--muted) }
-:is(#architecture, #evidence) .method p+p { margin-top:12px }
-:is(#architecture, #evidence) .story-intro { color:var(--muted);max-width:790px;margin:23px 0 26px;font-size:17px }
-:is(#architecture, #evidence) .adaptation-layout { display:grid;grid-template-columns:1fr 235px;gap:36px;align-items:center }
-:is(#architecture, #evidence) .timeline { background:var(--paper);padding:25px;border-radius:4px }
-:is(#architecture, #evidence) .timeline img { width:100%;display:block;margin:20px auto;max-width:660px }
-:is(#architecture, #evidence) .timeline-legend { gap:10px 18px }
-:is(#architecture, #evidence) .timeline figcaption,
-:is(#architecture, #evidence) .attribution-layout figcaption { font-size:12px;color:var(--muted);line-height:1.6 }
-:is(#architecture, #evidence) .measured-gains>p:not(:first-child) { margin-top:24px }
-:is(#architecture, #evidence) .measured-gains strong { font-size:48px;line-height:1;color:var(--red);font-weight:500;letter-spacing:-.06em;display:block }
-:is(#architecture, #evidence) .measured-gains span { font-size:15px;display:block;margin-top:6px }
-:is(#architecture, #evidence) .gain-note { font-size:13px;color:var(--muted);border-top:1px solid #cfc8bd;margin-top:22px;padding-top:15px }
-:is(#architecture, #evidence) .attribution-layout { display:grid;grid-template-columns:1fr 1fr;gap:22px;margin-top:30px;align-items:stretch }
-:is(#architecture, #evidence) .attribution-layout h4+p { font-size:13px;color:var(--muted);margin:10px 0 20px }
-:is(#architecture, #evidence) .attribution-layout>figure>img { width:100%;height:205px;object-fit:contain;display:block;margin-top:12px }
-:is(#architecture, #evidence) .attribution-layout figcaption { margin-top:18px }
-:is(#architecture, #evidence) .bar-label { display:flex;justify-content:space-between;gap:10px;align-items:baseline;margin-bottom:7px;font-size:13px }
-:is(#architecture, #evidence) .bar-label b { font-weight:500;white-space:nowrap }
-:is(#architecture, #evidence) .bar-track { height:28px;margin-bottom:24px }
-:is(#architecture, #evidence) .bar { height:100% }
-:is(#architecture, #evidence) .gray { background:#b6b5b3 }
-:is(#architecture, #evidence) .red { background:#ae2038 }
-:is(#architecture, #evidence) .ablation-result { border-top:1px solid var(--line);margin-top:23px;padding-top:18px;font-size:16px }
-:is(#architecture, #evidence) .ablation-result strong { color:var(--red);font-weight:500 }
+#evidence .section-heading { display:grid;grid-template-columns:1.05fr 1fr;gap:70px;align-items:end;margin-bottom:42px }
+#evidence .section-heading h1,
+#evidence .section-heading h2 { font-size:48px;line-height:1.07;letter-spacing:-.055em }
+#evidence .section-heading p { color:var(--muted);font-size:18px;line-height:1.65 }
+#evidence .diagram-kicker { font:11px var(--mono);letter-spacing:.1em;color:var(--muted) }
+#evidence .number { font:12px var(--mono);color:var(--red) }
+#evidence .setup-strip { display:flex;gap:26px;font:12px var(--mono);padding:15px 0;border-block:1px solid #cfc8bd;color:var(--muted) }
+#evidence .evidence-story { padding-top:60px }
+#evidence .evidence-story+.evidence-story { margin-top:55px;border-top:1px solid #cfc8bd }
+#evidence .story-title { display:flex;gap:23px;align-items:baseline }
+#evidence .question { font-size:14px;color:var(--muted);margin-bottom:10px }
+#evidence .story-title h3 { font-size:32px;letter-spacing:-.035em;line-height:1.15 }
+#evidence .workload-controls { display:flex;gap:8px;margin-top:28px }
+#evidence .workload-controls button { padding:11px 18px;background:transparent;border:1px solid #c6bfb5;border-radius:4px;color:var(--fg);font-size:15px;min-height:48px }
+#evidence .workload-controls button span { font-size:12px;color:var(--muted);margin-left:10px }
+#evidence .workload-controls button[aria-pressed=true] { background:var(--fg);border-color:var(--fg);color:#fff }
+#evidence .workload-controls button[aria-pressed=true] span { color:#e0dce3 }
+#evidence .result-context { display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin:20px 0 16px;font-size:13px;color:var(--muted) }
+#evidence .legend { display:flex;gap:18px;flex-wrap:wrap;font-size:12px;color:var(--muted) }
+#evidence .legend>span { display:flex;gap:7px;align-items:center }
+#evidence .legend i { width:15px;height:9px;display:inline-block }
+#evidence .legend .ours { background:#ae2038 }
+#evidence .legend .baseline { background:#b6b5b3 }
+#evidence .legend .reference { height:3px;background:#111 }
+#evidence .legend .static-ref { height:0;border-top:3px dashed #111 }
+#evidence .latency-plots { display:grid;grid-template-columns:1fr 1fr;gap:22px }
+#evidence .latency-plots figure,
+#evidence .attribution-layout>figure,
+#evidence .ablation { background:var(--paper);padding:22px 25px;border-radius:4px }
+#evidence .latency-plots h4,
+#evidence .attribution-layout h4 { font-size:18px }
+#evidence .axis-note { font-size:12px;color:var(--muted);margin-top:5px }
+#evidence .latency-plots img { width:100%;display:block;margin-top:15px;height:240px;object-fit:contain }
+#evidence .finding { border-left:3px solid var(--red);padding:3px 0 3px 17px;margin:24px 0;font-size:17px;max-width:900px }
+#evidence .method { border-top:1px solid #cfc8bd;margin-top:22px;font-size:14px }
+#evidence .method summary { padding:15px 0;cursor:pointer;color:var(--muted) }
+#evidence .method>div { padding:5px 0 16px;max-width:850px;color:var(--muted) }
+#evidence .method p+p { margin-top:12px }
+#evidence .story-intro { color:var(--muted);max-width:790px;margin:23px 0 26px;font-size:17px }
+#evidence .adaptation-layout { display:grid;grid-template-columns:1fr 235px;gap:36px;align-items:center }
+#evidence .timeline { background:var(--paper);padding:25px;border-radius:4px }
+#evidence .timeline img { width:100%;display:block;margin:20px auto;max-width:660px }
+#evidence .timeline-legend { gap:10px 18px }
+#evidence .timeline figcaption,
+#evidence .attribution-layout figcaption { font-size:12px;color:var(--muted);line-height:1.6 }
+#evidence .measured-gains>p:not(:first-child) { margin-top:24px }
+#evidence .measured-gains strong { font-size:48px;line-height:1;color:var(--red);font-weight:500;letter-spacing:-.06em;display:block }
+#evidence .measured-gains span { font-size:15px;display:block;margin-top:6px }
+#evidence .gain-note { font-size:13px;color:var(--muted);border-top:1px solid #cfc8bd;margin-top:22px;padding-top:15px }
+#evidence .attribution-layout { display:grid;grid-template-columns:1fr 1fr;gap:22px;margin-top:30px;align-items:stretch }
+#evidence .attribution-layout h4+p { font-size:13px;color:var(--muted);margin:10px 0 20px }
+#evidence .attribution-layout>figure>img { width:100%;height:205px;object-fit:contain;display:block;margin-top:12px }
+#evidence .attribution-layout figcaption { margin-top:18px }
+#evidence .bar-label { display:flex;justify-content:space-between;gap:10px;align-items:baseline;margin-bottom:7px;font-size:13px }
+#evidence .bar-label b { font-weight:500;white-space:nowrap }
+#evidence .bar-track { height:28px;margin-bottom:24px }
+#evidence .bar { height:100% }
+#evidence .gray { background:#b6b5b3 }
+#evidence .red { background:#ae2038 }
+#evidence .ablation-result { border-top:1px solid var(--line);margin-top:23px;padding-top:18px;font-size:16px }
+#evidence .ablation-result strong { color:var(--red);font-weight:500 }
 @media(max-width:800px) {
-:is(#architecture, #evidence) .section-heading { grid-template-columns:1fr;gap:22px }
-:is(#architecture, #evidence) .section-heading h1,
-:is(#architecture, #evidence) .section-heading h2 { font-size:42px }
-:is(#architecture, #evidence) .system-figure { padding:24px }
-:is(#architecture, #evidence) .workers { gap:12px }
-:is(#architecture, #evidence) .worker-head { flex-direction:column;align-items:start }
-:is(#architecture, #evidence) .engine { font-size:14px }
-:is(#architecture, #evidence) .host { flex-direction:column;align-items:start;gap:8px }
-:is(#architecture, #evidence) .control-parts { gap:15px }
-:is(#architecture, #evidence) .control-parts b { font-size:16px }
-:is(#architecture, #evidence) .control-parts span { font-size:13px }
-:is(#architecture, #evidence) .architecture-notes { gap:20px }
-:is(#architecture, #evidence) .adaptation-layout { grid-template-columns:1fr }
-:is(#architecture, #evidence) .measured-gains { display:grid;grid-template-columns:1fr 1fr;gap:20px }
-:is(#architecture, #evidence) .measured-gains>p:first-child { grid-column:1/-1 }
-:is(#architecture, #evidence) .measured-gains>p:not(:first-child) { margin:0 }
-:is(#architecture, #evidence) .gain-note { grid-column:1/-1 }
-:is(#architecture, #evidence) .latency-plots img { height:210px }
-:is(#architecture, #evidence) .latency-plots figure,
-:is(#architecture, #evidence) .attribution-layout>figure,
-:is(#architecture, #evidence) .ablation { padding:20px }
-:is(#architecture, #evidence) .setup-strip { gap:12px;flex-wrap:wrap }
+#evidence .section-heading { grid-template-columns:1fr;gap:22px }
+#evidence .section-heading h1,
+#evidence .section-heading h2 { font-size:42px }
+#evidence .adaptation-layout { grid-template-columns:1fr }
+#evidence .measured-gains { display:grid;grid-template-columns:1fr 1fr;gap:20px }
+#evidence .measured-gains>p:first-child { grid-column:1/-1 }
+#evidence .measured-gains>p:not(:first-child) { margin:0 }
+#evidence .gain-note { grid-column:1/-1 }
+#evidence .latency-plots img { height:210px }
+#evidence .latency-plots figure,
+#evidence .attribution-layout>figure,
+#evidence .ablation { padding:20px }
+#evidence .setup-strip { gap:12px;flex-wrap:wrap }
 }
 @media(max-width:540px) {
-:is(#architecture, #evidence) .section-heading h1,
-:is(#architecture, #evidence) .section-heading h2 { font-size:39px }
-:is(#architecture, #evidence) .section-heading p { font-size:17px }
-:is(#architecture, #evidence) .system-figure { padding:18px }
-:is(#architecture, #evidence) .request-flow { font-size:13px }
-:is(#architecture, #evidence) .request-flow>span { padding-inline:4px }
-:is(#architecture, #evidence) .router { padding:14px }
-:is(#architecture, #evidence) .control-parts { grid-template-columns:1fr;gap:14px }
-:is(#architecture, #evidence) .control-parts>div { display:grid;grid-template-columns:1fr 1.05fr;gap:12px;align-items:baseline }
-:is(#architecture, #evidence) .control-parts br { display:none }
-:is(#architecture, #evidence) .control-parts b { font-size:15px }
-:is(#architecture, #evidence) .control-parts span { font-size:12px }
-:is(#architecture, #evidence) .workers { grid-template-columns:1fr;gap:12px }
-:is(#architecture, #evidence) .worker { display:grid;grid-template-columns:1fr 1fr }
-:is(#architecture, #evidence) .worker-head { padding:12px;flex-direction:row;grid-column:1/-1 }
-:is(#architecture, #evidence) .engine { padding:0 12px 12px }
-:is(#architecture, #evidence) .host { grid-column:2;grid-row:2;margin-top:0;border-top:0;background:transparent;padding:0 12px 12px;flex-direction:row;align-items:center;font-size:10px }
-:is(#architecture, #evidence) .blocks { gap:3px }
-:is(#architecture, #evidence) .blocks i { width:9px;height:12px }
-:is(#architecture, #evidence) .pool-rail>span { font-size:15px }
-:is(#architecture, #evidence) .pool-rail p { font-size:12px }
-:is(#architecture, #evidence) .architecture-notes { grid-template-columns:1fr;gap:24px }
-:is(#architecture, #evidence) .architecture-notes article { display:grid;grid-template-columns:28px 1fr;gap:6px 10px }
-:is(#architecture, #evidence) .architecture-notes .number { padding-top:4px }
-:is(#architecture, #evidence) .architecture-notes h3 { margin:0;font-size:19px }
-:is(#architecture, #evidence) .architecture-notes p { grid-column:2 }
-:is(#architecture, #evidence) .story-title { gap:13px }
-:is(#architecture, #evidence) .story-title h3 { font-size:28px }
-:is(#architecture, #evidence) .question { font-size:13px }
-:is(#architecture, #evidence) .workload-controls { gap:6px }
-:is(#architecture, #evidence) .workload-controls button { flex:1;padding:10px 7px;font-size:13px }
-:is(#architecture, #evidence) .workload-controls button span { display:block;font-size:10px;margin:2px 0 0 }
-:is(#architecture, #evidence) .latency-plots,
-:is(#architecture, #evidence) .attribution-layout { grid-template-columns:1fr }
-:is(#architecture, #evidence) .latency-plots img { height:230px }
-:is(#architecture, #evidence) .result-context { font-size:12px }
-:is(#architecture, #evidence) .timeline { padding:15px }
-:is(#architecture, #evidence) .legend { font-size:11px }
-:is(#architecture, #evidence) .measured-gains strong { font-size:42px }
-:is(#architecture, #evidence) .setup-strip { font-size:11px }
-:is(#architecture, #evidence) .story-intro { font-size:16px }
-:is(#architecture, #evidence) .finding { font-size:16px }
-:is(#architecture, #evidence) .evidence-story { padding-top:40px }
-:is(#architecture, #evidence) .evidence-story+.evidence-story { margin-top:35px }
+#evidence .section-heading h1,
+#evidence .section-heading h2 { font-size:39px }
+#evidence .section-heading p { font-size:17px }
+#evidence .story-title { gap:13px }
+#evidence .story-title h3 { font-size:28px }
+#evidence .question { font-size:13px }
+#evidence .workload-controls { gap:6px }
+#evidence .workload-controls button { flex:1;padding:10px 7px;font-size:13px }
+#evidence .workload-controls button span { display:block;font-size:10px;margin:2px 0 0 }
+#evidence .latency-plots,
+#evidence .attribution-layout { grid-template-columns:1fr }
+#evidence .latency-plots img { height:230px }
+#evidence .result-context { font-size:12px }
+#evidence .timeline { padding:15px }
+#evidence .legend { font-size:11px }
+#evidence .measured-gains strong { font-size:42px }
+#evidence .setup-strip { font-size:11px }
+#evidence .story-intro { font-size:16px }
+#evidence .finding { font-size:16px }
+#evidence .evidence-story { padding-top:40px }
+#evidence .evidence-story+.evidence-story { margin-top:35px }
 }
 @media(max-width:540px) {
-:is(#architecture, #evidence) .latency-plots img,
-:is(#architecture, #evidence) .attribution-layout>figure>img { height:auto;max-height:260px }
+#evidence .latency-plots img,
+#evidence .attribution-layout>figure>img { height:auto;max-height:260px }
 }
