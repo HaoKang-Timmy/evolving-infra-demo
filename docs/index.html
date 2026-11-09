@@ -29,7 +29,7 @@
   <link rel="stylesheet" href="idea-demos.css?v=demo-frames-1">
   <link rel="stylesheet" href="page-outline.css?v=outline-5">
   <link rel="stylesheet" href="research-details.css?v=evidence-box-1">
-  <link rel="stylesheet" href="arch-compare.css?v=layers-2">
+  <link rel="stylesheet" href="arch-compare.css?v=layers-3">
   <link rel="preload" as="image" href="media/scene/apps-atlas.png">
   <link rel="preload" as="image" href="media/scene/hardware-atlas.png">
   <script src="js/site.js?v=light-motion" defer></script>
@@ -146,8 +146,8 @@
       <div class="wrap">
         <div class="section-topline" data-reveal><span class="eyebrow">02 / ARCHITECTURE</span><span class="mono-note">DECOUPLE FIRST. THEN ADAPT.</span></div>
         <div class="idea-heading idea-decoupling arch-heading" data-reveal>
-          <h2 id="architecture-heading"><span class="accent-text">Decoupled</span> and <span class="accent-text arch-nowrap">agent-adaptive</span><br>PD disaggregation.</h2>
-          <p class="lead">Evolving Infra decouples compute allocation from KV cache management, so nodes switch efficiently between prefill and decode. An online planner then sizes the PD split from fine-grained signals, and an agent-aware KV manager keeps the KV that agents will reuse.</p>
+          <h2 id="architecture-heading"><span class="accent-text arch-nowrap">Agent-adaptive</span> inference,<br>with compute and memory <span class="accent-text">decoupled</span>.</h2>
+          <p class="lead">Evolving Infra decouples compute allocation from KV cache management, so nodes switch their compute phases efficiently between prefill and decode. An online planner then sizes the PD split from fine-grained signals, and an agent-aware KV manager keeps the KV that agents will reuse.</p>
         </div>
         <figure class="arch-compare" aria-label="Existing PD disaggregation compared with Evolving Infra">
           <div class="arch-grid">
@@ -165,7 +165,7 @@
               <h3 class="arch-title" id="arch-ours-title">Evolving Infra</h3>
               <span class="arch-band is-compute" aria-hidden="true"></span>
               <span class="arch-band is-kv" aria-hidden="true"></span>
-              <div class="arch-top"><p class="arch-layer">Compute allocation</p><p class="arch-say">The online planner sizes the PD split from <em>fine-grained signals</em>.</p></div>
+              <div class="arch-top"><p class="arch-layer">Compute allocation</p><p class="arch-say">The online planner sizes the PD split from <em><span class="arch-nowrap">fine-grained</span> signals</em>.</p></div>
               <div class="arch-row arch-nodes" aria-hidden="true"><span class="arch-node"><b>P</b></span><span class="arch-node"><b>P</b></span><span class="arch-node is-switch"><b class="as-p">P</b><b class="as-d">D</b><b class="as-both">P→D</b></span><span class="arch-node is-d"><b>D</b></span><span class="arch-node is-d"><b>D</b></span><span class="arch-node is-d"><b>D</b></span></div>
               <div class="arch-mid" aria-hidden="true"><span class="arch-pill"><img src="fig/decoupled-link.svg" alt="">DECOUPLED</span></div>
               <div class="arch-kv" aria-hidden="true"><div class="arch-pool arch-row"><span><i></i><i></i></span><span><i></i><i></i><i></i></span><span><i></i><i></i></span><span><i></i></span><span><i></i><i></i></span><span><i></i></span></div></div>

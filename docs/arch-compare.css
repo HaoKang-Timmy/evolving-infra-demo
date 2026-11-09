@@ -29,7 +29,7 @@ body.content-active #architecture .arch-heading .lead { max-width: 62ch; margin-
 #architecture .arch-say { margin: 0; font-size: 15px; line-height: 1.45; color: var(--muted); }
 #architecture .is-ours .arch-say { color: var(--fg); }
 /* The phrase that differs between the two panels stands out. */
-#architecture .arch-say em { font-style: normal; font-weight: 500; color: var(--fg); white-space: nowrap; }
+#architecture .arch-say em { font-style: normal; font-weight: 500; color: var(--fg); }
 #architecture .is-ours .arch-say em { color: var(--red); }
 
 #architecture .arch-row { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 7px; }
