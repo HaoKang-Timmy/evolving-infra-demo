@@ -40,7 +40,7 @@ body.content-active #evidence { background: #eeebe6; }
 #evidence .attribution-layout h4 { font-size:18px }
 #evidence .axis-note { font-size:12px;color:var(--muted);margin-top:5px }
 #evidence .latency-plots img { width:100%;display:block;margin-top:15px;height:240px;object-fit:contain }
-#evidence .finding { border-left:3px solid var(--red);padding:3px 0 3px 17px;margin:24px 0;font-size:17px;max-width:900px }
+#evidence .finding { border-left:3px solid var(--red);padding:3px 0 3px 17px;margin:24px 0;font-size:21px;line-height:1.5;max-width:1040px;text-wrap:pretty }
 #evidence .method { border-top:1px solid #cfc8bd;margin-top:22px;font-size:14px }
 #evidence .method summary { padding:15px 0;cursor:pointer;color:var(--muted) }
 #evidence .method>div { padding:5px 0 16px;max-width:850px;color:var(--muted) }
@@ -102,7 +102,7 @@ body.content-active #evidence { background: #eeebe6; }
 #evidence .measured-gains strong { font-size:42px }
 #evidence .setup-strip { font-size:11px }
 #evidence .story-intro { font-size:16px }
-#evidence .finding { font-size:16px }
+#evidence .finding { font-size:18px }
 #evidence .evidence-story { padding-top:40px }
 #evidence .evidence-story+.evidence-story { margin-top:35px }
 }
