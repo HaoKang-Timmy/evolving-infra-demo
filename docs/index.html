@@ -145,70 +145,35 @@
     <section class="idea-section" id="architecture" aria-labelledby="architecture-heading">
       <div class="wrap">
         <div class="section-topline" data-reveal><span class="eyebrow">02 / ARCHITECTURE</span><span class="mono-note">DECOUPLE FIRST. THEN ADAPT.</span></div>
-        <div class="idea-heading idea-decoupling" data-reveal>
+        <div class="idea-heading idea-decoupling arch-heading" data-reveal>
           <h2 id="architecture-heading"><span class="accent-text">Decoupled</span> and <span class="accent-text arch-nowrap">agent-adaptive</span><br>PD disaggregation.</h2>
-          <div><p class="lead">Evolving Infra decouples compute allocation from KV cache management, then adapts both to agents at runtime.</p><p>In existing PD disaggregation, engines index cached KV in local state, so switching a node from prefill to decode discards or strands its cached KV. The planner, router, and memory pool rely on coarse signals, such as request latency, input lengths, and access history.</p></div>
+          <p class="lead">Evolving Infra decouples compute allocation from KV cache management, so nodes switch efficiently between prefill and decode. An online planner then sizes the PD split from fine-grained signals, and an agent-aware KV manager keeps the KV that agents will reuse.</p>
         </div>
-        <figure class="arch-compare" aria-labelledby="arch-caption">
+        <figure class="arch-compare" aria-label="Existing PD disaggregation compared with Evolving Infra">
           <div class="arch-grid">
             <article class="arch-panel is-existing" aria-labelledby="arch-existing-title">
-              <header class="arch-head"><h3 id="arch-existing-title">Existing PD disaggregation</h3><p class="arch-tags"><span>Coupled</span><span>Coarse signals</span></p></header>
-              <div class="arch-control">
-                <div class="arch-box"><b>Planner</b><p><span>Queue depth or TTFT</span><span class="arch-to"><i aria-hidden="true">→</i> PD split</span></p></div>
-                <div class="arch-box"><b>Router · memory pool</b><p><span>Prefix match</span><span class="arch-to"><i aria-hidden="true">→</i> route</span></p><p><span>LRU order</span><span class="arch-to"><i aria-hidden="true">→</i> evict</span></p></div>
-              </div>
-              <div class="arch-nodes" role="img" aria-label="Six GPU nodes. N1 to N3 serve prefill and N4 to N6 serve decode. N3 relaunches to switch from prefill to decode.">
-                <span class="arch-label">GPU NODES</span>
-                <div class="arch-row"><span class="arch-node"><small>N1</small><b>P</b></span><span class="arch-node"><small>N2</small><b>P</b></span><span class="arch-node is-switch"><small>N3</small><b>P→D</b><svg viewBox="0 0 16 16"><path d="M13.2 8.4A5.2 5.2 0 1 1 11.6 4.3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M12.4 1.4v3.4H9" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="arch-node is-d"><small>N4</small><b>D</b></span><span class="arch-node is-d"><small>N5</small><b>D</b></span><span class="arch-node is-d"><small>N6</small><b>D</b></span></div>
-              </div>
-              <div class="arch-divider" aria-hidden="true">
-                <div class="arch-row"><i></i><i></i><i></i><i></i><i></i><i></i></div>
-                <span class="arch-link"><span>COUPLED</span></span>
-              </div>
-              <div class="arch-kv" role="img" aria-label="Each node keeps its KV in its own local cache. The KV that N3 cached is lost when N3 switches.">
-                <span class="arch-label">LOCAL KV, TIED TO EACH NODE</span>
-                <div class="arch-row"><span class="arch-cache"><i></i><i></i></span><span class="arch-cache"><i></i><i></i><i></i></span><span class="arch-cache is-lost"><i class="r"></i><i class="r"></i><i class="r"></i></span><span class="arch-cache"><i></i></span><span class="arch-cache"><i></i><i></i></span><span class="arch-cache"><i></i></span></div>
-              </div>
-              <ul class="arch-outcome-list">
-                <li class="arch-outcome"><i aria-hidden="true">✕</i><span>A phase switch relaunches N3 or strands its KV.</span></li>
-                <li class="arch-outcome"><i aria-hidden="true">✕</i><span>Coarse signals misestimate compute demand and misjudge KV reuse.</span></li>
-              </ul>
+              <h3 class="arch-title" id="arch-existing-title">Existing PD disaggregation</h3>
+              <div class="arch-control"><p class="arch-box"><b>Compute allocation</b><span>coarse signals</span></p><p class="arch-box"><b>KV management</b><span>LRU</span></p></div>
+              <p class="arch-label" aria-hidden="true">GPU NODES</p>
+              <div class="arch-row arch-nodes" aria-hidden="true"><span class="arch-node"><b>P</b></span><span class="arch-node"><b>P</b></span><span class="arch-node"><b>P</b></span><span class="arch-node is-d"><b>D</b></span><span class="arch-node is-d"><b>D</b></span><span class="arch-node is-d"><b>D</b></span></div>
+              <div class="arch-mid" aria-hidden="true"><div class="arch-row"><span></span><span></span><span></span><span></span><span></span><span></span></div><span class="arch-pill">COUPLED</span></div>
+              <div class="arch-row arch-kv" aria-hidden="true"><span class="arch-cache"><i></i><i></i></span><span class="arch-cache"><i></i><i></i><i></i></span><span class="arch-cache"><i></i><i></i></span><span class="arch-cache"><i></i></span><span class="arch-cache"><i></i><i></i></span><span class="arch-cache"><i></i></span></div>
+              <p class="arch-label"><span class="sr-only">Three prefill and three decode nodes. </span>KV inside each node</p>
+              <ul class="arch-outcomes"><li><i aria-hidden="true">✕</i>Costly phase switches</li><li><i aria-hidden="true">✕</i>Load imbalance</li><li><i aria-hidden="true">✕</i>Reusable KV evicted</li></ul>
             </article>
             <article class="arch-panel is-ours" aria-labelledby="arch-ours-title">
-              <header class="arch-head"><h3 id="arch-ours-title">Evolving Infra</h3><p class="arch-tags"><span>Decoupled</span><span>Agent-adaptive</span></p></header>
-              <div class="arch-control">
-                <div class="arch-box"><span class="arch-num" aria-hidden="true">2</span><b>Online planner</b><p><span>Learned prefill and decode time</span><span class="arch-to"><i aria-hidden="true">→</i> PD split</span></p></div>
-                <div class="arch-box"><span class="arch-num" aria-hidden="true">3</span><b>Router · KV directory</b><p><span>Predicted TTFT</span><span class="arch-to"><i aria-hidden="true">→</i> route</span></p><p><span>Active branches</span><span class="arch-to"><i aria-hidden="true">→</i> evict</span></p></div>
-              </div>
-              <div class="arch-nodes" role="img" aria-label="Six GPU nodes on symmetric engines. N3 switches from prefill to decode without a restart.">
-                <span class="arch-label">GPU NODES</span>
-                <div class="arch-row"><span class="arch-node"><small>N1</small><b>P</b></span><span class="arch-node"><small>N2</small><b>P</b></span><span class="arch-node is-switch"><small>N3</small><b>P→D</b></span><span class="arch-node is-d"><small>N4</small><b>D</b></span><span class="arch-node is-d"><small>N5</small><b>D</b></span><span class="arch-node is-d"><small>N6</small><b>D</b></span></div>
-              </div>
-              <div class="arch-divider" aria-hidden="true">
-                <div class="arch-row"><i></i><i></i><i></i><i></i><i></i><i></i></div>
-                <span class="arch-link"><span class="arch-num">1</span><span><img src="fig/decoupled-link.svg" alt="">DECOUPLED</span></span>
-              </div>
-              <div class="arch-kv" role="img" aria-label="One shared KV pool in the host memory of all nodes. The KV that N3 cached stays in the pool.">
-                <span class="arch-label">SHARED HOST-MEMORY KV POOL</span>
-                <div class="arch-pool"><div class="arch-row"><span><i></i><i></i></span><span><i></i><i></i><i></i></span><span><i class="r"></i><i class="r"></i><i class="r"></i></span><span><i></i></span><span><i></i><i></i></span><span><i></i></span></div></div>
-              </div>
-              <ul class="arch-outcome-list">
-                <li class="arch-outcome"><i aria-hidden="true">✓</i><span>N3 switches without a restart. Its KV stays readable by all nodes.</span></li>
-                <li class="arch-outcome"><i aria-hidden="true">✓</i><span>The PD split follows the agent workload. Eviction keeps the KV that active branches need.</span></li>
-              </ul>
+              <h3 class="arch-title" id="arch-ours-title">Evolving Infra</h3>
+              <div class="arch-control"><p class="arch-box"><b>Compute allocation</b><span>fine-grained signals</span></p><p class="arch-box"><b>KV management</b><span>agent-aware</span></p></div>
+              <p class="arch-label" aria-hidden="true">GPU NODES</p>
+              <div class="arch-row arch-nodes" aria-hidden="true"><span class="arch-node"><b>P</b></span><span class="arch-node"><b>P</b></span><span class="arch-node is-switch"><b class="as-p">P</b><b class="as-d">D</b><b class="as-both">P→D</b></span><span class="arch-node is-d"><b>D</b></span><span class="arch-node is-d"><b>D</b></span><span class="arch-node is-d"><b>D</b></span></div>
+              <div class="arch-mid" aria-hidden="true"><div class="arch-row"><i></i><i></i><i></i><i></i><i></i><i></i></div><span class="arch-pill"><img src="fig/decoupled-link.svg" alt="">DECOUPLED</span></div>
+              <div class="arch-kv" aria-hidden="true"><div class="arch-pool arch-row"><span><i></i><i></i></span><span><i></i><i></i><i></i></span><span><i></i><i></i></span><span><i></i></span><span><i></i><i></i></span><span><i></i></span></div></div>
+              <p class="arch-label"><span class="sr-only">Prefill and decode nodes; one node switches from prefill to decode. </span>Shared KV pool</p>
+              <ul class="arch-outcomes"><li><i aria-hidden="true">✓</i>Efficient phase switches</li><li><i aria-hidden="true">✓</i>Balanced load</li><li><i aria-hidden="true">✓</i>Reusable KV kept</li></ul>
             </article>
           </div>
-          <figcaption class="arch-key" id="arch-caption"><span><b>P</b>prefill node</span><span><b>D</b>decode node</span><span><i></i>cached KV</span><span><i class="r"></i>KV that N3 cached</span></figcaption>
+          <figcaption class="arch-key"><span><b>P</b> = prefill node</span><span><b>D</b> = decode node</span></figcaption>
         </figure>
-        <details class="arch-scope"><summary>Comparison scope and sources</summary><div>
-          <p><strong>Existing PD disaggregation.</strong> By default, vLLM and SGLang fix the phase of each engine at launch, and each engine indexes its cached KV in local state. A planner that switches a node either relaunches its engine, which takes minutes, or reassigns the node without a relaunch and strands its cached KV. Shared KV pools avoid this coupling, but keep the allocation fixed or change it by relaunching nodes.</p>
-          <p><strong>Evolving Infra.</strong> Each node supports both phases, and the planner reassigns its phase at runtime without a restart. KV resides in a shared pool formed by the host memory of all nodes. A cluster-wide KV directory records the number of active branches that reference each copy. <a href="fig/arch.svg" target="_blank" rel="noopener">Open the report’s architecture figure ↗</a></p>
-        </div></details>
-        <ol class="arch-ideas" aria-label="The three ideas">
-          <li><a href="#why-evolve"><span class="arch-idea-kicker"><span class="arch-num" aria-hidden="true">1</span>DECOUPLE</span><strong>Decouple compute allocation from KV cache management.</strong><small>A node switches from prefill to decode without a restart.</small><span class="arch-idea-go">03 · Demo ↓</span></a></li>
-          <li><a href="#workload-planning"><span class="arch-idea-kicker"><span class="arch-num" aria-hidden="true">2</span>ADAPT</span><strong>Adapt compute allocation to dynamic agent workloads.</strong><small>As the workload shifts, the PD split reaches the optimal split sooner.</small><span class="arch-idea-go">04 · Demo ↓</span></a></li>
-          <li><a href="#kv-management"><span class="arch-idea-kicker"><span class="arch-num" aria-hidden="true">3</span>ADAPT</span><strong>Adapt KV cache management to agent context management.</strong><small>When the cache is full, KV that no active branch needs goes first.</small><span class="arch-idea-go">05 · Demo ↓</span></a></li>
-        </ol>
       </div>
     </section>
 
