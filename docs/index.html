@@ -153,23 +153,24 @@
           <div class="arch-grid">
             <article class="arch-panel is-existing" aria-labelledby="arch-existing-title">
               <h3 class="arch-title" id="arch-existing-title">Existing PD disaggregation</h3>
-              <div class="arch-control"><p class="arch-box"><b>Compute allocation</b><span>coarse signals</span></p><p class="arch-box"><b>KV management</b><span>LRU</span></p></div>
-              <p class="arch-label" aria-hidden="true">GPU NODES</p>
+              <span class="arch-band is-both" aria-hidden="true"></span>
+              <div class="arch-top"><p class="arch-layer">Compute allocation</p><p class="arch-say">The planner sizes the PD split from <em>coarse signals</em>.</p></div>
               <div class="arch-row arch-nodes" aria-hidden="true"><span class="arch-node"><b>P</b></span><span class="arch-node"><b>P</b></span><span class="arch-node"><b>P</b></span><span class="arch-node is-d"><b>D</b></span><span class="arch-node is-d"><b>D</b></span><span class="arch-node is-d"><b>D</b></span></div>
               <div class="arch-mid" aria-hidden="true"><div class="arch-row"><span></span><span></span><span></span><span></span><span></span><span></span></div><span class="arch-pill">COUPLED</span></div>
               <div class="arch-row arch-kv" aria-hidden="true"><span class="arch-cache"><i></i><i></i></span><span class="arch-cache"><i></i><i></i><i></i></span><span class="arch-cache"><i></i><i></i></span><span class="arch-cache"><i></i></span><span class="arch-cache"><i></i><i></i></span><span class="arch-cache"><i></i></span></div>
-              <p class="arch-label"><span class="sr-only">Three prefill and three decode nodes. </span>KV inside each node</p>
-              <ul class="arch-outcomes"><li><i aria-hidden="true">✕</i>Costly phase switches</li><li><i aria-hidden="true">✕</i>Load imbalance</li><li><i aria-hidden="true">✕</i>Reusable KV evicted</li></ul>
+              <div class="arch-bottom"><p class="arch-layer">KV cache management</p><p class="arch-say">Each node keeps its own KV. The KV manager evicts the <em>least recently used</em> KV.</p></div>
+              <ul class="arch-results"><li><i aria-hidden="true">✕</i>Costly phase switches</li><li><i aria-hidden="true">✕</i>Load imbalance</li><li><i aria-hidden="true">✕</i>Reusable KV evicted</li></ul>
             </article>
             <article class="arch-panel is-ours" aria-labelledby="arch-ours-title">
               <h3 class="arch-title" id="arch-ours-title">Evolving Infra</h3>
-              <div class="arch-control"><p class="arch-box"><b>Compute allocation</b><span>fine-grained signals</span></p><p class="arch-box"><b>KV management</b><span>agent-aware</span></p></div>
-              <p class="arch-label" aria-hidden="true">GPU NODES</p>
+              <span class="arch-band is-compute" aria-hidden="true"></span>
+              <span class="arch-band is-kv" aria-hidden="true"></span>
+              <div class="arch-top"><p class="arch-layer">Compute allocation</p><p class="arch-say">The online planner sizes the PD split from <em>fine-grained signals</em>.</p></div>
               <div class="arch-row arch-nodes" aria-hidden="true"><span class="arch-node"><b>P</b></span><span class="arch-node"><b>P</b></span><span class="arch-node is-switch"><b class="as-p">P</b><b class="as-d">D</b><b class="as-both">P→D</b></span><span class="arch-node is-d"><b>D</b></span><span class="arch-node is-d"><b>D</b></span><span class="arch-node is-d"><b>D</b></span></div>
-              <div class="arch-mid" aria-hidden="true"><div class="arch-row"><i></i><i></i><i></i><i></i><i></i><i></i></div><span class="arch-pill"><img src="fig/decoupled-link.svg" alt="">DECOUPLED</span></div>
+              <div class="arch-mid" aria-hidden="true"><span class="arch-pill"><img src="fig/decoupled-link.svg" alt="">DECOUPLED</span></div>
               <div class="arch-kv" aria-hidden="true"><div class="arch-pool arch-row"><span><i></i><i></i></span><span><i></i><i></i><i></i></span><span><i></i><i></i></span><span><i></i></span><span><i></i><i></i></span><span><i></i></span></div></div>
-              <p class="arch-label"><span class="sr-only">Prefill and decode nodes; one node switches from prefill to decode. </span>Shared KV pool</p>
-              <ul class="arch-outcomes"><li><i aria-hidden="true">✓</i>Efficient phase switches</li><li><i aria-hidden="true">✓</i>Balanced load</li><li><i aria-hidden="true">✓</i>Reusable KV kept</li></ul>
+              <div class="arch-bottom"><p class="arch-layer">KV cache management</p><p class="arch-say">All nodes share one KV pool. The agent-aware KV manager evicts the KV that <em>agents no longer need</em>.</p></div>
+              <ul class="arch-results"><li><i aria-hidden="true">✓</i>Efficient phase switches</li><li><i aria-hidden="true">✓</i>Balanced load</li><li><i aria-hidden="true">✓</i>Reusable KV kept</li></ul>
             </article>
           </div>
           <figcaption class="arch-key"><span><b>P</b> = prefill node</span><span><b>D</b> = decode node</span></figcaption>
