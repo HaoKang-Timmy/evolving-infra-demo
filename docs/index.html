@@ -23,12 +23,12 @@
   <link rel="stylesheet" href="workload.css?v=logo-cta-fix">
   <link rel="stylesheet" href="affiliations.css?v=logo-names">
   <link rel="stylesheet" href="reading-view.css?v=follow-scroll">
-  <link rel="stylesheet" href="reading-typography.css?v=arch-first">
+  <link rel="stylesheet" href="reading-typography.css?v=evidence-1">
   <link rel="stylesheet" href="reading-compact.css?v=compact-content">
   <link rel="stylesheet" href="role-switch.css?v=compact-motion">
   <link rel="stylesheet" href="idea-demos.css?v=demo-frames-1">
   <link rel="stylesheet" href="page-outline.css?v=outline-5">
-  <link rel="stylesheet" href="research-details.css?v=arxiv-3">
+  <link rel="stylesheet" href="research-details.css?v=evidence-box-1">
   <link rel="stylesheet" href="arch-compare.css?v=layers-2">
   <link rel="preload" as="image" href="media/scene/apps-atlas.png">
   <link rel="preload" as="image" href="media/scene/hardware-atlas.png">
@@ -305,41 +305,46 @@
     </section>
 <section id="evidence" class="idea-section evidence-section" aria-labelledby="evidence-heading">
   <div class="wrap">
-    <p class="eyebrow">06 / THE EVIDENCE</p>
-    <div class="section-heading"><h2 id="evidence-heading">What changes<br><em>in real workloads?</em></h2><p>Start with end-to-end serving. Then look at adaptation over time and the experiments that separate the sources of the gain.</p></div>
-    <div class="setup-strip"><span>36 GB300 GPUs</span><span>9 nodes · TP4 per node</span><span>Matched host memory</span></div>
+    <div class="section-topline" data-reveal><span class="eyebrow">06 / THE EVIDENCE</span><span class="mono-note">MEASURED ON 36 GB300 GPUS.</span></div>
+    <div class="idea-heading idea-decoupling" data-reveal>
+      <h2 id="evidence-heading">What changes<br><span class="accent-text">in real workloads?</span></h2>
+      <div><p class="lead">Start with end-to-end serving. Then look at adaptation over time and the experiments that separate the sources of the gain.</p><p>All results come from the report. Evolving Infra and Dynamo run on the same 36 GB300 GPUs: nine nodes with four GPUs each, and the same host memory per node.</p></div>
+    </div>
 
-    <article id="workloads" class="evidence-story">
-      <div class="story-title"><span class="number">01</span><div><p class="question">Does the whole system help?</p><h3>Lower mean E2E latency across<br>coding, math, and computer use.</h3></div></div>
+    <article id="workloads" class="evidence-story" aria-labelledby="workloads-title">
+      <h3 class="ev-title" id="workloads-title">Does the whole system help?<br><span class="accent-text">Lower mean E2E latency across coding, math, and computer use.</span></h3>
+      <p class="ev-line" id="workload-model">GLM-5.2 · 90, 108, and 126 concurrent agents</p>
       <div class="workload-controls" role="group" aria-label="Choose an agent workload">
         <button type="button" data-workload="cc" aria-pressed="true">Coding <span>Claude Code</span></button>
         <button type="button" data-workload="putnam" aria-pressed="false">Math <span>Putnam</span></button>
         <button type="button" data-workload="osworld" aria-pressed="false">Computer use <span>OSWorld</span></button>
       </div>
-      <div class="result-context"><p id="workload-model">GLM-5.2 · 90, 108, and 126 concurrent agents</p><div class="legend"><span><i class="baseline"></i>Dynamo</span><span><i class="ours"></i>Evolving Infra</span></div></div>
       <div class="latency-plots">
-        <figure><h4>Mean end-to-end request latency</h4><p class="axis-note">Seconds · lower is better</p><img id="e2e-plot" src="fig/eval-single-cc-e2e.svg" alt="Claude Code mean request latency at 90, 108, and 126 concurrent agents"><p class="axis-note concurrency-label">90 / 108 / 126 concurrent agents, left to right</p></figure>
-        <figure><h4>P95 time to first token</h4><p class="axis-note">Seconds · lower is better</p><img id="ttft-plot" src="fig/eval-single-cc-ttft.svg" alt="Claude Code P95 time to first token at 90, 108, and 126 concurrent agents"></figure>
+        <figure class="ev-panel"><h4>Mean end-to-end request latency</h4><p class="axis-note">Seconds · lower is better</p><img id="e2e-plot" src="fig/eval-single-cc-e2e.svg" alt="Claude Code mean request latency at 90, 108, and 126 concurrent agents"><p class="axis-note concurrency-label">90 / 108 / 126 concurrent agents, left to right</p></figure>
+        <figure class="ev-panel"><h4>P95 time to first token</h4><p class="axis-note">Seconds · lower is better</p><img id="ttft-plot" src="fig/eval-single-cc-ttft.svg" alt="Claude Code P95 time to first token at 90, 108, and 126 concurrent agents"></figure>
       </div>
+      <div class="legend"><span><i class="baseline"></i>Dynamo</span><span><i class="ours"></i>Evolving Infra</span></div>
       <p class="finding" id="workload-finding" aria-live="polite">On Claude Code, Evolving Infra lowers both mean request latency and P95 time to first token at all three tested loads.</p>
       <details class="method"><summary>Measurement and comparison</summary><div><p>These are the report’s stationary benchmarks: a 30-minute warmup followed by a one-hour measurement window. Both systems start at 6P3D. Models use NVFP4 weights and FP8 KV cache.</p><p>Each model runs across nine nodes with four GB300 GPUs per node. Dynamo uses the SGLang Model Gateway with cache-aware prefill routing, round-robin decode routing, and HiCache with LRU eviction. Host memory per node is matched.</p><p>The figures measure individual LLM requests. The opening video reports one coding demo run; the figures here report the paper’s stationary benchmarks.</p></div></details>
     </article>
 
-    <article id="adaptation" class="evidence-story">
-      <div class="story-title"><span class="number">02</span><div><p class="question">Can it keep up when demand changes?</p><h3>The workload shifts.<br>The compute allocation follows.</h3></div></div>
-      <p class="story-intro">Three consecutive hours move from decode-heavy Putnam, through a mixed workload, to prefill-heavy OSWorld. A single static split cannot match all three phases.</p>
+    <article id="adaptation" class="evidence-story" aria-labelledby="adaptation-title">
+      <h3 class="ev-title" id="adaptation-title">Can it keep up when demand changes?<br><span class="accent-text">The workload shifts. The compute allocation follows.</span></h3>
+      <p class="ev-line">Kimi K2.6 · 36 GB300 GPUs · three one-hour phases</p>
+      <p class="ev-intro">Three consecutive hours move from decode-heavy Putnam, through a mixed workload, to prefill-heavy OSWorld. A single static split cannot match all three phases.</p>
       <div class="adaptation-layout">
-        <figure class="timeline"><div class="legend timeline-legend"><span><i class="ours"></i>Evolving Infra</span><span><i class="baseline"></i>Dynamo</span><span><i class="reference"></i>Best per-window SGLang split</span><span><i class="static-ref"></i>Best static SGLang split</span></div><img src="fig/eval-shift-split.svg" alt="Measured PD split over 180 minutes across Putnam, mixed, and OSWorld phases"><figcaption>Kimi K2.6 · 36 GB300 GPUs · time after warmup. The dotted Dynamo segments mark a node relaunch. Reference splits are profiled under SGLang; symmetric engines can have a different optimum.</figcaption></figure>
-        <div class="measured-gains"><p class="diagram-kicker">THROUGHPUT OVER THE WHOLE RUN</p><p><strong>2.14×</strong><span>the throughput of Dynamo</span></p><p><strong>1.28×</strong><span>the throughput of the best static split</span></p><div class="gain-note">The best static split balances prefill and decode only in the mixed phase.</div></div>
+        <figure class="timeline ev-panel"><div class="legend timeline-legend"><span><i class="ours"></i>Evolving Infra</span><span><i class="baseline"></i>Dynamo</span><span><i class="reference"></i>Best per-window SGLang split</span><span><i class="static-ref"></i>Best static SGLang split</span></div><img src="fig/eval-shift-split.svg" alt="Measured PD split over 180 minutes across Putnam, mixed, and OSWorld phases"><figcaption>Time after warmup. The dotted Dynamo segments mark a node relaunch. Reference splits are profiled under SGLang; symmetric engines can have a different optimum.</figcaption></figure>
+        <div class="measured-gains"><p class="ev-kicker">THROUGHPUT OVER THE WHOLE RUN</p><p><strong>2.14×</strong><span>the throughput of Dynamo</span></p><p><strong>1.28×</strong><span>the throughput of the best static split</span></p><div class="gain-note">The best static split balances prefill and decode only in the mixed phase.</div></div>
       </div>
       <details class="method"><summary>Workload schedule and reference splits</summary><div><p>After a 30-minute warmup: one hour with 288 Putnam agents, one hour with 144 Putnam and 72 OSWorld agents, and one hour with 144 OSWorld agents. All phases use Kimi K2.6.</p><p>The best static split is selected over the whole run. The per-window reference is selected for each 10-minute window. Both use SGLang PD disaggregation, so they are reference points rather than an oracle for the symmetric engine.</p></div></details>
     </article>
 
-    <article id="attribution" class="evidence-story">
-      <div class="story-title"><span class="number">03</span><div><p class="question">Where does the improvement come from?</p><h3>Retain reusable KV.<br>Online adaptation costs almost no throughput.</h3></div></div>
+    <article id="attribution" class="evidence-story" aria-labelledby="attribution-title">
+      <h3 class="ev-title" id="attribution-title">Where does the improvement come from?<br><span class="accent-text">Retain reusable KV. Online adaptation costs almost no throughput.</span></h3>
+      <p class="ev-line">Claude Code · GLM-5.2</p>
       <div class="attribution-layout">
-        <figure><h4>Less reusable context is lost.</h4><p>Claude Code · GLM-5.2</p><div class="legend"><span><i class="baseline"></i>Dynamo</span><span><i class="ours"></i>Evolving Infra</span></div><p class="axis-note">Lost KV reuse (%) · lower is better</p><img src="fig/eval-single-cc-reuse.svg" alt="Lost KV reuse in percent on Claude Code at 90, 108, and 126 agents"><p class="axis-note">90 / 108 / 126 concurrent agents, left to right</p><figcaption>Lost KV reuse = 1 − actual hit rate / ideal hit rate. The ideal assumes unlimited shared KV capacity and no phase switch.</figcaption></figure>
-        <div class="ablation"><h4>The gain remains at the same PD split.</h4><p>Claude Code · 126 agents · fixed 4P5D</p><figure class="ablation-bars" aria-label="Normalized throughput: best static SGLang baseline 1.00; Evolving Infra at the same split 1.37"><div class="bar-label"><span>Best static SGLang</span><b>1.00×</b></div><div class="bar-track"><div class="bar gray" style="width:72.99%"></div></div><div class="bar-label"><span>Evolving Infra · fixed split</span><b>1.37×</b></div><div class="bar-track"><div class="bar red" style="width:100%"></div></div><figcaption>Throughput normalized to the baseline; higher is better. The gain combines the infrastructure, routing, and eviction changes.</figcaption></figure><p class="ablation-result">Enabling online phase-split adaptation changes throughput by only <strong>0.3%</strong> in this setting.</p></div>
+        <figure class="ev-panel"><h4>Less reusable context is lost.</h4><p class="axis-note">Lost KV reuse (%) · lower is better</p><img src="fig/eval-single-cc-reuse.svg" alt="Lost KV reuse in percent on Claude Code at 90, 108, and 126 agents"><p class="axis-note">90 / 108 / 126 concurrent agents, left to right</p><div class="legend"><span><i class="baseline"></i>Dynamo</span><span><i class="ours"></i>Evolving Infra</span></div><figcaption>Lost KV reuse = 1 − actual hit rate / ideal hit rate. The ideal assumes unlimited shared KV capacity and no phase switch.</figcaption></figure>
+        <div class="ablation ev-panel"><h4>The gain remains at the same PD split.</h4><p class="axis-note">126 agents · fixed 4P5D · throughput, higher is better</p><figure class="ablation-bars" aria-label="Normalized throughput: best static SGLang baseline 1.00; Evolving Infra at the same split 1.37"><div class="bar-label"><span>Best static SGLang</span><b>1.00×</b></div><div class="bar-track"><div class="bar gray" style="width:72.99%"></div></div><div class="bar-label"><span>Evolving Infra · fixed split</span><b>1.37×</b></div><div class="bar-track"><div class="bar red" style="width:100%"></div></div><figcaption>Throughput normalized to the baseline. The gain combines the infrastructure, routing, and eviction changes.</figcaption></figure><p class="ablation-result">Enabling online phase-split adaptation changes throughput by only <strong>0.3%</strong> in this setting.</p></div>
       </div>
       <details class="method"><summary>What these experiments establish</summary><div><p>The fixed-split comparison measures the combined effect of the decoupled infrastructure and KV-reuse-aware routing and eviction. The report separately measures asynchronous fetching at 1.12× throughput with routing held constant.</p><p>The stationary ablation measures the throughput cost of enabling online phase-split adaptation. The three-hour experiment above measures its gain under shifting workload composition.</p></div></details>
     </article>
