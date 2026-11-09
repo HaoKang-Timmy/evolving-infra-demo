@@ -37,10 +37,10 @@ The code and report buttons show a release notice until the corresponding URLs a
 future implementation repository.
 
 After the opening, `js/reading-view.js` keeps a decorative copy of the scene behind the
-scrolling content. The fixed header shows the project spine mark, author affiliations, and
+scrolling content. The fixed header shows the project gear mark, author affiliations, and
 only the report/code actions. `reading-view.css` scopes this behavior to the revealed page;
-replaying the opening restores its original layout. `brand-mark.svg` and `favicon.svg` share
-the supplied red-and-black spine design.
+replaying the opening restores its original layout. `brand-mark.png` (header and footer) and the
+favicons `favicon-32.png`, `favicon-192.png` and `apple-touch-icon.png` share the supplied gear-and-orbit design.
 
 `reading-compact.css` keeps the demo and its three acceleration results together in the first
 content view, beside each other on desktop and tightly stacked on phones. `reading-typography.css`

@@ -1,6 +1,6 @@
 /* Only the revealed reading view follows the viewport. The opening keeps its layout. */
 :root { --reading-bar-height: 82px; }
-.brand-symbol.spine-symbol { display: block; width: 24px; height: 36px; object-fit: contain; flex: none; }
+.brand-symbol.brand-gear { display: block; width: 44px; height: 30px; object-fit: contain; flex: none; }
 .header-affiliations { display: none; }
 body.content-active { --faint: #56545d; }
 html:has(body.content-active) { scroll-padding-top: calc(var(--reading-bar-height) + 16px); }
@@ -68,7 +68,7 @@ body.content-active .page-backdrop { animation: reading-backdrop-in .9s ease bot
   :root { --reading-bar-height: 146px; }
   body.content-active .site-header { padding: 9px 18px; grid-template-rows: 38px 1fr; gap: 5px 12px; }
   body.content-active .site-header .brand { font-size: 9px; gap: 8px; letter-spacing: .08em; }
-  body.content-active .site-header .spine-symbol { width: 20px; height: 30px; }
+  body.content-active .site-header .brand-gear { width: 38px; height: 26px; }
   body.content-active .nav-links { gap: 12px; }
   body.content-active .nav-links button { font-size: 10px; min-height: 36px; }
   body.content-active .nav-links .nav-code { padding: 7px 10px; border: 1px solid #b7b2ab; }
