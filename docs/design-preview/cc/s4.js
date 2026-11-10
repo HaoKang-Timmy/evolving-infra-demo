@@ -10,16 +10,15 @@
     chipP: '#e8e9ee', chipPText: '#14151c', chipD: '#191b24', chipDLine: '#3a3d48', chipDText: '#c9ccd4', speed: '#9aa0ab',
   };
   const LEAD = 1, SPEED = 90, WIN = 3600;
-  // Evolving Infra's first role change (00:20) moves three nodes at once. The clock stops there while the three
-  // nodes move one at a time, so the change can be followed; then the clock runs on at 90x.
+  // Evolving Infra's first role change (00:20) moves three nodes at once. For the demo it is drawn one node at a time
+  // over about 2.8 s of video while the clock and the agents run on at 90x (slightly longer than the real change).
   const OURS0 = D.nodes.ours[0][1], OURS1 = D.nodes.ours[1][1];
   const FIRST = D.nodes.ours[1][0]; // window second of that change
   const NFIRST = [...OURS1].filter((c, n) => c !== OURS0[n]).length;
   const F0 = LEAD + FIRST / SPEED, PAUSE = 0.3, STEP = 0.7;
-  const FREEZE = PAUSE + NFIRST * STEP + 0.4;
-  const DUR = LEAD + WIN / SPEED + FREEZE + 0.5; // the player then holds the last frame
-  const wAt = (t) => (t < F0 ? Stage.clamp((t - LEAD) * SPEED, 0, WIN)
-    : t < F0 + FREEZE ? FIRST : Stage.clamp(FIRST + (t - F0 - FREEZE) * SPEED, 0, WIN));
+  const SPAN = PAUSE + NFIRST * STEP + 0.4; // video seconds of the one-at-a-time moves
+  const DUR = LEAD + WIN / SPEED + 0.5; // the player then holds the last frame
+  const wAt = (t) => Stage.clamp((t - LEAD) * SPEED, 0, WIN);
 
   const SIDES = [
     { arm: 'dyn', x: 40, line: C.panelLine, tick: C.dyn, num: C.fg },
@@ -187,10 +186,10 @@
       let from = slots(px, lists(arm, tc, false)), to = slots(px, lists(arm, tc, true));
       let p = Number.isFinite(tc) ? Stage.ease(Stage.seg(w, tc, tc + MOVE)) : 1;
       let moving = new Set(past.filter((e) => e[0] === tc).map((e) => e[1]));
-      const firstLook = {}; // looks of the first change's movers while the clock is stopped
+      const firstLook = {}; // looks of the first change's movers while they move one at a time
       let ringOn = (n) => arm === 'ours' && moving.has(n) && w - tc < MOVE + 45;
       if (arm === 'ours' && tc === FIRST) {
-        if (t < F0 + FREEZE) {
+        if (t < F0 + SPAN) {
           const seq = firstSteps(px), last = seq.movers.length - 1;
           const i = Stage.clamp(Math.floor((t - F0 - PAUSE) / STEP), 0, last);
           const q = Stage.ease(Stage.seg(t, F0 + PAUSE + i * STEP, F0 + PAUSE + (i + 1) * STEP));
@@ -198,7 +197,7 @@
           seq.movers.forEach((n, j) => { firstLook[n] = j < i || (j === i && q >= 0.5) ? OURS1[n] : OURS0[n]; });
           ringOn = (n) => n === seq.movers[i] && t >= F0 + PAUSE;
         } else {
-          p = 1; // the first change already played while the clock was stopped
+          p = 1; // the first change has finished its one-at-a-time moves
           ringOn = () => false;
         }
       }
@@ -226,7 +225,7 @@
           }
         }
       } else {
-        if (t >= F0 + PAUSE && t < F0 + FREEZE + 1.2) {
+        if (t >= F0 + PAUSE && t < F0 + SPAN + 1.2) {
           const fin = firstSteps(px).layouts[NFIRST], xs = firstSteps(px).movers.map((n) => fin.x[n] + ROW.w / 2);
           note = { x: (Math.min(...xs) + Math.max(...xs)) / 2, side: 'at', text: 'switched in place' };
         }
