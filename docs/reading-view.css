@@ -49,6 +49,8 @@ body.content-active .header-affiliations { display: flex; flex-direction: column
 .header-affiliations .affiliation-logo { height: 30px; }
 body.content-active .nav-links { display: flex; position: static; flex-direction: row; align-items: center; gap: 22px; padding: 0; border: 0; background: transparent; box-shadow: none; }
 body.content-active .nav-links button { white-space: nowrap; }
+/* The Code link is an <a>: center it like the buttons and keep its space before the arrow. */
+.nav-links > a.nav-code { display: inline-flex; align-items: center; white-space: pre; }
 body.content-active .scene-reveal { padding-top: max(138px, calc(var(--reading-bar-height) + 38px)); }
 body.content-active main, body.content-active .site-footer { position: relative; z-index: 1; }
 body.content-active .scene-hero { background: transparent; }
@@ -70,7 +72,7 @@ body.content-active .page-backdrop { animation: reading-backdrop-in .9s ease bot
   body.content-active .site-header .brand { font-size: 9px; gap: 8px; letter-spacing: .08em; }
   body.content-active .site-header .brand-gear { width: 38px; height: 26px; }
   body.content-active .nav-links { gap: 12px; }
-  body.content-active .nav-links button { font-size: 10px; min-height: 36px; }
+  body.content-active .nav-links :is(button, a) { font-size: 10px; min-height: 36px; }
   body.content-active .nav-links .nav-code { padding: 7px 10px; border: 1px solid #b7b2ab; }
   .header-affiliations .affiliation-kicker { font-size: 6.5px; }
   .header-affiliations .affiliation-logos { grid-template-columns: repeat(3,minmax(0,1fr)); gap: 3px 30px; }

@@ -1,7 +1,7 @@
 /* Keep the demo and its three outcomes together when the opening is revealed. */
 :root { --reading-bar-height: 74px; }
 body.content-active .site-header { gap: 24px; }
-body.content-active .nav-links button { font-size: 14px; }
+body.content-active .nav-links :is(button, a) { font-size: 14px; }
 body.content-active .scene-reveal { padding: calc(var(--reading-bar-height) + 18px) 0 24px; }
 body.content-active .reveal-heading { position: relative; }
 body.content-active .reveal-heading .eyebrow { font-size: 11px; }
@@ -64,7 +64,7 @@ body.content-active #proof-notes .try-row { margin-top: 34px; padding-top: 28px;
   :root { --reading-bar-height: 132px; }
   body.content-active .site-header { gap: 3px 12px; }
   body.content-active .nav-links { gap: 10px; }
-  body.content-active .nav-links button { font-size: 12px; }
+  body.content-active .nav-links :is(button, a) { font-size: 12px; }
   body.content-active .nav-links .nav-code { padding-inline: 8px; }
   body.content-active .scene-reveal { padding-top: calc(var(--reading-bar-height) + 12px); padding-bottom: 16px; }
   body.content-active .reveal-heading { padding-inline: 18px; }
@@ -90,7 +90,7 @@ body.content-active #proof-notes .try-row { margin-top: 34px; padding-top: 28px;
 }
 @media (max-width:360px) {
   body.content-active .nav-links { gap: 7px; }
-  body.content-active .nav-links button { font-size: 11px; }
+  body.content-active .nav-links :is(button, a) { font-size: 11px; }
   body.content-active .site-header .brand { font-size: 8px; gap: 6px; }
   body.content-active .reveal-description { font-size: 18px; }
   body.content-active .outcome-panel .result { grid-template-columns: 104px minmax(0,1fr); gap: 10px; }
