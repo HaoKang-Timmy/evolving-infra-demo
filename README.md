@@ -32,9 +32,11 @@ python3 -m http.server -d docs 8000    # then open http://localhost:8000
 ```
 
 The site publishes from `main` → `docs/` on GitHub Pages at `inference-rsi.com`.
-The code and report buttons show a release notice until the corresponding URLs are set in
+The header Code link opens the implementation repository,
+[mit-han-lab/EvolvingInfra](https://github.com/mit-han-lab/EvolvingInfra), in a new tab. The Tech report
+button and the "Try it!!" button show a release notice until the corresponding URLs are set in
 `releaseLinks` at the top of `docs/js/site.js`. The website repository is separate from the
-future implementation repository.
+implementation repository.
 
 After the opening, `js/reading-view.js` keeps a decorative copy of the scene behind the
 scrolling content. The fixed header shows the project gear mark, author affiliations, and
@@ -132,8 +134,9 @@ allocation (the planner and the P/D nodes) and KV cache management (the KV and t
 disaggregation both layers sit in one box and each node holds its own KV (coupled); in Evolving Infra they are
 two boxes around one shared KV pool (decoupled). The planner sizes the PD split from coarse versus fine-grained
 signals; the KV manager evicts the least recently used KV versus the KV that agents no longer need. One node keeps
-switching between prefill and decode; with reduced motion it shows "P→D". The three results under each panel
-follow the paper's abstract and motivation: phase switches, load balance, and reusable KV.
+switching between prefill and decode; with reduced motion it shows "P→D". Under each panel, two points
+(costly or efficient adaptation, inaccurate or accurate adaptation) each list two concrete results;
+later sections keep the three problems.
 `docs/arch-compare.css` holds its layout. Section 06 (`#evidence`) presents the
 measured results; `docs/research-details.css` scopes its layout, and `docs/js/evidence.js` switches the
 stationary workload figures and their interpretation.
