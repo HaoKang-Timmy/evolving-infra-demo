@@ -215,7 +215,11 @@
       let note = null;
       if (arm === 'dyn') {
         for (const [n, st, a, b] of dynEv) {
-          if (st === 'R' && w >= a + MOVE / 2 && b !== null && w < b) note = { n, side: 'right', text: `restarting · ${Math.round((b - a) / 60)} min` };
+          // the restart time counts up, 1 min, 2 min, ..., to the length of this restart
+          if (st === 'R' && w >= a + MOVE / 2 && b !== null && w < b) {
+            const m = Math.min(Math.floor((w - a) / 60) + 1, Math.round((b - a) / 60));
+            note = { n, side: 'right', text: `restarting · ${m} min` };
+          }
         }
       } else {
         if (t >= F0 + PAUSE && t < F0 + FREEZE + 1.2) {
