@@ -1,0 +1,35 @@
+/* V1 · One session, side by side. Stage pixels (1920x1080); colors from stage.css :root tokens. */
+.v1-svg { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; overflow: visible; pointer-events: none; }
+
+/* part-1 grammar under each panel: tick bar (SVG), "STEP n / 25" on the left, the clock in the middle */
+.v1-step { position: absolute; top: 790px; font-size: 30px; line-height: 40px; letter-spacing: .04em; color: var(--muted);
+  font-variant-numeric: tabular-nums; white-space: nowrap; transform-origin: 0 50%; }
+.v1-step b { font-weight: 700; color: var(--dyn); }
+.v1-step.ours b { color: var(--ours); }
+.v1-clock { position: absolute; top: 780px; width: 300px; text-align: center; font-size: 58px; line-height: 70px; font-weight: 600;
+  color: var(--fg); font-variant-numeric: tabular-nums; white-space: nowrap; transform-origin: 50% 50%; }
+.v1-clock.ours { color: var(--ours); }
+
+/* the "forgot the conversation" label, anchored above its badge on the Dynamo ribbon */
+.v1-callout { position: absolute; top: 548px; height: 40px; padding: 0 18px; border: 1.5px solid #c9ccd4; border-radius: 20px;
+  background: #1c1e29; color: var(--fg); font-size: 26px; line-height: 37px; font-weight: 500; white-space: nowrap;
+  opacity: 0; transform: translateX(-50%); }
+
+/* end-state caption */
+.v1-caption { position: absolute; left: 0; right: 0; top: 894px; text-align: center; font-size: 36px; line-height: 46px;
+  font-weight: 600; color: var(--fg); white-space: nowrap; opacity: 0; }
+.v1-caption .sw { display: inline-block; width: 16px; height: 30px; margin-right: 14px; border-radius: 3px; background: var(--wait);
+  vertical-align: -5px; }
+.v1-caption .d { color: var(--dyn); }
+.v1-caption .o { color: var(--ours); }
+.v1-caption .vs { color: var(--muted); font-weight: 400; }
+
+/* bottom row: tag (left), legend (center), speed badge (right, .speed from stage.css) */
+.v1-tag { position: absolute; left: 40px; top: 1012px; height: 40px; padding: 0 16px; border: 1.5px solid #3a3d48; border-radius: 20px;
+  color: #aeb2bd; font-size: 22px; line-height: 37px; white-space: nowrap; }
+.v1-legend { position: absolute; left: 520px; right: 520px; top: 1012px; height: 40px; display: flex; justify-content: center;
+  align-items: center; gap: 36px; font-size: 24px; color: #aeb2bd; white-space: nowrap; }
+.v1-legend span { display: inline-flex; align-items: center; gap: 10px; }
+.v1-legend svg { display: block; }
+.v1-speed { display: flex; align-items: center; gap: 8px; line-height: 38px; }
+.v1-speed svg { display: block; }

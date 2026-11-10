@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <title>Demo part 2 options</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root { --bg: #f7f5f2; --panel: #ffffff; --fg: #232328; --muted: #56545d; --red: #c92336; --line: #d9d5cf; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--fg); font: 16px/1.6 'Space Grotesk', system-ui, sans-serif; }
+    main { width: min(1180px, calc(100% - 32px)); margin: 0 auto; padding: 56px 0 72px; }
+    .eyebrow { font: 500 11px/1.5 'IBM Plex Mono', monospace; letter-spacing: .12em; color: var(--red); text-transform: uppercase; }
+    h1 { font-size: clamp(30px, 4.6vw, 46px); line-height: 1.1; letter-spacing: -.04em; font-weight: 500; margin: 12px 0 14px; }
+    .intro { color: var(--muted); max-width: 760px; margin: 0; }
+    .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; margin-top: 36px; }
+    .card { display: flex; flex-direction: column; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; color: inherit; text-decoration: none; transition: border-color .2s, transform .2s; }
+    .card:hover, .card:focus-visible { border-color: var(--red); transform: translateY(-2px); outline: none; }
+    .thumb { position: relative; aspect-ratio: 16 / 9; background: #0b0c12; }
+    .thumb iframe, .thumb img { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; pointer-events: none; display: block; object-fit: cover; }
+    .body { padding: 16px 18px 16px; display: flex; flex-direction: column; gap: 6px; flex: 1; }
+    .id { font: 500 11px/1.4 'IBM Plex Mono', monospace; letter-spacing: .1em; color: var(--red); }
+    .body strong { font-size: 19px; font-weight: 500; letter-spacing: -.01em; line-height: 1.3; }
+    .body p { margin: 0; color: var(--muted); font-size: 14px; line-height: 1.55; flex: 1; }
+    .open { font: 12px 'IBM Plex Mono', monospace; color: var(--fg); }
+    .current .id { color: var(--muted); }
+    .back { display: inline-block; margin-top: 40px; font: 13px 'IBM Plex Mono', monospace; color: var(--muted); }
+    @media (max-width: 760px) { .grid { grid-template-columns: 1fr; } main { padding-top: 36px; } }
+  </style>
+</head>
+<body>
+  <main>
+    <div class="eyebrow">Evolving Infra · demo video, part 2</div>
+    <h1>Five ways to show the Claude Code run: faster, and why.</h1>
+    <p class="intro">Each prototype replays the same measured run as the current video: 126 Claude Code agents, GLM-5.2, 36 GB300 GPUs, the scored hour. The thumbnails are still frames; open one to play it. Space pauses and the bar under the stage seeks. These are prototypes, not final video frames.</p>
+    <div class="grid">
+      <a class="card" href="v1.html"><div class="thumb"><iframe src="v1.html?embed=1&amp;t=15.6" title="V1 still frame" loading="lazy" tabindex="-1"></iframe></div><div class="body"><span class="id">V1</span><strong>One session, side by side</strong><p>The same Claude Code session (25 model calls) replays on both systems under one session clock, like the OSWorld part. At 10:51 Evolving Infra has finished all 25 steps while Dynamo is at step 13. Both spend the same time running tools; Dynamo's extra time is waiting, and three times it had forgotten the conversation and re-read it. One example session, not an average.</p><span class="open">Open ↗</span></div></a>
+      <a class="card" href="v2.html"><div class="thumb"><iframe src="v2.html?embed=1&amp;t=30" title="V2 still frame" loading="lazy" tabindex="-1"></iframe></div><div class="body"><span class="id">V2</span><strong>The hourglass</strong><p>Each side is an hourglass of 126 agents: on top they wait for the model, in the neck the model writes, at the bottom they run tools. Near minute 30 Dynamo's neck clogs with re-reading and almost every agent piles up on top, while Evolving Infra keeps flowing. Agents finished: 52 against 117.</p><span class="open">Open ↗</span></div></a>
+      <a class="card" href="v3.html"><div class="thumb"><iframe src="v3.html?embed=1&amp;t=44" title="V3 still frame" loading="lazy" tabindex="-1"></iframe></div><div class="body"><span class="id">V3</span><strong>Read once, or read again</strong><p>What the model reads. Pages of conversation fall into the model: white is new reading, amber is re-reading a conversation it had forgotten. After minute 30 almost everything Dynamo reads is re-reading, and its answers nearly stop. Calls answered: 7,710 against 21,302.</p><span class="open">Open ↗</span></div></a>
+      <a class="card" href="v4.html"><div class="thumb"><iframe src="v4.html?embed=1&amp;t=26" title="V4 still frame" loading="lazy" tabindex="-1"></iframe></div><div class="body"><span class="id">V4</span><strong>Machines that change jobs</strong><p>Nine machines that read or write, with the waiting agents in line in front. Dynamo changes a machine's job by restarting it, out of service for about 13 minutes each time. Evolving Infra changes one in place in 33 seconds and keeps serving. The length of the line shows the effect.</p><span class="open">Open ↗</span></div></a>
+      <a class="card" href="v5.html"><div class="thumb"><iframe src="v5.html?embed=1&amp;t=41.5" title="V5 still frame" loading="lazy" tabindex="-1"></iframe></div><div class="body"><span class="id">V5</span><strong>Every agent's hour</strong><p>Keeps the current idea of showing all 126 agents, but paints each agent's hour as one row instead of flickering icons. Waiting builds up as amber area, a ribbon on top shows re-reading, and red checks mark finished agents: 52 against 117.</p><span class="open">Open ↗</span></div></a>
+      <div class="card current"><div class="thumb"><img src="current.png" alt="Current part 2 at 60:00: two grids of 126 agent icons, AGENTS FINISHED 52 and 117" loading="lazy"></div><div class="body"><span class="id">NOW</span><strong>The current part 2, for comparison</strong><p>Two grids of 126 agent icons that flicker between waiting, writing and running a tool. The difference shows only in the two counters at the bottom.</p></div></div>
+    </div>
+    <a class="back" href="../index.html">← All design options</a>
+  </main>
+</body>
+</html>

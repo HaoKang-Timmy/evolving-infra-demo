@@ -1,0 +1,37 @@
+/* V5 · Every agent's hour: scene styles, in stage pixels (see v5.js GEO for the matching geometry). */
+:root { --reread: #a98bff; --legend: #c3c6cf; }
+
+/* one canvas per side: 126 agent rows x 60 minutes, 864 x 504 stage px, 2x backing store */
+.rows { position: absolute; top: 320px; width: 864px; height: 504px; }
+
+/* ribbons, playheads and finish checks */
+.overlay { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; pointer-events: none; }
+.rib-base { stroke: #343744; stroke-width: 1; }
+.rib-area { fill: var(--reread); fill-opacity: .85; }
+.rib-edge { fill: none; stroke: var(--reread); stroke-width: 1.5; stroke-linejoin: round; }
+.head-line { stroke: #f4f5f8; stroke-width: 2; }
+.head-glow { fill: #ffffff; opacity: .08; }
+.chk-ring { fill: none; stroke: var(--ours); stroke-width: 2; }
+
+/* label at Dynamo's ribbon peak; left/top are set from the data in init */
+.rib-label { position: absolute; left: 512px; top: 214px; transform: translateX(-50%); white-space: nowrap;
+  font-size: 24px; line-height: 30px; font-weight: 600; color: var(--reread); opacity: 0; }
+
+/* under each panel: AGENTS FINISHED + count on the left, clock on the right (row centre y = 896) */
+.tally { position: absolute; top: 866px; height: 60px; display: flex; align-items: center; white-space: nowrap; }
+.tally .counter-label { margin-right: 22px; }
+.tally svg { width: 34px; height: 34px; margin-right: 12px; flex: none; }
+.tally .counter { line-height: 60px; }
+.v5clock { position: absolute; top: 866px; height: 60px; line-height: 60px; font-size: 46px; white-space: nowrap; color: var(--fg); }
+.v5clock.ours { color: var(--ours); }
+
+/* legend (row centre y = 986) */
+.legend { position: absolute; left: 0; right: 0; top: 966px; height: 40px; display: flex; justify-content: center; align-items: center;
+  gap: 40px; font-size: 24px; line-height: 40px; color: var(--legend); white-space: nowrap; }
+.legend .item { display: flex; align-items: center; gap: 10px; }
+.legend .sw { width: 30px; height: 12px; border-radius: 2px; flex: none; }
+.legend .row-glyph { width: 34px; height: 8px; border: 1.5px solid #c9ccd4; border-radius: 2px; flex: none; }
+.legend .divider { width: 1px; height: 26px; background: #3a3d48; flex: none; }
+
+.speed { display: flex; align-items: center; gap: 10px; }
+.speed svg { width: 30px; height: 20px; flex: none; }

@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>V5 · Every agent’s hour</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="stage.css">
+  <link rel="stylesheet" href="v5.css">
+</head>
+<body>
+  <div class="viewport"><div class="stage" id="stage">
+    <div class="eyebrow">Claude Code workload</div>
+    <div class="title">Where every coding agent’s hour goes</div>
+
+    <div class="side-name" style="left:40px">Dynamo</div>
+    <div class="side-name ours" style="left:980px">Evolving Infra</div>
+
+    <!-- frames, then the 126-row canvases inside them (rows start 18 px right of the frame's left edge) -->
+    <div class="panel" style="left:40px; top:308px; width:900px; height:528px"></div>
+    <div class="panel ours" style="left:980px; top:308px; width:900px; height:528px"></div>
+    <canvas class="rows" id="rows-dyn" width="1728" height="1008" style="left:58px"></canvas>
+    <canvas class="rows" id="rows-ours" width="1728" height="1008" style="left:998px"></canvas>
+
+    <svg class="overlay" id="overlay" viewBox="0 0 1920 1080" width="1920" height="1080" aria-hidden="true">
+      <defs id="v5-defs">
+        <g id="chk-glyph">
+          <circle r="7.5" fill="#e0313f" stroke="#0b0c12" stroke-width="2"/>
+          <path d="M-3.6 0.2 L-1.2 2.6 L3.7 -2.7" fill="none" stroke="#fff" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/>
+        </g>
+      </defs>
+      <g id="ribbons"></g>
+      <g id="heads"></g>
+      <g id="checks"></g>
+    </svg>
+
+    <div class="rib-label" id="rib-label">re-reading conversations it forgot</div>
+
+    <div class="tally" style="left:40px">
+      <span class="counter-label">Agents finished</span>
+      <svg viewBox="-17 -17 34 34" aria-hidden="true"><circle r="15" fill="#e0313f"/><path d="M-7 0.4 L-2.3 5.1 L7.4 -5.3" fill="none" stroke="#fff" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <span class="counter" id="n-dyn">0</span>
+    </div>
+    <div class="tally" style="left:980px">
+      <span class="counter-label">Agents finished</span>
+      <svg viewBox="-17 -17 34 34" aria-hidden="true"><circle r="15" fill="#e0313f"/><path d="M-7 0.4 L-2.3 5.1 L7.4 -5.3" fill="none" stroke="#fff" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <span class="counter ours" id="n-ours">0</span>
+    </div>
+    <!-- the same clock under both panels, right-aligned to each frame (x = 940 and 1880) -->
+    <div class="clock v5clock" id="clk-dyn" style="right:980px">00:00</div>
+    <div class="clock v5clock ours" id="clk-ours" style="right:40px">00:00</div>
+
+    <div class="legend">
+      <span class="item"><span class="row-glyph"></span>each row is one agent</span>
+      <span class="divider"></span>
+      <span class="item"><span class="sw" style="background:var(--wait)"></span>waiting for the model</span>
+      <span class="item"><span class="sw" style="background:var(--gen)"></span>model writing</span>
+      <span class="item"><span class="sw" style="background:var(--tool)"></span>running a tool</span>
+    </div>
+    <div class="speed"><svg viewBox="0 0 30 20" aria-hidden="true"><path d="M0 0 L14 10 L0 20 Z M15 0 L29 10 L15 20 Z" fill="#9aa0ab"/></svg>90×</div>
+  </div></div>
+  <script src="cc-demo-data.js"></script>
+  <script src="stage.js"></script>
+  <script src="v5.js"></script>
+</body>
+</html>

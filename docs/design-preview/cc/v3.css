@@ -1,0 +1,19 @@
+/* V3 · Read once, or read again: styles for this version only (stage pixels). Shared grammar is in stage.css. */
+.v3-svg { position: absolute; left: 0; top: 0; width: 896px; height: 596px; overflow: hidden; }
+.v3-lbl { position: absolute; text-align: center; font-size: 24px; line-height: 1.15; white-space: nowrap; }
+.v3-model { position: absolute; display: flex; align-items: center; justify-content: center;
+  font-size: 26px; font-weight: 500; letter-spacing: .02em; color: var(--muted); }
+
+.v3-count { position: absolute; top: 852px; }
+.v3-count .counter-label { height: 26px; line-height: 26px; white-space: nowrap; }
+.v3-count .counter { margin-top: 4px; line-height: 1; }
+.v3-clock { position: absolute; top: 901px; line-height: 1; transform: translateX(-50%); }
+.v3-clock.ours { color: var(--ours); }
+
+.v3-caption { position: absolute; left: 0; right: 0; top: 968px; display: flex; justify-content: center; align-items: center;
+  gap: 14px; font-size: 36px; font-weight: 600; line-height: 1; white-space: nowrap; opacity: 0; }
+.v3-caption .d { color: var(--dyn); font-weight: 700; }
+.v3-caption .o { color: var(--ours); font-weight: 700; }
+
+.note.v3-note { display: flex; align-items: center; gap: 10px; color: var(--muted); }
+.speed.v3-speed { display: flex; align-items: center; gap: 10px; line-height: 1; }
