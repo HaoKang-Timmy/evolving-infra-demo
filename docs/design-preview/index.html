@@ -34,10 +34,11 @@
 <body>
   <main>
     <div class="eyebrow">Evolving Infra · design options</div>
-    <h1>Pick one design for part 2 of the demo video.</h1>
+    <h1>Part 2 of the demo video: the simplified current version.</h1>
     <p class="intro">Part 2 replays the Claude Code run. Each prototype plays on load; Space pauses and the bar under the stage seeks. The idea demos for sections 03 and 04 below are from the earlier round.</p>
-    <section><h2>Demo video, part 2 / Claude Code agents</h2><p class="ask">What it should show: Evolving Infra is faster, and why. All five replay the same measured run as the current video. <a href="cc/index.html">Compare all five with still frames ↗</a></p>
+    <section><h2>Demo video, part 2 / Claude Code agents</h2><p class="ask">What it should show: Evolving Infra is faster, and why. S1 is the new direction. V1-V5 are the earlier round, not chosen: each was more complex than the current part 2. <a href="cc/index.html">Compare S1 with the current part 2 ↗</a></p>
     <div class="cards">
+    <a class="card" href="cc/s1.html"><span class="id">S1 · NEW</span><strong>The current part 2, simplified</strong><p>Tiles only show agents waiting for the model, without flicker; part 1's progress bar counts finished agents. One cause: Dynamo restarts a node to change its role and loses it for minutes; Evolving Infra changes a node in place in 33 seconds.</p><span class="open">Open ↗</span></a>
     <a class="card" href="cc/v1.html"><span class="id">V1</span><strong>One session, side by side</strong><p>The same Claude Code session on both systems under one clock, like the OSWorld part. Evolving Infra finishes all 25 steps while Dynamo is at step 13; the extra time is waiting.</p><span class="open">Open ↗</span></a>
     <a class="card" href="cc/v2.html"><span class="id">V2</span><strong>The hourglass</strong><p>126 agents as grains: waiting on top, the model writing in the neck, tools at the bottom. Dynamo's neck clogs with re-reading near minute 30; Evolving Infra keeps flowing.</p><span class="open">Open ↗</span></a>
     <a class="card" href="cc/v3.html"><span class="id">V3</span><strong>Read once, or read again</strong><p>What the model reads: new text, or conversations it had forgotten. After minute 30 Dynamo mostly re-reads, and its answers nearly stop.</p><span class="open">Open ↗</span></a>
