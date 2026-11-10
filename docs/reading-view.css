@@ -49,8 +49,9 @@ body.content-active .header-affiliations { display: flex; flex-direction: column
 .header-affiliations .affiliation-logo { height: 30px; }
 body.content-active .nav-links { display: flex; position: static; flex-direction: row; align-items: center; gap: 22px; padding: 0; border: 0; background: transparent; box-shadow: none; }
 body.content-active .nav-links button { white-space: nowrap; }
-/* The Code link is an <a>: center it like the buttons and keep its space before the arrow. */
-.nav-links > a.nav-code { display: inline-flex; align-items: center; white-space: pre; }
+/* Nav items are links: center them like buttons and keep the space before the arrow.
+   site.css hides a second nav link below 800 px; both links stay visible. */
+.nav-links > a, .nav-links > a:nth-child(2) { display: inline-flex; align-items: center; white-space: pre; }
 body.content-active .scene-reveal { padding-top: max(138px, calc(var(--reading-bar-height) + 38px)); }
 body.content-active main, body.content-active .site-footer { position: relative; z-index: 1; }
 body.content-active .scene-hero { background: transparent; }
