@@ -10,8 +10,16 @@
     chipP: '#e8e9ee', chipPText: '#14151c', chipD: '#191b24', chipDLine: '#3a3d48', chipDText: '#c9ccd4', speed: '#9aa0ab',
   };
   const LEAD = 1, SPEED = 90, WIN = 3600;
-  const DUR = LEAD + WIN / SPEED + 0.5; // 41.5 s; the player then holds the last frame
-  const wAt = (t) => Stage.clamp((t - LEAD) * SPEED, 0, WIN);
+  // Evolving Infra's first role change (00:20) moves three nodes at once. The clock stops there while the three
+  // nodes move one at a time, so the change can be followed; then the clock runs on at 90x.
+  const OURS0 = D.nodes.ours[0][1], OURS1 = D.nodes.ours[1][1];
+  const FIRST = D.nodes.ours[1][0]; // window second of that change
+  const NFIRST = [...OURS1].filter((c, n) => c !== OURS0[n]).length;
+  const F0 = LEAD + FIRST / SPEED, PAUSE = 0.3, STEP = 0.7;
+  const FREEZE = PAUSE + NFIRST * STEP + 0.4;
+  const DUR = LEAD + WIN / SPEED + FREEZE + 0.5; // the player then holds the last frame
+  const wAt = (t) => (t < F0 ? Stage.clamp((t - LEAD) * SPEED, 0, WIN)
+    : t < F0 + FREEZE ? FIRST : Stage.clamp(FIRST + (t - F0 - FREEZE) * SPEED, 0, WIN));
 
   const SIDES = [
     { arm: 'dyn', x: 40, line: C.panelLine, tick: C.dyn, num: C.fg },
@@ -25,7 +33,7 @@
   const BAR = { y: 846, h: 22, pitch: 7.5, w: 4, n: 120 }; // one tick per finished agent
   const HBAR = { y: 920, h: 22, pitch: 9, w: 5, n: 100 }; // one tick per percentage point of cache hit
   const HITKEY = typeof location !== 'undefined' && new URLSearchParams(location.search).get('hit') === '5min' ? 'hit5' : 'hitcum';
-  const HITLABEL = HITKEY === 'hit5' ? 'CACHE HIT, LAST 5 MIN' : 'CACHE HIT SO FAR';
+  const HITLABEL = HITKEY === 'hit5' ? 'CACHE HIT, LAST 5 MIN' : 'AVG CACHE HIT';
   // ?tiles=level: amber tiles fill from the bottom row up as a level (a count), instead of marking agents
   const LEVEL = typeof location !== 'undefined' && new URLSearchParams(location.search).get('tiles') === 'level';
   const FILL = Array.from({ length: 126 }, (_, q) => (8 - Math.floor(q / 14)) * 14 + (q % 14)); // fill rank of tile q
@@ -143,6 +151,26 @@
     return FILL.map((r) => Stage.clamp(n - r, 0, 1));
   }
 
+  // The first change split into one step per node, from the rightmost mover to the leftmost, so each joins the
+  // decode group next to the boundary and the end layout equals the batch layout used afterwards.
+  const FIRSTSEQ = {};
+  function firstSteps(px) {
+    if (FIRSTSEQ[px]) return FIRSTSEQ[px];
+    const L = lists('ours', FIRST, false);
+    const key = (n) => (L.P.includes(n) ? L.P.indexOf(n) : L.T.includes(n) ? 100 : 1000 - L.D.indexOf(n));
+    const batch = EV.ours.filter((e) => e[0] === FIRST);
+    const movers = batch.map((e) => e[1]).sort((a, b) => key(b) - key(a));
+    const cur = { P: [...L.P], D: [...L.D], T: [...L.T] }, layouts = [slots(px, cur)];
+    for (const n of movers) {
+      const g = batch.find((e) => e[1] === n)[2];
+      for (const k of 'PDT') cur[k] = cur[k].filter((x) => x !== n);
+      cur[g].push(n);
+      layouts.push(slots(px, cur));
+    }
+    FIRSTSEQ[px] = { movers, layouts };
+    return FIRSTSEQ[px];
+  }
+
   // Everything one frame shows, as plain data (a pure function of t).
   function model(t) {
     const w = wAt(t), k = w / 10, k0 = Math.min(Math.floor(k), 359), f = k - k0;
@@ -152,21 +180,36 @@
       // nodes: slide from the layout before the last group change to the layout after it
       const past = EV[arm].filter((e) => e[0] <= w);
       const tc = past.length ? past[past.length - 1][0] : -Infinity;
-      const from = slots(px, lists(arm, tc, false)), to = slots(px, lists(arm, tc, true));
-      const p = Number.isFinite(tc) ? Stage.ease(Stage.seg(w, tc, tc + MOVE)) : 1;
-      const moving = new Set(past.filter((e) => e[0] === tc).map((e) => e[1]));
+      let from = slots(px, lists(arm, tc, false)), to = slots(px, lists(arm, tc, true));
+      let p = Number.isFinite(tc) ? Stage.ease(Stage.seg(w, tc, tc + MOVE)) : 1;
+      let moving = new Set(past.filter((e) => e[0] === tc).map((e) => e[1]));
+      const firstLook = {}; // looks of the first change's movers while the clock is stopped
+      let ringOn = (n) => arm === 'ours' && moving.has(n) && w - tc < MOVE + 45;
+      if (arm === 'ours' && tc === FIRST) {
+        if (t < F0 + FREEZE) {
+          const seq = firstSteps(px), last = seq.movers.length - 1;
+          const i = Stage.clamp(Math.floor((t - F0 - PAUSE) / STEP), 0, last);
+          const q = Stage.ease(Stage.seg(t, F0 + PAUSE + i * STEP, F0 + PAUSE + (i + 1) * STEP));
+          from = seq.layouts[i]; to = seq.layouts[i + 1]; p = q; moving = new Set([seq.movers[i]]);
+          seq.movers.forEach((n, j) => { firstLook[n] = j < i || (j === i && q >= 0.5) ? OURS1[n] : OURS0[n]; });
+          ringOn = (n) => n === seq.movers[i] && t >= F0 + PAUSE;
+        } else {
+          p = 1; // the first change already played while the clock was stopped
+          ringOn = () => false;
+        }
+      }
       const states = arm === 'dyn' ? dynAt(w) : oursTl[oursIdx(w)][1].split('');
       const nodes = [];
       for (let n = 0; n < 9; n++) {
         const st = states[n];
         // P, D or T (restarting); a moving node keeps its old look for the first half of the slide
-        const look = moving.has(n) && p < 0.5 ? groupOf(arm, n, tc - 0.01) : groupOf(arm, n, w);
+        const look = firstLook[n] || (moving.has(n) && p < 0.5 ? groupOf(arm, n, tc - 0.01) : groupOf(arm, n, w));
         // a node that changes group dips into the lane while it slides, so it never overlaps the others
         const dip = moving.has(n) && from.y[n] === to.y[n] ? LANE * Math.sin(Math.PI * p) : 0;
         nodes.push({
           n, x: from.x[n] + (to.x[n] - from.x[n]) * p, y: from.y[n] + (to.y[n] - from.y[n]) * p + dip, look,
           draining: arm === 'dyn' && st === 'S',
-          ring: arm === 'ours' && moving.has(n) && w - tc < MOVE + 45,
+          ring: ringOn(n),
         });
       }
       let note = null;
@@ -175,6 +218,10 @@
           if (st === 'R' && w >= a + MOVE / 2 && b !== null && w < b) note = { n, side: 'right', text: `restarting · ${Math.round((b - a) / 60)} min` };
         }
       } else {
+        if (t >= F0 + PAUSE && t < F0 + FREEZE + 1.2) {
+          const fin = firstSteps(px).layouts[NFIRST], xs = firstSteps(px).movers.map((n) => fin.x[n] + ROW.w / 2);
+          note = { x: (Math.min(...xs) + Math.max(...xs)) / 2, side: 'at', text: 'switched in place' };
+        }
         for (let j = 1; j < oursTl.length - 1; j++) {
           const n = oursTl[j][1].indexOf('S');
           if (n >= 0 && w >= oursTl[j][0] + MOVE && w < oursTl[j][0] + MOVE + NOTE_S) note = { n, side: 'under', text: `switched in ${Math.round(oursTl[j + 1][0] - oursTl[j][0])} s` };
@@ -273,7 +320,10 @@
       ms.nodes.forEach((nd) => paintChip(v.chips[nd.n], nd));
       if (ms.note) {
         const nd = ms.nodes[ms.note.n];
-        if (ms.note.side === 'right') {
+        if (ms.note.side === 'at') {
+          v.note.setAttribute('text-anchor', 'middle');
+          v.note.setAttribute('x', ms.note.x);
+        } else if (ms.note.side === 'right') {
           v.note.setAttribute('text-anchor', 'start');
           v.note.setAttribute('x', nd.x + ROW.w + 16);
         } else {
