@@ -32,11 +32,11 @@ python3 -m http.server -d docs 8000    # then open http://localhost:8000
 ```
 
 The site publishes from `main` → `docs/` on GitHub Pages at `inference-rsi.com`.
-The header Code link opens the implementation repository,
-[mit-han-lab/EvolvingInfra](https://github.com/mit-han-lab/EvolvingInfra), in a new tab. The Tech report
-button and the "Try it!!" button show a release notice until the corresponding URLs are set in
-`releaseLinks` at the top of `docs/js/site.js`. The website repository is separate from the
-implementation repository.
+The header links open the implementation repository,
+[mit-han-lab/EvolvingInfra](https://github.com/mit-han-lab/EvolvingInfra), and the technical report,
+[arXiv:2611.12304](https://arxiv.org/abs/2611.12304), in a new tab; the research section links the same report. The "Try it!!"
+button shows a release notice until `releaseLinks.code` is set at the top of `docs/js/site.js`.
+The website repository is separate from the implementation repository.
 
 After the opening, `js/reading-view.js` keeps a decorative copy of the scene behind the
 scrolling content. The fixed header shows the project gear mark, author affiliations, and
