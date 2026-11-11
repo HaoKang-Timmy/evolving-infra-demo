@@ -228,8 +228,9 @@
         }
       } else {
         if (t >= F0 + PAUSE && t < F0 + SPAN + 1.2) {
-          const fin = firstSteps(px).layouts[NFIRST], xs = firstSteps(px).movers.map((n) => fin.x[n] + ROW.w / 2);
-          note = { x: (Math.min(...xs) + Math.max(...xs)) / 2, side: 'at', text: 'switched in place' };
+          // right of the switched nodes' final places: they move rightward up to those places, so never cross the text
+          const fin = firstSteps(px).layouts[NFIRST], xs = firstSteps(px).movers.map((n) => fin.x[n]);
+          note = { x: Math.max(...xs) + ROW.w + 16, side: 'at', text: 'switched in place' };
         }
         for (let j = 1; j < oursTl.length - 1; j++) {
           const n = oursTl[j][1].indexOf('S');
@@ -308,16 +309,16 @@
     const clock = el('text', { x: 960, y: 1002, 'text-anchor': 'middle' }, svg);
     el('tspan', { 'font-size': 22, 'letter-spacing': 1, fill: C.muted }, clock).textContent = 'ELAPSED';
     V.clock = el('tspan', { dx: 14, 'font-size': 40, 'font-weight': 600, fill: C.fg }, clock);
-    const lg = el('g', { transform: 'translate(590,1024)' }, svg);
+    const lg = el('g', { transform: 'translate(622,1024)' }, svg);
     el('rect', { width: 36, height: 28, rx: 4, fill: C.waitBg }, lg);
     el('path', { d: HOURGLASS, transform: 'translate(18,14) scale(0.8)', fill: C.wait }, lg);
     el('text', { x: 50, y: 22, 'font-size': 22, fill: C.muted }, lg).textContent = 'waiting for first token (TTFT)';
-    el('rect', { x: 390, width: 36, height: 28, rx: 4, fill: C.genBg }, lg);
-    el('path', { d: SPARK, transform: 'translate(408,14) scale(0.8)', fill: C.gen }, lg);
-    el('text', { x: 440, y: 22, 'font-size': 22, fill: C.muted }, lg).textContent = 'decoding';
-    el('rect', { x: 552, width: 36, height: 28, rx: 4, fill: C.toolBg }, lg);
-    el('path', { d: TOOL, transform: 'translate(570,14) scale(0.8)', fill: 'none', stroke: C.tool, 'stroke-width': 3, 'stroke-linecap': 'round', 'stroke-linejoin': 'round' }, lg);
-    el('text', { x: 602, y: 22, 'font-size': 22, fill: C.muted }, lg).textContent = 'in a tool call';
+    el('rect', { x: 345, width: 36, height: 28, rx: 4, fill: C.genBg }, lg);
+    el('path', { d: SPARK, transform: 'translate(363,14) scale(0.8)', fill: C.gen }, lg);
+    el('text', { x: 395, y: 22, 'font-size': 22, fill: C.muted }, lg).textContent = 'decoding';
+    el('rect', { x: 513, width: 36, height: 28, rx: 4, fill: C.toolBg }, lg);
+    el('path', { d: TOOL, transform: 'translate(531,14) scale(0.8)', fill: 'none', stroke: C.tool, 'stroke-width': 3, 'stroke-linecap': 'round', 'stroke-linejoin': 'round' }, lg);
+    el('text', { x: 563, y: 22, 'font-size': 22, fill: C.muted }, lg).textContent = 'in a tool call';
     el('path', { d: 'M0,0L12,8L0,16ZM14,0L26,8L14,16Z', transform: 'translate(1786,1026)', fill: C.speed }, svg);
     el('text', { x: 1880, y: 1046, 'text-anchor': 'end', 'font-size': 30, fill: C.speed }, svg).textContent = '90×';
   }
@@ -352,7 +353,7 @@
       if (ms.note) {
         const nd = ms.nodes[ms.note.n];
         if (ms.note.side === 'at') {
-          v.note.setAttribute('text-anchor', 'middle');
+          v.note.setAttribute('text-anchor', 'start');
           v.note.setAttribute('x', ms.note.x);
         } else if (ms.note.side === 'right') {
           v.note.setAttribute('text-anchor', 'start');
