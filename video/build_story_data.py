@@ -23,7 +23,7 @@ for arm in ("dyn", "ours"):
         (r for r in data[arm]["requests"] if r[4] == 1 and 1800 <= r[3] < 5400),
         key=lambda r: r[3],
     )
-    count = prompt = cached = 0
+    count = prompt = cached = output = 0
     revenue = 0
     points = []
     for second in range(0, 3601, 10):
@@ -33,20 +33,23 @@ for arm in ("dyn", "ours"):
             revenue += ((p - c) * 1.4 + c * .26 + o * 4.4) / 1e6
             prompt += p
             cached += c
+            output += o
             count += 1
         points.append([
             second, round(revenue, 7), round(cached / prompt, 7) if prompt else None,
-            count, round(revenue / count, 9) if count else None,
+            count, round(revenue / count, 9) if count else None, prompt, cached, output,
         ])
     assert count == data[arm]["check"]["n"], (arm, count)
     result["series"][arm] = points
     result["totals"][arm] = {
         "calls": count, "revenue": round(revenue, 7), "hit": cached / prompt,
         "userCostPerCall": revenue / count, "promptTokens": prompt, "cachedTokens": cached,
+        "outputTokens": output, "userCostPerMillionTokens": revenue / (prompt + output) * 1e6,
     }
 result["note"] = (
     "Rows: seconds after warmup, cumulative revenue at demo token prices, cumulative "
-    "token-weighted cache hit, completed requests, mean price per completed request. "
+    "token-weighted cache hit, completed requests, mean price per completed request, "
+    "cumulative input tokens, cached input tokens, output tokens. "
     "Cohort: non-warmup successful requests completed in [1800,5400). No requests at "
     "t=0: hit and mean cost are undefined. Playback interpolates 10-second samples."
 )

@@ -17,10 +17,6 @@
     const prompt=source[arm].reduce((s,r)=>s+r[3],0),cached=source[arm].reduce((s,r)=>s+r[4],0);
     stats[arm]={hit:cached/prompt,ttft:source[arm].reduce((s,r)=>s+r[1]-r[0],0),cost:source[arm].reduce((s,r)=>s+price(r),0),modelEnd:Math.max(...rows[arm].map(r=>r[2])),omitted:removed};
     const root=$('story-'+arm),host=root.querySelector('[data-messages]');
-    root.querySelector('[data-hit]').textContent=(stats[arm].hit*100).toFixed(1)+'%';
-    root.querySelector('[data-ttft]').textContent=Math.floor(stats[arm].ttft/60)+'m '+Math.round(stats[arm].ttft%60)+'s';
-    root.querySelector('[data-cost]').textContent=money(stats[arm].cost);
-    root.querySelector('[data-cache-bar]').style.width=(stats[arm].hit*100)+'%';
     const nodes=rows[arm].map((r,i)=>{
       const box=document.createElement('div');box.className='message';
       const head=document.createElement('div');head.className='message-head';head.textContent='● Assistant';
@@ -28,7 +24,7 @@
       const pre=document.createElement('pre');box.append(head,pre);host.append(box);
       return {box,pre,text:window.storyTranscript(i,r[6]),shown:-1};
     });
-    sides[arm]={root,nodes,scroll:root.querySelector('[data-scroll]'),status:root.querySelector('[data-status]'),state:root.querySelector('[data-state]'),call:root.querySelector('[data-call]'),finish:root.querySelector('[data-finish]'),progress:root.querySelector('[data-progress]'),bar:root.querySelector('[data-progress-bar]')};
+    sides[arm]={root,nodes,scroll:root.querySelector('[data-scroll]'),status:root.querySelector('[data-status]'),state:root.querySelector('[data-state]'),call:root.querySelector('[data-call]'),finish:root.querySelector('[data-finish]'),progress:root.querySelector('[data-progress]'),bar:root.querySelector('[data-progress-bar]'),hit:root.querySelector('[data-hit]'),cost:root.querySelector('[data-cost]'),elapsed:root.querySelector('[data-elapsed]')};
   }
   const modelEnd=Math.max(stats.dyn.modelEnd,stats.ours.modelEnd);
   const points=[...new Set([0,...Object.values(rows).flatMap(rs=>rs.flatMap(r=>[r[1],r[2]]))])].sort((a,b)=>a-b);
@@ -48,21 +44,24 @@
     return {time:seg.a+(v-seg.start)*seg.rate,rate:seg.rate};
   }
   function renderArm(arm,t){
-    const side=sides[arm];let done=0,active=null,decoding=false;
+    const side=sides[arm];let done=0,active=null,decoding=false,prompt=0,cached=0,output=0,charge=0;
     rows[arm].forEach((r,i)=>{
       const node=side.nodes[i],started=t+1e-8>=r[0],finished=t+1e-8>=r[2];
       const fraction=finished?1:t<r[1]?0:clamp((t-r[1])/Math.max(1e-8,r[2]-r[1]),0,1);
       node.box.hidden=!started;node.box.classList.toggle('streaming',started&&!finished&&t>=r[1]);
       const length=Math.floor(fraction*node.text.length);
       if(length!==node.shown){node.pre.textContent=node.text.slice(0,length);node.shown=length;}
-      if(finished)done++;
+      if(finished){done++;prompt+=r[3];cached+=r[4];output+=r[6];charge+=price(r);}
       if(started&&!finished){active={row:r,index:i};if(t>=r[1])decoding=true;}
     });
     const finished=done===rows[arm].length,phase=finished?'done':decoding?'decode':'wait';
     side.status.dataset.phase=phase;
-    side.state.textContent=finished?'All model calls returned':decoding?'Decoding':'Waiting for first token (TTFT)';
+    side.state.textContent=finished?'All model calls returned':decoding?'Decoding':'Waiting for first token (TTFT) · '+fmt(active?t-active.row[0]:0);
     side.call.textContent=active?'Call '+(active.index+1):'';
-    side.finish.textContent=finished?'25 / 25 returned':'';
+    side.finish.textContent=finished?'FINISHED '+fmt(stats[arm].modelEnd):'';
+    side.elapsed.textContent=fmt(Math.min(t,stats[arm].modelEnd));
+    side.hit.textContent=prompt?(cached/prompt*100).toFixed(1)+'%':'—';
+    side.cost.textContent=prompt+output?money(charge/(prompt+output)*1e6,3):'—';
     side.progress.innerHTML=done+' <small>/ 25</small>';side.bar.style.width=(done/25*100)+'%';
     side.scroll.scrollTop=side.scroll.scrollHeight-side.scroll.clientHeight;
   }
@@ -70,7 +69,8 @@
     const series=run.series[arm],index=Math.min(series.length-1,Math.floor(t/run.sampleSeconds));
     const a=series[index],b=series[Math.min(index+1,series.length-1)],f=clamp((t-a[0])/run.sampleSeconds,0,1);
     const revenue=a[1]+(b[1]-a[1])*f,calls=a[3]+(b[3]-a[3])*f;
-    return {revenue,calls,hit:a[2]===null?null:a[2]+(b[2]-a[2])*f,cost:calls>0?revenue/calls:null};
+    const prompt=a[5]+(b[5]-a[5])*f,cached=a[6]+(b[6]-a[6])*f,output=a[7]+(b[7]-a[7])*f;
+    return {revenue,calls,hit:a[5]>0?cached/prompt:null,cost:a[5]>0?revenue/(prompt+output)*1e6:null};
   }
   const plots={};
   function makePlot(id,min,max,ticks,format){
@@ -79,7 +79,7 @@
     for(const v of ticks)markup+='<line class="plot-grid" x1="52" x2="612" y1="'+y(v)+'" y2="'+y(v)+'"/><text class="plot-axis" text-anchor="end" x="42" y="'+(y(v)+4)+'">'+format(v)+'</text>';
     for(const m of [0,15,30,45,60])markup+='<text class="plot-axis" text-anchor="middle" x="'+x(m*60)+'" y="239">'+m+'</text>';
     markup+='<text class="plot-axis" text-anchor="middle" x="332" y="260">Time after warmup (min)</text><line class="plot-cursor" y1="18" y2="218"/>';
-    for(const arm of ['dyn','ours'])markup+='<path class="plot-line plot-'+arm+'" data-line="'+arm+'"/><circle class="plot-dot" data-dot="'+arm+'" r="4" fill="'+(arm==='ours'?'#e54858':'#d0d0d8')+'"/>';
+    for(const arm of ['dyn','ours'])markup+='<path class="plot-line plot-'+arm+'" data-line="'+arm+'"/><circle class="plot-dot" data-dot="'+arm+'" r="4" fill="'+(arm==='ours'?'#c92336':'#b8c2cc')+'"/>';
     svg.innerHTML=markup;
     return {svg,x,y,lines:Object.fromEntries(['dyn','ours'].map(a=>[a,svg.querySelector('[data-line="'+a+'"]')])),dots:Object.fromEntries(['dyn','ours'].map(a=>[a,svg.querySelector('[data-dot="'+a+'"]')]))};
   }
@@ -100,27 +100,29 @@
     const values={dyn:sample('dyn',t),ours:sample('ours',t)};
     for(const arm of ['dyn','ours']){
       const r=values[arm];$('run-'+arm+'-calls').textContent=Math.floor(r.calls+1e-8).toLocaleString('en-US');
-      $('run-'+arm+'-cost').textContent=r.cost===null?'—':money(r.cost,4);
+      $('run-'+arm+'-cost').textContent=r.cost===null?'—':money(r.cost,3);
       $('revenue-'+arm).textContent=money(r.revenue);
       $('hit-'+arm).textContent=r.hit===null?'—':(r.hit*100).toFixed(1)+'%';
     }
     drawPlot('revenue',t,values);drawPlot('hit',t,values);$('run-clock').textContent=fmt(t);
-    $('run-takeaway').innerHTML=t>=3600?'At 60 min: <b>2.36× revenue</b> with <b>14.8% lower user cost per call.</b>':'Higher cache reuse lowers input-token charges. More completed calls bring more revenue.';
+    const lower=(1-run.totals.ours.userCostPerMillionTokens/run.totals.dyn.userCostPerMillionTokens)*100;
+    $('run-takeaway').innerHTML=t>=3600?'At 60 min: <b>2.36× revenue</b> with <b>'+lower.toFixed(1)+'% lower user cost / 1M tokens.</b>':'Higher cache reuse lowers input-token charges. More completed calls bring more revenue.';
   }
   function render(){
     const phase=time<SESSION_END?'session':'run';
     if(phase!==currentPhase){
       currentPhase=phase;$('session-scene').hidden=phase!=='session';$('run-scene').hidden=phase!=='run';
-      $('eyebrow').textContent=phase==='session'?'ONE MATCHED CLAUDE CODE SESSION':'ALL 126 CONCURRENT CLAUDE CODE AGENTS';
-      $('title').innerHTML=phase==='session'?'More cache reuse. <span>Less waiting, lower cost.</span>':'Same 36 GPUs. <span>One hour of serving.</span>';
-      $('setup').textContent=phase==='session'?'Same 25 model calls · same 15,028 output tokens · GLM-5.2':'GLM-5.2 · 36 GB300 GPUs per system · full measurement window after warmup';
-      $('chapter').textContent=phase==='session'?'01 / 02':'02 / 02';
+      $('film').dataset.scene=phase;
+      $('eyebrow').textContent='CLAUDE CODE WORKLOAD';
+      $('title').textContent=phase==='session'?'Serve the same Claude Code session':'Revenue and cache reuse across all 126 agents';
+      $('setup').textContent=phase==='session'?'Same 25 model calls · 15,028 output tokens · GLM-5.2 · 126 agents at once on 36 GB300 GPUs':'Claude Code traces · GLM-5.2 · full measurement hour after warmup · 36 GB300 GPUs per system';
+      $('film-note').textContent=phase==='session'?'Tool-call time omitted; illustrative terminal text. Metrics accumulate over completed calls; cost / 1M includes input + output, at demo token prices.':'Full-hour curves use original wall time. Cache hit is token weighted; cost / 1M includes input + output, at demo token prices.';
       document.querySelectorAll('[data-chapter]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.chapter===phase)));
       resize();
     }
     if(phase==='session'){
       const m=modelAt(time);renderArm('dyn',m.time);renderArm('ours',m.time);
-      $('model-clock').textContent=fmt(m.time);$('model-rate').textContent=m.time>=modelEnd?'End':m.rate+'×';
+      $('model-rate').textContent=m.time>=modelEnd?'End':m.rate+'×';
     }else renderRun(clamp((time-SESSION_END)/RUN_DURATION*3600,0,3600));
     $('seek').value=String(time);$('video-clock').textContent=fmt(time);
   }

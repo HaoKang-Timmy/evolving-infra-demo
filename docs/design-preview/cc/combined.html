@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <title>Computer use + Claude Code — Evolving Infra preview</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; color: #f1f2f5; background: #0b0c12; font: 18px/1.5 'Source Sans 3', system-ui, sans-serif; }
+    main { width: min(1600px, calc(100% - 32px)); margin: 32px auto 48px; }
+    .eyebrow { margin: 0; color: #dd4856; font-size: 13px; font-weight: 700; letter-spacing: .12em; }
+    h1 { margin: 8px 0 20px; font-size: clamp(26px, 4vw, 38px); font-weight: 600; }
+    video { display: block; width: 100%; aspect-ratio: 16 / 9; background: #090a0d; }
+    nav { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 24px; margin: 20px 0; }
+    button { border: 1px solid #555866; background: none; color: inherit; padding: 8px 14px; font: inherit; cursor: pointer; }
+    button:hover { border-color: #dd4856; }
+    a { color: #e89ba4; text-underline-offset: 3px; }
+    p { color: #b9bcc6; max-width: 960px; }
+    .note { font-size: 15px; }
+  </style>
+</head>
+<body>
+  <main>
+    <p class="eyebrow">EVOLVING INFRA · COMBINED PREVIEW</p>
+    <h1>Computer use, then Claude Code</h1>
+    <video id="video" controls playsinline preload="metadata" poster="../../media/merge-demo-poster.png" aria-label="Combined computer-use and Claude Code demo">
+      <source src="combined-preview.mp4?v=cua-style-3" type="video/mp4">
+      <a href="combined-preview.mp4?v=cua-style-3">Download the combined demo</a>
+    </video>
+    <nav aria-label="Video chapters and downloads">
+      <button type="button" data-time="0">01 · Intro + computer use</button>
+      <button type="button" data-time="56.4">02 · Claude Code</button>
+      <a href="combined-preview.mp4?v=cua-style-3" download>Download combined MP4 ↓</a>
+      <a href="story.html">Interactive CC segment ↗</a>
+      <a href="index.html">All candidates ↗</a>
+    </nav>
+    <p>The original intro and computer-use segment lead into the updated Claude Code segment. Cache hit and user cost per million tokens change as requests complete; cumulative revenue and average cache-hit curves cover the full measurement hour.</p>
+    <p class="note">In the CC session replay, tool-call time is omitted and terminal text is illustrative. Cost per million tokens uses input + output tokens at the demo token prices. The full-hour curves retain original wall time. <a href="story.html#methods">Data and playback details</a>.</p>
+  </main>
+  <script>
+    const video = document.getElementById('video');
+    document.querySelectorAll('[data-time]').forEach(button => button.addEventListener('click', () => {
+      video.currentTime = Number(button.dataset.time);
+      video.play().catch(() => {});
+    }));
+  </script>
+</body>
+</html>
