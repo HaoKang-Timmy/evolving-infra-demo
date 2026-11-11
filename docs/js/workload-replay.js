@@ -10,7 +10,6 @@
   let time=0,playing=!reduced.matches,visible=false,last=null,hold=0,previous='';
   function render(){
     const phase=Math.min(2,Math.floor(time/60)),counts=workloads[phase],ours=at('ours',time),dyn=at('dynamo',time),p=ours[1];
-    $('shift-time').textContent=Math.floor(time)+' min';$('shift-seek').value=String(time);
     timeline.style.setProperty('--shift-progress',String(time/180));
     const key=[phase,...ours,...dyn].join(':');if(key===previous)return;previous=key;
     tabs.forEach((b,i)=>b.setAttribute('aria-pressed',String(i===phase)));
@@ -29,7 +28,6 @@
   }
   function setPlaying(value){playing=value;last=null;$('shift-play').textContent=value?'Pause':'Play';$('shift-play').setAttribute('aria-pressed',String(value));}
   $('shift-play').addEventListener('click',()=>{if(time>=180){time=0;hold=0;}setPlaying(!playing);render();});
-  $('shift-seek').addEventListener('input',e=>{time=Number(e.target.value);hold=0;setPlaying(false);render();});
   tabs.forEach((b,i)=>b.addEventListener('click',()=>{time=i*60;hold=0;last=null;render();}));
   new IntersectionObserver(entries=>{visible=entries[0].isIntersecting;last=null;},{threshold:.15}).observe(root);
   document.addEventListener('visibilitychange',()=>{last=null;});
