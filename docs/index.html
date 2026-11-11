@@ -31,7 +31,7 @@
   <link rel="stylesheet" href="idea-demos.css?v=demo-frames-1">
   <link rel="stylesheet" href="page-outline.css?v=outline-5">
   <link rel="stylesheet" href="research-details.css?v=evidence-box-1">
-  <link rel="stylesheet" href="arch-compare.css?v=both-animate-1">
+  <link rel="stylesheet" href="arch-compare.css?v=slower-switch-2">
   <link rel="stylesheet" href="workload-replay.css">
   <link rel="preload" as="image" href="media/scene/apps-atlas.png">
   <link rel="preload" as="image" href="media/scene/hardware-atlas.png">
@@ -41,7 +41,7 @@
   <script src="js/reading-view.js?v=follow-scroll" defer></script>
   <script src="js/role-switch.js?v=paper-scope" defer></script>
   <script src="js/demo-frames.js?v=1" defer></script>
-  <script src="js/arch-compare.js" defer></script>
+  <script src="js/arch-compare.js?v=slower-switch-2" defer></script>
   <script src="js/workload-replay.js" defer></script>
   <script src="js/page-outline.js?v=outline-3" defer></script>
   <script src="js/evidence.js?v=arxiv-1" defer></script>
@@ -163,7 +163,7 @@
               <p class="arch-top arch-layer">Compute allocation from <em>coarse signals</em></p>
               <div class="arch-row arch-nodes" aria-hidden="true"><span class="arch-node"><b>P</b></span><span class="arch-node"><b>P</b></span><span class="arch-node is-changing"><b>P</b></span><span class="arch-node is-d"><b>D</b></span><span class="arch-node is-d"><b>D</b></span><span class="arch-node is-d"><b>D</b></span></div>
               <div class="arch-mid" aria-hidden="true"><div class="arch-row"><span></span><span></span><span></span><span></span><span></span><span></span></div><span class="arch-pill">COUPLED</span></div>
-              <div class="arch-row arch-kv" aria-hidden="true"><span class="arch-cache"><i></i><i></i></span><span class="arch-cache"><i></i><i></i><i></i></span><span class="arch-cache" data-arch-cache><i></i><i></i></span><span class="arch-cache"><i></i></span><span class="arch-cache"><i></i><i></i></span><span class="arch-cache"><i></i></span></div>
+              <div class="arch-row arch-kv" aria-hidden="true"><span class="arch-cache"><i></i><i></i></span><span class="arch-cache"><i></i><i></i><i></i></span><span class="arch-cache" data-arch-cache><i></i><i></i><span class="arch-restarting"><em>↻</em>Restarting</span></span><span class="arch-cache"><i></i></span><span class="arch-cache"><i></i><i></i></span><span class="arch-cache"><i></i></span></div>
               <p class="arch-bottom arch-layer"><em><span class="arch-nowrap">Recency-based</span></em> KV cache management</p>
               <p class="arch-live" data-arch-existing>Serving prefill · KV cached</p>
               <ul class="arch-results"><li><p class="arch-cause"><i aria-hidden="true">✕</i>Costly adaptation</p><p class="arch-effects"><span>Downtime</span><span>Lost KV</span></p></li><li><p class="arch-cause"><i aria-hidden="true">✕</i>Inaccurate adaptation</p><p class="arch-effects"><span>Load imbalance</span><span>Reusable KV evicted</span></p></li></ul>
@@ -173,7 +173,7 @@
               <span class="arch-band is-compute" aria-hidden="true"></span>
               <span class="arch-band is-kv" aria-hidden="true"></span>
               <p class="arch-top arch-layer">Compute allocation from <em><span class="arch-nowrap">fine-grained</span> signals</em></p>
-              <div class="arch-row arch-nodes" aria-hidden="true"><span class="arch-node"><b>P</b></span><span class="arch-node"><b>P</b></span><span class="arch-node is-changing"><b>P</b></span><span class="arch-node is-d"><b>D</b></span><span class="arch-node is-d"><b>D</b></span><span class="arch-node is-d"><b>D</b></span></div>
+              <div class="arch-row arch-nodes" aria-hidden="true"><span class="arch-node"><b>P</b></span><span class="arch-node"><b>P</b></span><span class="arch-node is-changing"><b class="as-p">P</b><b class="as-d">D</b></span><span class="arch-node is-d"><b>D</b></span><span class="arch-node is-d"><b>D</b></span><span class="arch-node is-d"><b>D</b></span></div>
               <div class="arch-mid" aria-hidden="true"><span class="arch-pill"><img src="fig/decoupled-link.svg" alt="">DECOUPLED</span></div>
               <div class="arch-kv" aria-hidden="true"><div class="arch-pool arch-row"><span><i></i><i></i></span><span><i></i><i></i><i></i></span><span><i></i><i></i></span><span><i></i></span><span><i></i><i></i></span><span><i></i></span></div></div>
               <p class="arch-bottom arch-layer"><em>Agent-aware</em> KV cache management</p>

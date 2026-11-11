@@ -50,12 +50,19 @@ body.content-active #architecture .arch-heading .lead { max-width: 62ch; margin-
 
 /* The same phase change runs on both sides. JS keeps their stages synchronized. */
 #architecture .arch-node.is-changing { outline: 2px solid #a99a91; outline-offset: 2px; transition: background .25s, color .25s; }
-#architecture .is-ours .arch-node.is-changing { outline-color: var(--red); }
+#architecture .is-ours .arch-node.is-changing { outline-color: var(--red); transition: none; background: color-mix(in srgb, #d9d6d2 calc(var(--arch-switch, 0) * 100%), #3f3c43); color: color-mix(in srgb, #343038 calc(var(--arch-switch, 0) * 100%), #fff); }
+#architecture .is-ours .arch-node.is-changing b { grid-area: 1 / 1; }
+#architecture .is-ours .arch-node.is-changing .as-p { color: #fff; opacity: calc(1 - var(--arch-switch, 0) * 1.5); transform: translateY(calc(var(--arch-switch, 0) * -7px)); }
+#architecture .is-ours .arch-node.is-changing .as-d { color: #343038; opacity: calc((var(--arch-switch, 0) - .33) * 1.5); transform: translateY(calc((1 - var(--arch-switch, 0)) * 7px)); }
 #architecture .arch-node.is-offline { background: #e6e0d8; color: #827a74; border-style: dashed; }
 #architecture .arch-node.is-offline b { font-size: 26px; }
 #architecture .arch-cache i { transition: opacity .4s, transform .4s; }
 #architecture .arch-cache.is-lost { border-style: dashed; }
 #architecture .arch-cache.is-lost i { opacity: 0; transform: translateY(8px); }
+#architecture .arch-cache[data-arch-cache] { position: relative; }
+#architecture .arch-restarting { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; opacity: 0; color: #75645a; font: 10px/1.1 var(--display); }
+#architecture .arch-restarting em { font: normal 17px/1 var(--display); }
+#architecture .arch-cache.is-restarting .arch-restarting { opacity: 1; }
 #architecture .arch-live { min-height: 38px; margin: 28px 0 0; font: 12px/1.5 var(--mono); color: #6a5b55; }
 #architecture .is-ours .arch-live { color: var(--red); }
 #architecture .arch-demo-control { display: flex; align-items: center; justify-content: space-between; gap: 14px; margin: 0 0 15px; }
@@ -91,7 +98,8 @@ body.content-active #architecture .arch-heading .lead { max-width: 62ch; margin-
   #architecture .arch-row { gap: 4px; }
   #architecture .arch-node { height: 46px; }
   #architecture .arch-node b { font-size: 18px; }
-  #architecture .arch-node.is-switch .as-both { font-size: 13px; }
+  #architecture .arch-restarting { font-size: 9px; }
+  #architecture .arch-restarting em { font-size: 15px; }
   #architecture .arch-mid { height: 50px; }
   #architecture .arch-kv i { width: 7px; height: 12px; }
   #architecture :is(.arch-cache, .arch-pool) { height: 36px; }
@@ -103,4 +111,5 @@ body.content-active #architecture .arch-heading .lead { max-width: 62ch; margin-
 }
 @media (max-width: 340px) {
   #architecture .arch-kv i { width: 6px; }
+  #architecture .arch-restarting { font-size: 7px; }
 }
