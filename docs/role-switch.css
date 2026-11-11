@@ -228,3 +228,15 @@ body.content-active #why-evolve .idea-decoupling .lead { max-width: none; margin
   .switch-demo[data-step="1"] .ours .queued-pair { visibility: hidden; }
   .switch-steps button[aria-current="step"]::after { transform: scaleX(1); }
 }
+
+/* Three-beat version: Evolving Infra finishes its switch early in beat 2; the existing engine is still restarting. */
+.switch-demo[data-step="1"] .ours .switch-target { background: #d9d6d2; color: #343038; border-color: #a9a39d; }
+.switch-demo[data-playing="true"][data-step="1"] .ours .switch-target { animation: role-confirm .85s ease both; }
+.switch-demo[data-playing="true"][data-step="1"] .ours .switch-target .node-phase { animation: phase-flip .65s ease both; }
+.switch-demo[data-playing="true"][data-step="2"] .ours .switch-target,
+.switch-demo[data-playing="true"][data-step="2"] .ours .switch-target .node-phase { animation: none; }
+.switch-scope-note { margin: 14px 0 0; color: #6f6a70; font: 12px/1.6 var(--mono); }
+.switch-scope-note a { color: var(--red); }
+/* The request chips that sat above the nodes are gone, so pull the diagram up into that space. */
+.switch-diagram { margin-top: -44px; }
+.switch-demo[data-step="1"] [data-system="baseline"] .switch-target::after { content: 'RESTART'; }

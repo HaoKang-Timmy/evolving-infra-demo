@@ -23,7 +23,7 @@
     cache.classList.toggle('is-restarting',phase===1||phase===2);
     root.querySelector('[data-arch-existing]').textContent=['Serving prefill · KV cached','Node unavailable · local KV lost','Node unavailable · local KV lost','Serving decode · local cache empty'][phase];
     root.querySelector('[data-arch-ours]').textContent=['Serving prefill · KV cached','Switching phase · KV retained','Serving decode · KV retained','Serving decode · KV retained'][phase];
-    root.querySelector('[data-arch-event]').textContent=phase===0?'Demand shifts: reallocate one prefill node to decode.':'Same phase change. Different cost.';
+    root.querySelector('[data-arch-event]').textContent=phase===0?'Workload shift: reallocate one prefill node to decode.':'Same phase change. Different cost.';
   }
   function setPlaying(value){playing=value;last=null;play.textContent=value?'Pause':'Play';play.setAttribute('aria-pressed',String(value));}
   play.addEventListener('click',()=>setPlaying(!playing));
