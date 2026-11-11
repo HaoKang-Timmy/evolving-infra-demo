@@ -6,10 +6,12 @@
   const at=(arm,t)=>{let current=splits[arm][0];for(const r of splits[arm])if(r[0]<=t)current=r;return current;};
   for(const arm of ['dynamo','ours'])for(let i=0;i<9;i++){const node=document.createElement('span');node.className='shift-node';node.setAttribute('aria-hidden','true');$('shift-nodes-'+arm).append(node);}
   const workloads=[[288,0],[144,72],[0,144]],tabs=Array.from(root.querySelectorAll('[data-shift-phase]'));
+  const timeline=root.querySelector('.shift-phases');
   let time=0,playing=!reduced.matches,visible=false,last=null,hold=0,previous='';
   function render(){
     const phase=Math.min(2,Math.floor(time/60)),counts=workloads[phase],ours=at('ours',time),dyn=at('dynamo',time),p=ours[1];
     $('shift-time').textContent=Math.floor(time)+' min';$('shift-seek').value=String(time);
+    timeline.style.setProperty('--shift-progress',String(time/180));
     const key=[phase,...ours,...dyn].join(':');if(key===previous)return;previous=key;
     tabs.forEach((b,i)=>b.setAttribute('aria-pressed',String(i===phase)));
     $('shift-putnam').textContent=String(counts[0]);$('shift-osworld').textContent=String(counts[1]);
