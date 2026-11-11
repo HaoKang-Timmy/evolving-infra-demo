@@ -133,7 +133,7 @@
       <p class="page-outline-title">ON THIS PAGE</p>
       <ol>
         <li><a href="#demo"><span>01</span>Demo</a></li>
-        <li><a href="#architecture"><span>02</span>Architecture</a></li>
+        <li><a href="#architecture"><span>02</span>Overview</a></li>
         <li><a href="#why-evolve"><span>03</span>Decoupled infrastructure</a></li>
         <li><a href="#workload-planning"><span>04</span>Compute allocation</a></li>
         <li><a href="#kv-management"><span>05</span>KV cache management</a></li>
@@ -150,10 +150,10 @@
 
     <section class="idea-section" id="architecture" aria-labelledby="architecture-heading">
       <div class="wrap">
-        <div class="section-topline" data-reveal><span class="eyebrow">02 / ARCHITECTURE</span><span class="mono-note">DECOUPLE FIRST. THEN ADAPT.</span></div>
+        <div class="section-topline" data-reveal><span class="eyebrow">02 / OVERVIEW</span><span class="mono-note">DECOUPLE FIRST. THEN ADAPT.</span></div>
         <div class="idea-heading idea-decoupling arch-heading" data-reveal>
-          <h2 id="architecture-heading"><span class="accent-text arch-nowrap">Agent-adaptive</span> inference,<br>with compute and memory <span class="accent-text">decoupled</span>.</h2>
-          <p class="lead">Evolving Infra decouples compute allocation from KV cache management, so nodes switch their compute phases efficiently between prefill and decode. An online planner then sizes the PD split from fine-grained signals, and an agent-aware KV manager keeps the KV that agents will reuse.</p>
+          <h2 id="architecture-heading">Adapts compute and KV cache<br>to agent workloads, <span class="accent-text">online</span>.</h2>
+          <p class="lead">Evolving Infra decouples compute from the KV cache, so a node switches between prefill and decode without restarting or losing its KV. An online planner re-splits the nodes as the agent mix shifts, learning the speed of the model and hardware instead of profiling offline. An agent-aware KV manager keeps the KV that agents will reuse.</p>
         </div>
         <figure class="arch-compare" aria-label="Existing PD disaggregation compared with Evolving Infra">
           <div class="arch-demo-control"><p data-arch-event>Workload shift: reallocate one prefill node to decode.</p><div><button type="button" data-arch-play>Pause</button><button type="button" data-arch-replay>Replay</button></div></div>
