@@ -2,21 +2,27 @@
   'use strict';
   const root=document.getElementById('shift-demo');if(!root)return;
   const $=id=>document.getElementById(id),reduced=matchMedia('(prefers-reduced-motion: reduce)');
-  // Digitized from the paper's shifting-workload figure; also used by compute-allocation.html.
-  // Each row is [minutes after warmup, Evolving Infra prefill node count].
-  const splits=[[0,3],[80.7,4],[85.9,5],[91,6],[139.3,8]];
+  const splits=window.WORKLOAD_SPLIT_DATA;
+  const at=(arm,t)=>{let current=splits[arm][0];for(const r of splits[arm])if(r[0]<=t)current=r;return current;};
+  for(const arm of ['dynamo','ours'])for(let i=0;i<9;i++){const node=document.createElement('span');node.className='shift-node';node.setAttribute('aria-hidden','true');$('shift-nodes-'+arm).append(node);}
   const workloads=[[288,0],[144,72],[0,144]],tabs=Array.from(root.querySelectorAll('[data-shift-phase]'));
   let time=0,playing=!reduced.matches,visible=false,last=null,hold=0,previous='';
   function render(){
-    const phase=Math.min(2,Math.floor(time/60)),counts=workloads[phase];let p=3;
-    for(const row of splits)if(time>=row[0])p=row[1];
+    const phase=Math.min(2,Math.floor(time/60)),counts=workloads[phase],ours=at('ours',time),dyn=at('dynamo',time),p=ours[1];
     $('shift-time').textContent=Math.floor(time)+' min';$('shift-seek').value=String(time);
-    const key=phase+':'+p;if(key===previous)return;previous=key;
+    const key=[phase,...ours,...dyn].join(':');if(key===previous)return;previous=key;
     tabs.forEach((b,i)=>b.setAttribute('aria-pressed',String(i===phase)));
     $('shift-putnam').textContent=String(counts[0]);$('shift-osworld').textContent=String(counts[1]);
     $('shift-putnam').parentElement.classList.toggle('is-empty',!counts[0]);$('shift-osworld').parentElement.classList.toggle('is-empty',!counts[1]);
-    $('shift-split').textContent=p+'P · '+(9-p)+'D';$('shift-p').style.width=(p/9*100)+'%';
-    const text=phase===0?'Decode-heavy math agents: six of the nine nodes serve decode.':phase===1?(p===3?'Computer-use agents join. The split initially remains at 3P · 6D.':p===6?'The mixed workload now uses six prefill nodes and three decode nodes.':'The planner moves more nodes to prefill as the workload changes.'):(p<8?'The workload becomes entirely computer-use agents. The allocation continues to adapt.':'Prefill-heavy computer-use agents: eight nodes now serve prefill.');
+    for(const [arm,row] of [['dynamo',dyn],['ours',ours]]){
+      const prefill=row[1],decode=row[2],restarting=9-prefill-decode;
+      $('shift-split-'+arm).textContent=prefill+'P · '+decode+'D';
+      $('shift-status-'+arm).textContent=restarting?restarting+' restarting':'9 serving';
+      const host=$('shift-nodes-'+arm);
+      host.setAttribute('aria-label',(arm==='ours'?'Evolving Infra':'Dynamo')+': '+prefill+' prefill, '+decode+' decode, '+restarting+' restarting nodes');
+      [...host.children].forEach((node,i)=>{const state=i<prefill?'p':i<prefill+decode?'d':'restarting';node.className='shift-node is-'+state;node.textContent=state==='p'?'P':state==='d'?'D':'↻';});
+    }
+    const text=['Decode-heavy Putnam favors more decode capacity.','Computer-use agents join the workload, increasing prefill demand.','All agents now run prefill-heavy OSWorld. Compare the two allocations.'][phase];
     $('shift-caption').textContent=text;
   }
   function setPlaying(value){playing=value;last=null;$('shift-play').textContent=value?'Pause':'Play';$('shift-play').setAttribute('aria-pressed',String(value));}

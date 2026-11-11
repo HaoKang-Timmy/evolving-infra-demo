@@ -32,7 +32,7 @@
   <link rel="stylesheet" href="page-outline.css?v=outline-5">
   <link rel="stylesheet" href="research-details.css?v=evidence-box-1">
   <link rel="stylesheet" href="arch-compare.css?v=slower-switch-3">
-  <link rel="stylesheet" href="workload-replay.css">
+  <link rel="stylesheet" href="workload-replay.css?v=both-systems-2">
   <link rel="preload" as="image" href="media/scene/apps-atlas.png">
   <link rel="preload" as="image" href="media/scene/hardware-atlas.png">
   <script src="js/site.js?v=light-motion" defer></script>
@@ -42,7 +42,8 @@
   <script src="js/role-switch.js?v=paper-scope" defer></script>
   <script src="js/demo-frames.js?v=1" defer></script>
   <script src="js/arch-compare.js?v=slower-switch-3" defer></script>
-  <script src="js/workload-replay.js" defer></script>
+  <script src="js/shift-data.js" defer></script>
+  <script src="js/workload-replay.js?v=both-systems-2" defer></script>
   <script src="js/page-outline.js?v=outline-3" defer></script>
   <script src="js/evidence.js?v=arxiv-1" defer></script>
 </head>
@@ -298,7 +299,7 @@
           <h2 id="planning-heading"><span class="accent-text">Adapt</span> compute allocation<br>to dynamic agent workloads.</h2>
           <div><p class="lead">When the workload composition shifts, Evolving Infra moves nodes between prefill and decode, so neither side becomes the bottleneck.</p><p>It learns prefill and decode iteration-time models online, without offline profiling. The prefill model incorporates KV reuse, and the planner switches only when the predicted throughput gain of a new split persists across the planning window. As the workload shifts from math agents to computer-use agents, it achieves 2.1× the throughput of Dynamo and 28% more than the best static split.</p></div>
         </div>
-        <div class="demo-frame" id="planning-demo"><iframe src="demos/compute-allocation.html?v=dynamo-1" title="Demo: as the workload shifts, Evolving Infra reaches the optimal PD split sooner than the Dynamo planner" style="height:880px"></iframe></div>
+        <div class="demo-frame" id="planning-demo"><iframe src="demos/compute-allocation.html?v=recorded-splits-2" title="Demo: as the workload shifts, Evolving Infra reaches the optimal PD split sooner than the Dynamo planner" style="height:880px"></iframe></div>
       </div>
     </section>
     <section class="idea-section" id="kv-management" aria-labelledby="kv-heading">
@@ -342,12 +343,17 @@
       <p class="ev-intro">Three consecutive hours move from decode-heavy Putnam, through a mixed workload, to prefill-heavy OSWorld. A single static split cannot match all three phases.</p>
       <div class="adaptation-layout">
         <div class="adaptation-replay">
-          <section class="shift-demo" id="shift-demo" aria-label="Workload and Evolving Infra allocation over the same three-hour run">
+          <section class="shift-demo" id="shift-demo" aria-label="Workload, Dynamo and Evolving Infra allocations over the same three-hour run">
             <header class="shift-head"><p><strong>WORKLOAD → COMPUTE ALLOCATION</strong><br>3 hours replayed in 18 seconds</p><button type="button" id="shift-play" aria-pressed="true">Pause</button></header>
             <div class="shift-phases" role="group" aria-label="Jump to workload phase"><button type="button" data-shift-phase="0" aria-pressed="true">Putnam<small>0–60 min</small></button><button type="button" data-shift-phase="1" aria-pressed="false">Mixed<small>60–120 min</small></button><button type="button" data-shift-phase="2" aria-pressed="false">OSWorld<small>120–180 min</small></button></div>
-            <div class="shift-row"><div class="shift-workload"><p class="shift-label">CONCURRENT AGENTS</p><p class="shift-agents">Putnam<strong id="shift-putnam">288</strong></p><p class="shift-agents is-empty">OSWorld<strong id="shift-osworld">0</strong></p></div><span class="shift-arrow" aria-hidden="true">→</span><div class="shift-allocation"><p class="shift-label">EVOLVING INFRA</p><strong id="shift-split">3P · 6D</strong><div class="shift-capacity" aria-hidden="true"><span class="shift-p" id="shift-p">P</span><span class="shift-d">D</span></div><p class="shift-capacity-note">P = prefill · D = decode · 9 nodes total</p></div></div>
+            <div class="shift-workload"><p class="shift-label">CONCURRENT AGENTS</p><p class="shift-agents">Putnam<strong id="shift-putnam">288</strong></p><p class="shift-agents is-empty">OSWorld<strong id="shift-osworld">0</strong></p></div>
+            <div class="shift-systems">
+              <article class="shift-system" data-shift-system="dynamo"><header><h4>Dynamo</h4><div><strong id="shift-split-dynamo">4P · 4D</strong><span id="shift-status-dynamo">1 restarting</span></div></header><div class="shift-nodes" id="shift-nodes-dynamo" aria-label="Dynamo nodes"></div></article>
+              <article class="shift-system is-ours" data-shift-system="ours"><header><h4>Evolving Infra</h4><div><strong id="shift-split-ours">3P · 6D</strong><span id="shift-status-ours">9 serving</span></div></header><div class="shift-nodes" id="shift-nodes-ours" aria-label="Evolving Infra nodes"></div></article>
+            </div>
+            <p class="shift-node-key"><span><b>P</b> Prefill</span><span><b>D</b> Decode</span><span><b>↻</b> Restarting</span><span>Each node = 4 GB300 GPUs</span></p>
             <div class="shift-clock"><span>0</span><input id="shift-seek" type="range" min="0" max="180" step="0.1" value="0" aria-label="Minutes after warmup"><span>180</span><strong id="shift-time">0 min</strong></div>
-            <p class="shift-caption" id="shift-caption">Decode-heavy math agents: six of the nine nodes serve decode.</p><p class="shift-source">Time after warmup. Split transitions reconstructed from the paper figure.</p>
+            <p class="shift-caption" id="shift-caption">Decode-heavy Putnam favors more decode capacity.</p><p class="shift-source">Time after warmup. Recorded PD splits from the report. Nodes are grouped by role, not physical identity.</p>
           </section>
           <details class="method shift-measurement"><summary>Measured PD splits and baseline comparisons</summary><div><figure class="timeline ev-panel"><div class="legend timeline-legend"><span><i class="ours"></i>Evolving Infra</span><span><i class="baseline"></i>Dynamo</span><span><i class="reference"></i>Best per-window SGLang split</span><span><i class="static-ref"></i>Best static SGLang split</span></div><img src="fig/eval-shift-split.svg" alt="Measured PD split over 180 minutes across Putnam, mixed, and OSWorld phases"><figcaption>Time after warmup. The dotted Dynamo segments mark a node relaunch. Reference splits are profiled under SGLang; symmetric engines can have a different optimum.</figcaption></figure></div></details>
         </div>
