@@ -27,7 +27,7 @@
   <link rel="stylesheet" href="reading-view.css?v=nav-links-2">
   <link rel="stylesheet" href="reading-typography.css?v=evidence-1">
   <link rel="stylesheet" href="reading-compact.css?v=code-link-1">
-  <link rel="stylesheet" href="role-switch.css?v=three-beats-1">
+  <link rel="stylesheet" href="role-switch.css?v=nine-nodes-1">
   <link rel="stylesheet" href="idea-demos.css?v=demo-frames-1">
   <link rel="stylesheet" href="page-outline.css?v=outline-5">
   <link rel="stylesheet" href="research-details.css?v=evidence-box-1">
@@ -39,7 +39,7 @@
   <script src="js/hero.js?v=adaptive-copy" defer></script>
   <script src="js/workload.js?v=light-motion" defer></script>
   <script src="js/reading-view.js?v=follow-scroll" defer></script>
-  <script src="js/role-switch.js?v=three-beats-1" defer></script>
+  <script src="js/role-switch.js?v=nine-nodes-1" defer></script>
   <script src="js/demo-frames.js?v=1" defer></script>
   <script src="js/arch-compare.js?v=workload-shift-1" defer></script>
   <script src="js/shift-data.js" defer></script>
@@ -197,8 +197,8 @@
         <div class="role-story" id="role-story">
         <section class="switch-demo" id="role-switch-demo" data-step="0" data-baseline="restart" data-playing="false" aria-labelledby="switch-demo-title">
           <div class="switch-stage">
-          <div class="switch-demo-heading"><div><h3 id="switch-demo-title">A node switches from prefill to decode without a restart.<br><span class="accent-text">Its KV stays readable by all&nbsp;nodes.</span></h3></div><div class="switch-controls"><div class="switch-playback"><button id="switch-play" type="button" class="button button-primary">Play comparison</button><button id="switch-replay" type="button" class="button button-outline">Replay</button></div></div></div>
-          <div class="switch-explanation"><strong id="switch-step-title" aria-live="polite">Workload shift: decode demand rises, so N3 must move from prefill to decode.</strong></div>
+          <div class="switch-demo-heading"><div><h3 id="switch-demo-title">Nodes switch between prefill and decode without a restart.<br><span class="accent-text">Their KV stays readable by all&nbsp;nodes.</span></h3></div><div class="switch-controls"><div class="switch-playback"><button id="switch-play" type="button" class="button button-primary">Play comparison</button><button id="switch-replay" type="button" class="button button-outline">Replay</button></div></div></div>
+          <div class="switch-explanation"><strong id="switch-step-title" aria-live="polite">Prefill-heavy workload: all nine nodes run prefill and hold the KV of the requests they served.</strong></div>
           <div class="switch-panels">
           <article class="switch-panel" data-system="baseline" aria-label="Comparison deployment">
             <header class="switch-panel-header"><div><span class="switch-panel-label" data-path-label>RESTART-BASED RECONFIGURATION</span><h4 id="baseline-title">Existing engine</h4></div><span class="switch-split" data-split>3P · 3D</span></header>
@@ -251,7 +251,7 @@
 
 
           </div>
-          <p class="switch-scope-note">Existing engine: the restart-based Dynamo/SGLang deployment evaluated in the report; only the switching node restarts. SGLang&rsquo;s <a href="https://github.com/sgl-project/sglang/blob/f3532057e15fb8ede90ce1aeddfb5bd20dfbd4b6/python/sglang/srt/disaggregation/role_switch.py#L239-L294" target="_blank" rel="noopener noreferrer">runtime role switch ↗</a> avoids the relaunch, but it first drains the node and then releases its prefix cache.</p>
+          <p class="switch-scope-note">Existing engine: the restart-based Dynamo/SGLang deployment evaluated in the report; only the switching nodes relaunch, the rest keep serving. SGLang&rsquo;s <a href="https://github.com/sgl-project/sglang/blob/f3532057e15fb8ede90ce1aeddfb5bd20dfbd4b6/python/sglang/srt/disaggregation/role_switch.py#L239-L294" target="_blank" rel="noopener noreferrer">runtime role switch ↗</a> avoids the relaunch, but it first drains the node and then releases its prefix cache.</p>
         </section>
         </div>
       </div>

@@ -229,14 +229,39 @@ body.content-active #why-evolve .idea-decoupling .lead { max-width: none; margin
   .switch-steps button[aria-current="step"]::after { transform: scaleX(1); }
 }
 
-/* Three-beat version: Evolving Infra finishes its switch early in beat 2; the existing engine is still restarting. */
-.switch-demo[data-step="1"] .ours .switch-target { background: #d9d6d2; color: #343038; border-color: #a9a39d; }
-.switch-demo[data-playing="true"][data-step="1"] .ours .switch-target { animation: role-confirm .85s ease both; }
-.switch-demo[data-playing="true"][data-step="1"] .ours .switch-target .node-phase { animation: phase-flip .65s ease both; }
-.switch-demo[data-playing="true"][data-step="2"] .ours .switch-target,
-.switch-demo[data-playing="true"][data-step="2"] .ours .switch-target .node-phase { animation: none; }
+/* Timeline version: nine nodes switch P → D and back. Evolving Infra switches in place; the existing engine relaunches each node. */
+.is-timeline .switch-diagram { margin-top: -44px; }
+.is-timeline .switch-node-grid, .is-timeline .memory-node-grid { grid-template-columns: repeat(9,minmax(0,1fr)); gap: 5px; }
+.is-timeline .shared-access-rail::before { left: 5.556%; right: 5.556%; }
+.is-timeline .node-phase { font-size: 20px; }
+.is-timeline .switch-node { overflow: hidden; }
+.is-timeline .switch-node.is-restarting { background: repeating-linear-gradient(135deg,#fff0f2 0 6px,#f2d3da 6px 12px); color: #b2132a; border: 1px dashed #c3213b; }
+.is-timeline .restart-bar { position: absolute; left: 4px; right: 4px; bottom: 4px; height: 4px; border-radius: 2px; background: #f2c9d1; opacity: 0; }
+.is-timeline .restart-bar i { display: block; width: var(--p,0%); height: 100%; border-radius: 2px; background: #c3213b; }
+.is-timeline .switch-node.is-restarting .restart-bar { opacity: 1; }
+.is-timeline .switch-node.is-switching { z-index: 1; border-color: var(--red); box-shadow: 0 0 0 2px var(--red),0 0 14px #c9233666; }
+.is-timeline .switch-node.is-switching .node-phase { animation: phase-flip .5s ease both; }
+.is-timeline .stored-request { --block-width: 7px; --block-height: 8px; }
+.is-timeline .stored-request > b { font-size: 8px; }
+.is-timeline .stored-requests { grid-template-rows: repeat(2,minmax(0,1fr)); top: 30px; bottom: 10px; }
+.is-timeline .node-storage { transition: border-color .3s, background .3s, box-shadow .3s; }
+.is-timeline .node-storage .stored-request { transition: opacity .35s; }
+.is-timeline .node-storage.is-wiped { border-color: #cd233d; background: #fff0f2; }
+.is-timeline .node-storage.is-wiped .stored-request { opacity: .15; }
+.is-timeline .node-storage.is-wiped .storage-node-label small { visibility: hidden; }
+.is-timeline .node-storage.is-wiped .storage-node-label::after { content: 'LOST'; position: absolute; top: 14px; left: 0; right: 0; color: #b2132a; font: 600 7px/1.2 var(--mono); }
+.is-timeline .node-storage.is-refill .stored-request { opacity: .45; }
+.is-timeline .node-storage.is-kept { border-color: var(--red); box-shadow: 0 0 0 2px #c9233626; }
+.is-timeline .has-outage .switch-cache-status { color: #b2132a; }
+.is-timeline .has-outage .cache-dot { background: #b2132a; }
 .switch-scope-note { margin: 14px 0 0; color: #6f6a70; font: 12px/1.6 var(--mono); }
 .switch-scope-note a { color: var(--red); }
-/* The request chips that sat above the nodes are gone, so pull the diagram up into that space. */
-.switch-diagram { margin-top: -44px; }
-.switch-demo[data-step="1"] [data-system="baseline"] .switch-target::after { content: 'RESTART'; }
+@media (max-width:760px) {
+  .is-timeline .switch-node-grid, .is-timeline .memory-node-grid { gap: 3px; }
+  .is-timeline .node-phase { font-size: 16px; }
+  .is-timeline .node-id { font-size: 9px; }
+  .is-timeline .stored-request { --block-width: 5px; --block-height: 7px; }
+  .is-timeline .kv-sequence { gap: 1px; }
+  .is-timeline .stored-request > b { font-size: 7px; }
+}
+.is-timeline .switch-node.is-waiting { outline: 2px dashed #c3213b; outline-offset: 2px; }
