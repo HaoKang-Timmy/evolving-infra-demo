@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>V2 · The hourglass</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="stage.css">
+  <style>
+    /* V2 only; stage px. Zone labels are right-aligned to their leader dots (left of each hourglass). */
+    .v2-svg { position: absolute; left: 0; top: 0; overflow: visible; pointer-events: none; }
+    .v2-label { position: absolute; font-size: 24px; line-height: 28px; color: #c3c6cf; white-space: nowrap; text-align: right; }
+    .v2-plug-label { position: absolute; font-size: 22px; line-height: 26px; font-weight: 600; color: var(--wait); white-space: nowrap; text-align: right; }
+    .v2-counter-label { position: absolute; top: 878px; line-height: 28px; white-space: nowrap; }
+    .v2-check { position: absolute; top: 860px; overflow: visible; }
+    .v2-counter { position: absolute; top: 857px; line-height: 70px; }
+    .v2-clock { position: absolute; top: 871px; line-height: 42px; }
+    .speed { display: flex; align-items: center; gap: 10px; }
+  </style>
+</head>
+<body>
+  <div class="viewport"><div class="stage" id="stage">
+    <div class="eyebrow">Claude Code workload</div>
+    <div class="title">126 coding agents at once</div>
+    <div class="side-name" style="left:40px">Dynamo</div>
+    <div class="side-name ours" style="left:980px">Evolving Infra</div>
+    <div class="panel" style="left:40px;top:236px;width:900px;height:600px"></div>
+    <div class="panel ours" style="left:980px;top:236px;width:900px;height:600px"></div>
+    <div class="speed"><svg width="34" height="22" viewBox="0 0 34 22" aria-hidden="true"><path d="M0 0 L16 11 L0 22 Z M17 0 L33 11 L17 22 Z" fill="#9aa0ab"/></svg>90×</div>
+    <div class="note">One grain = one agent. Where a grain sits inside a bulb is layout only.</div>
+  </div></div>
+  <script src="cc-demo-data.js"></script>
+  <script src="stage.js"></script>
+  <script src="v2.js"></script>
+</body>
+</html>

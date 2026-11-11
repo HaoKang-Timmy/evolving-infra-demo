@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>KV cache across an agent's life — Evolving Infra</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="kv-lifecycle.css"><script src="kv-lifecycle.js" defer></script>
+</head>
+<body>
+<section class="demo" id="demo" aria-labelledby="title">
+  <header class="head"><h3 id="title">Evict KV that no active branch needs.<br><span>Keep the KV of branches that wait for tools.</span></h3><button id="play" type="button" aria-pressed="true">Pause</button></header>
+  <div class="scenarios" role="group" aria-label="Agent scenario"><button type="button" data-scene="0" aria-pressed="true">Compaction</button><button type="button" data-scene="1" aria-pressed="false">Subagent</button><button type="button" data-scene="2" aria-pressed="false">Tool call</button></div>
+  <div class="scene" id="scene" data-stage="0">
+    <div class="context"><p class="label">AGENT CONTEXT</p><h4 id="context-title">A conversation grows.</h4><div class="documents" aria-hidden="true"><div class="document primary"><span id="doc-one">Conversation history</span><div class="lines"><i></i><i></i><i></i><i></i><i></i></div><b id="doc-one-state">In use</b></div><div class="document secondary"><span id="doc-two">Compacted context</span><div class="lines"><i></i><i></i><i></i></div><b id="doc-two-state">Next request</b></div></div><p class="context-caption" id="context-caption">The agent still uses its conversation history.</p></div>
+    <span class="flow" aria-hidden="true">→</span>
+    <div class="cache"><p class="label">EVOLVING INFRA · KV CACHE</p><h4 id="cache-title">Keep the context in use.</h4><div class="cache-entries"><div class="entry" id="entry-one"><span class="kv-mark" aria-hidden="true"></span><span id="cache-one">Conversation history</span><strong id="cache-one-state">Retain</strong></div><div class="entry" id="entry-two"><span class="kv-mark" aria-hidden="true"></span><span id="cache-two">Compacted context</span><strong id="cache-two-state">Retain</strong></div></div><p class="cache-caption" id="cache-caption">An active branch may reuse this KV.</p></div>
+  </div>
+  <footer><p id="decision">When space is needed, evict replaced history before reusable KV.</p><span>Illustration · eviction priority</span></footer>
+</section>
+</body>
+</html>

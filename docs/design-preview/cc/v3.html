@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>V3 · Read once, or read again</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="stage.css">
+  <link rel="stylesheet" href="v3.css">
+</head>
+<body>
+  <div class="viewport"><div class="stage" id="stage">
+    <div class="eyebrow">Claude Code workload</div>
+    <div class="title">New work, or re-reading old conversations?</div>
+
+    <div class="side-name" style="left:40px">Dynamo</div>
+    <div class="side-name ours" style="left:980px">Evolving Infra</div>
+    <!-- panel interiors (block, falling sheets, piles, answer dots, labels) are built by v3.js -->
+    <div class="panel" id="v3-panel-dyn" style="left:40px;top:230px;width:900px;height:600px"></div>
+    <div class="panel ours" id="v3-panel-ours" style="left:980px;top:230px;width:900px;height:600px"></div>
+
+    <div class="v3-count" style="left:40px">
+      <div class="counter-label">Model calls answered</div>
+      <div class="counter" id="v3-count-dyn">0</div>
+    </div>
+    <div class="clock v3-clock" id="v3-clock-dyn" style="left:490px">00:00</div>
+    <div class="v3-count" style="left:980px">
+      <div class="counter-label">Model calls answered</div>
+      <div class="counter ours" id="v3-count-ours">0</div>
+    </div>
+    <div class="clock v3-clock ours" id="v3-clock-ours" style="left:1430px">00:00</div>
+
+    <div class="v3-caption" id="v3-caption">
+      <svg width="22" height="28" viewBox="0 0 22 28" aria-hidden="true"><rect width="22" height="28" rx="2" fill="#f0a830"/><rect x="4" y="6" width="14" height="2.5" rx="1.2" fill="#8a5a12"/><rect x="4" y="12" width="12" height="2.5" rx="1.2" fill="#8a5a12"/><rect x="4" y="18" width="14" height="2.5" rx="1.2" fill="#8a5a12"/></svg>
+      <span>Re-read after forgetting: <span class="d">71M</span> vs <span class="o">31M</span> tokens</span>
+    </div>
+
+    <div class="note v3-note"><svg width="13" height="16" viewBox="0 0 13 16" aria-hidden="true"><rect x="0.75" y="0.75" width="11.5" height="14.5" rx="1.5" fill="none" stroke="#8b8f9a" stroke-width="1.5"/></svg>each sheet = 1M tokens of reading</div>
+    <div class="speed v3-speed"><svg width="28" height="18" viewBox="0 0 28 18" aria-hidden="true"><path d="M0 0 L13 9 L0 18 Z M14 0 L27 9 L14 18 Z" fill="currentColor"/></svg>90×</div>
+  </div></div>
+  <script src="cc-demo-data.js"></script>
+  <script src="stage.js"></script>
+  <script src="v3.js"></script>
+</body>
+</html>

@@ -1,0 +1,32 @@
+/* Shared 1920x1080 stage for the Claude Code demo prototypes (dark, same look as the video). */
+:root {
+  --bg0: #0b0c12; --bg1: #0f1019; --fg: #e8e9ee; --muted: #8b8f9a; --faint: #565a66; --line: #262833;
+  --dyn: #d9dbe1; --ours: #e0313f; --wait: #f0a830; --gen: #3ecf8e; --tool: #6b7280; --panel: #12131c;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; background: #050608; color: var(--fg); font-family: 'Source Sans 3', system-ui, sans-serif; }
+.viewport { position: fixed; inset: 0 0 52px 0; overflow: hidden; }
+.embed .viewport { bottom: 0; }
+.stage { width: 1920px; height: 1080px; position: absolute; left: 50%; top: 50%; overflow: hidden; transform-origin: center center;
+  background: linear-gradient(180deg, var(--bg0), var(--bg1)); }
+.controls { position: fixed; left: 0; right: 0; bottom: 0; height: 52px; display: flex; align-items: center; gap: 14px;
+  padding: 0 16px; background: #0d0e14; border-top: 1px solid #1f2129; color: #aeb2bd; font: 14px/1.2 'Source Sans 3', sans-serif; }
+.controls button { min-width: 64px; height: 32px; border: 1px solid #3a3d48; border-radius: 4px; background: #161821; color: #e8e9ee; font: inherit; cursor: pointer; }
+.controls input[type=range] { flex: 1; accent-color: var(--ours); }
+.controls .time { width: 64px; text-align: right; font-variant-numeric: tabular-nums; }
+.controls .name { white-space: nowrap; color: #e8e9ee; }
+.controls a { color: #aeb2bd; }
+
+/* Shared stage typography and frame, in stage pixels */
+.eyebrow { position: absolute; left: 0; right: 0; top: 64px; text-align: center; color: var(--ours); font-size: 22px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; }
+.title { position: absolute; left: 0; right: 0; top: 96px; text-align: center; font-size: 46px; font-weight: 600; letter-spacing: -.005em; }
+.side-name { position: absolute; top: 170px; font-size: 40px; font-weight: 600; color: var(--fg); }
+.side-name.ours { color: var(--ours); }
+.panel { position: absolute; border: 2px solid #c9ccd4; border-radius: 6px; background: var(--panel); }
+.panel.ours { border-color: var(--ours); }
+.counter-label { font-size: 22px; letter-spacing: .04em; text-transform: uppercase; color: var(--muted); }
+.counter { font-size: 58px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.counter.ours { color: var(--ours); }
+.clock { font-size: 34px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.speed { position: absolute; right: 40px; bottom: 30px; font-size: 30px; color: #9aa0ab; font-variant-numeric: tabular-nums; }
+.note { position: absolute; left: 40px; bottom: 30px; font-size: 18px; color: var(--faint); }

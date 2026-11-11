@@ -1,0 +1,297 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="robots" content="noindex">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Design 04-F – Skip the line</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f7f5f2;--panel:#ffffff;--fg:#232328;--muted:#56545d;--faint:#67646d;--red:#c92336;--line:#d9d5cf;
+  --display:'Space Grotesk',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --mono:'IBM Plex Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+  --a:#3f64a3;--a-t:#dfe7f5;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--display);font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+button{font:inherit;color:inherit;background:none;border:0;margin:0;cursor:pointer;-webkit-tap-highlight-color:transparent}
+button:focus-visible{outline:2px solid var(--red);outline-offset:3px}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+
+/* Preview strip: not part of the demo. */
+.preview{background:#ebe7e1;border-bottom:1px dashed #bdb6ad;padding:10px 16px}
+.preview p{width:min(1076px,100%);margin:0 auto;font:12px/1.55 var(--mono);color:var(--muted)}
+.preview b{color:var(--fg);font-weight:600}
+
+/* Demo box */
+.page{width:min(1076px,calc(100% - 32px));margin:28px auto 56px}
+.demo{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:clamp(14px,2.4vw,26px)}
+.head{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px 18px}
+.head h3{margin:0;font-size:clamp(22px,1.6vw + 14px,32px);font-weight:500;line-height:1.12;letter-spacing:-.035em}
+.accent{color:var(--red)}
+.controls{display:flex;gap:6px;flex:none}
+.btn{display:inline-flex;align-items:center;gap:7px;min-height:36px;padding:6px 13px;border:1px solid #aaa59e;border-radius:4px;font-size:14px;font-weight:500;line-height:1.2;transition:background .2s,border-color .2s}
+.btn:hover{background:#efebe5;border-color:#817a74}
+.btn svg{width:12px;height:12px;flex:none}
+.line{margin:6px 0 0;font:13px/1.5 var(--mono);color:var(--faint)}
+
+.sides{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;margin-top:18px}
+.side{min-width:0;border:1px solid var(--line);border-top:3px solid #8f8a84;border-radius:8px;padding:12px clamp(10px,1.6vw,16px);background:#fcfbf9}
+.side.ei{border-top-color:var(--red)}
+.side h4{margin:0 0 4px;font-size:16px;font-weight:600;letter-spacing:-.01em}
+.side.ei h4{color:var(--red)}
+.side svg{display:block;width:100%;max-width:460px;height:auto;margin:0 auto}
+.out{margin-top:8px}
+.out .txt{display:block;min-height:24px;font-size:16px;font-weight:600;letter-spacing:-.01em}
+.side.ei .out .txt{color:var(--red)}
+.bar{display:block;height:9px;margin-top:4px;border-radius:5px;background:#ebe7e1;overflow:hidden}
+.bar i{display:block;height:100%;width:0}
+.side .bar i{background:repeating-linear-gradient(135deg,#8d8780 0 4px,#b6b0a9 4px 8px)}
+.side.ei .bar i{background:var(--red)}
+
+/* SVG parts */
+.tile{fill:#fff;stroke:#4a4850;stroke-width:1.6}
+.mem{fill:#f3f0eb;stroke:#d3cdc5;stroke-width:1}
+.slot{fill:none;stroke:#d0cac2;stroke-width:1;stroke-dasharray:3 3}
+.seat{fill:none;stroke:#c9c3bb;stroke-width:1.2;stroke-dasharray:3 3}
+.ringbg{fill:none;stroke:#ece8e2;stroke-width:3}
+.ring{fill:none;stroke:var(--fg);stroke-width:3;stroke-linecap:round}
+.ring.red{stroke:var(--red)}
+.req{fill:#b9b4ad}
+.ag{fill:var(--a)}
+.agl{fill:#fff;font:600 12px var(--mono)}
+.kv{stroke-width:1.5}
+.kv.g{fill:#e6e2dc;stroke:#9a948d}
+.kv.a{fill:var(--a-t);stroke:var(--a)}
+.kv.a.copy-left{fill:#fff;stroke-dasharray:4 3}
+.kv.hot{stroke:var(--red);stroke-width:2.6}
+.path{fill:none;stroke:var(--red);stroke-width:1.8;stroke-dasharray:5 4;stroke-linecap:round}
+.ck{fill:#fff;stroke:var(--fg);stroke-width:1.1}
+.cki{fill:none;stroke:var(--fg);stroke-width:1.4;stroke-linecap:round;stroke-linejoin:round}
+
+.demo.reduced .controls{display:none}
+@media (max-width:720px){
+  .sides{grid-template-columns:minmax(0,1fr)}
+}
+</style>
+</head>
+<body>
+<div class="preview"><p><b>Design 04-F – Skip the line.</b> The agent’s context sits on a busy GPU node: existing systems make it wait in that node’s line while the other node idles, Evolving Infra sends it to the free node and brings the context along, so it starts sooner.</p></div>
+
+<main class="page">
+<div class="demo" id="demo">
+  <div class="head">
+    <h3>Skip the line, <span class="accent">bring the context</span></h3>
+    <div class="controls">
+      <button type="button" class="btn" id="play"></button>
+      <button type="button" class="btn" id="replay"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2.2 6a3.8 3.8 0 1 0 1.2-2.8" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M1.6 1.4v2.8h2.8" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Replay</button>
+    </div>
+  </div>
+  <p class="line">Two GPU nodes. A’s context sits on the busy one.</p>
+
+  <div class="sides" id="anim" aria-hidden="true">
+    <section class="side">
+      <h4>Existing systems</h4>
+      <svg id="svgL" viewBox="0 0 360 206"></svg>
+      <div class="out"><span class="txt" id="txtL">A waits in line</span><span class="bar"><i id="barL"></i></span></div>
+    </section>
+    <section class="side ei">
+      <h4>Evolving Infra</h4>
+      <svg id="svgR" viewBox="0 0 360 206"></svg>
+      <div class="out"><span class="txt" id="txtR">A starts sooner</span><span class="bar"><i id="barR"></i></span></div>
+    </section>
+  </div>
+
+  <p class="sr-only">Animation. Two GPU nodes. The left node is busy with a line of requests and holds the context of agent A; the right node is free. A sends a new request. Existing systems keep the request in the line of the busy node, next to its context, while the free node idles, so A waits a long time. Evolving Infra sends the request to the free node and copies A's context there while the request waits, so A starts much sooner.</p>
+</div>
+</main>
+
+<script>
+(function(){
+  'use strict';
+  var D = 9.8, STATIC_T = 6.6;
+  var $ = function(id){ return document.getElementById(id); };
+  var demo = $('demo');
+  var reduce = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+
+  var cl = function(x){ return x < 0 ? 0 : x > 1 ? 1 : x; };
+  var ease = function(x){ x = cl(x); return x < .5 ? 2*x*x : 1 - Math.pow(-2*x + 2, 2) / 2; };
+  var R = function(t, a, b){ return ease((t - a) / (b - a)); };
+  var Lr = function(t, a, b){ return cl((t - a) / (b - a)); };
+  var mix = function(a, b, p){ return a + (b - a) * p; };
+
+  var NS = 'http://www.w3.org/2000/svg';
+  function E(tag, at, p){
+    var e = document.createElementNS(NS, tag);
+    for (var k in at) e.setAttribute(k, at[k]);
+    if (p) p.appendChild(e);
+    return e;
+  }
+  function op(e, v){ e.setAttribute('opacity', v.toFixed(3)); }
+  function mv(e, x, y){ e.setAttribute('transform', 'translate(' + x.toFixed(1) + ' ' + y.toFixed(1) + ')'); }
+
+  /* ---- layout ---- */
+  var TX = [8, 188], TY = 52;                         /* tiles: busy node, free node */
+  function runPos(n){ return [TX[n] + 30, TY + 36]; }
+  function lanePos(n, u){                              /* u = 0: running seat, u >= 1: place in line */
+    var r = runPos(n), q0 = TX[n] + 66;
+    if (u <= 0) return r;
+    if (u < 1) return [mix(r[0], q0, u), r[1]];
+    return [q0 + 25 * (u - 1), r[1]];
+  }
+  function slotPos(n, j){ return [TX[n] + 20 + 44 * j, TY + 85]; }
+  var ARR = [180, 22];                                 /* where A's request appears */
+  var CIRC = 2 * Math.PI * 17;
+
+  /* Busy node schedule: a running request and three in line (same on both sides). */
+  var SEAT = [-0.45, 1.40, 2.90, 4.40], FIN = [1.05, 2.55, 4.05, 5.55];
+  var A_LRU = { seat: 5.90, fin: 7.40 };               /* A at the end of the line */
+  var A_EI = { seat: 3.25, fin: 4.75 };                /* A on the free node */
+  function laneU(j, t){ var u = j; for (var k = 0; k < j && k < FIN.length; k++) u -= R(t, FIN[k], FIN[k] + .35); return u; }
+
+  function build(svg, ei){
+    var P = { ei: ei };
+    var n, j;
+    for (n = 0; n < 2; n++){
+      E('rect', { x: TX[n], y: TY, width: 164, height: 146, rx: 10, 'class': 'tile' }, svg);
+      var r = runPos(n);
+      E('circle', { cx: r[0], cy: r[1], r: 13, 'class': 'seat' }, svg);
+      E('circle', { cx: r[0], cy: r[1], r: 17, 'class': 'ringbg' }, svg);
+      E('rect', { x: TX[n] + 12, y: TY + 76, width: 140, height: 58, rx: 6, 'class': 'mem' }, svg);
+      for (j = 0; j < 3; j++){ var s = slotPos(n, j); E('rect', { x: s[0], y: s[1], width: 38, height: 40, rx: 4, 'class': 'slot' }, svg); }
+    }
+    /* progress rings */
+    P.ring = [];
+    for (n = 0; n < 2; n++){
+      var rp = runPos(n);
+      P.ring.push(E('circle', { cx: rp[0], cy: rp[1], r: 17, 'class': 'ring' + (ei && n === 1 ? ' red' : ''),
+        'stroke-dasharray': CIRC.toFixed(2), 'stroke-dashoffset': CIRC.toFixed(2), transform: 'rotate(-90 ' + rp[0] + ' ' + rp[1] + ')' }, svg));
+    }
+    /* context in the busy node's memory: two other agents, then A */
+    function kv(cls, x, y){
+      var g = E('g', {}, svg);
+      g._r = E('rect', { x: 0, y: 0, width: 38, height: 40, rx: 4, 'class': 'kv ' + cls }, g);
+      if (cls === 'a'){
+        E('circle', { cx: 19, cy: 20, r: 8, 'class': 'ag' }, g);
+        var tx = E('text', { x: 19, y: 24, 'text-anchor': 'middle', 'class': 'agl' }, g);
+        tx.textContent = 'A'; tx.style.fontSize = '10px';
+      }
+      mv(g, x, y);
+      return g;
+    }
+    var s0 = slotPos(0, 0), s1 = slotPos(0, 1), s2 = slotPos(0, 2);
+    kv('g', s0[0], s0[1]); kv('g', s1[0], s1[1]);
+    P.kvA = kv('a', s2[0], s2[1]);
+    if (ei){
+      var a = slotPos(0, 2), b = slotPos(1, 0);
+      P.p0 = [a[0] + 19, a[1] + 20]; P.p1 = [b[0] + 19, b[1] + 20]; P.pc = [(P.p0[0] + P.p1[0]) / 2, TY + 22];
+      P.path = E('path', { d: 'M' + P.p0[0] + ' ' + P.p0[1] + ' Q' + P.pc[0] + ' ' + P.pc[1] + ' ' + P.p1[0] + ' ' + P.p1[1], 'class': 'path', opacity: 0 }, svg);
+      P.kvCopy = kv('a', a[0], a[1]);
+    }
+    /* requests from other agents (gray) */
+    P.req = [];
+    for (j = 0; j < 4; j++) P.req.push(E('circle', { r: 10, 'class': 'req' }, svg));
+    /* A's request */
+    P.A = E('g', {}, svg);
+    E('circle', { r: 11, 'class': 'ag' }, P.A);
+    var lt = E('text', { y: 4.3, 'text-anchor': 'middle', 'class': 'agl' }, P.A); lt.textContent = 'A';
+    P.ck = E('g', { transform: 'translate(9 9)', opacity: 0 }, P.A);
+    E('circle', { r: 7, 'class': 'ck' }, P.ck);
+    E('path', { d: 'M-3.2 .3l2.1 2.2 4.4-4.6', 'class': 'cki' }, P.ck);
+    return P;
+  }
+
+  function ringP(t, seat, fin){ return t < seat ? 0 : cl((t - seat) / (fin - seat)); }
+  function setRing(c, p){ c.setAttribute('stroke-dashoffset', (CIRC * (1 - p)).toFixed(2)); op(c, p > 0 ? 1 : 0); }
+
+  function renderSide(P, t){
+    var ei = P.ei, j, pos;
+    /* gray requests on the busy node */
+    for (j = 0; j < 4; j++){
+      var c = P.req[j];
+      if (t < FIN[j]){ pos = lanePos(0, laneU(j, t)); op(c, 1); }
+      else { var e = R(t, FIN[j], FIN[j] + .35); var rp = runPos(0); pos = [rp[0], rp[1] - 22 * e]; op(c, 1 - e); }
+      c.setAttribute('cx', pos[0].toFixed(1)); c.setAttribute('cy', pos[1].toFixed(1));
+    }
+    /* busy node ring */
+    var p0 = 0;
+    for (j = 0; j < 4; j++) if (t >= SEAT[j] && t < FIN[j]) p0 = ringP(t, SEAT[j], FIN[j]);
+    if (!ei && t >= A_LRU.seat) p0 = ringP(t, A_LRU.seat, A_LRU.fin);
+    setRing(P.ring[0], p0);
+    setRing(P.ring[1], ei ? ringP(t, A_EI.seat, A_EI.fin) : 0);
+
+    /* A's request */
+    var drop = R(t, .7, 1.1), go = R(t, 1.5, 2.1), x, y, target;
+    if (ei){
+      var u = 1 - R(t, 2.9, 3.25);
+      target = lanePos(1, u);
+    } else {
+      target = lanePos(0, laneU(4, t));
+    }
+    x = mix(ARR[0], target[0], go);
+    y = mix(ARR[1] - 18 * (1 - drop), target[1], go);
+    mv(P.A, x, y); op(P.A, drop);
+    op(P.ck, ei ? R(t, A_EI.fin, A_EI.fin + .25) : R(t, A_LRU.fin, A_LRU.fin + .25));
+
+    /* A's context */
+    if (ei){
+      var f = R(t, 1.9, 2.9), q = f, iq = 1 - q;
+      var bx = iq * iq * P.p0[0] + 2 * iq * q * P.pc[0] + q * q * P.p1[0];
+      var by = iq * iq * P.p0[1] + 2 * iq * q * P.pc[1] + q * q * P.p1[1];
+      mv(P.kvCopy, bx - 19, by - 20);
+      op(P.kvCopy, t >= 1.9 ? 1 : 0);
+      op(P.path, R(t, 1.75, 1.95) * (1 - R(t, 3.0, 3.4)));
+      P.kvA._r.classList.toggle('copy-left', t >= 3.0);    /* the copy left behind fades */
+      op(P.kvA, 1 - .45 * R(t, 3.0, 3.4));
+      P.kvCopy._r.classList.toggle('hot', t >= A_EI.seat);
+    } else {
+      P.kvA._r.classList.toggle('hot', false);
+    }
+  }
+
+  var PL = build($('svgL'), false), PR = build($('svgR'), true);
+
+  function render(t){
+    $('anim').style.opacity = Math.min(R(t, 0, .4), 1 - R(t, 8.9, 9.5)).toFixed(3);
+    renderSide(PL, t);
+    renderSide(PR, t);
+    $('txtL').style.opacity = R(t, 2.1, 2.4).toFixed(3);
+    $('txtR').style.opacity = R(t, A_EI.seat, A_EI.seat + .3).toFixed(3);
+    /* waiting time of A, same scale on both sides */
+    $('barL').style.width = (cl((Math.min(t, A_LRU.seat) - 2.1) / 3.9) * 100).toFixed(1) + '%';
+    $('barR').style.width = (cl((Math.min(t, A_EI.seat) - 2.1) / 3.9) * 100).toFixed(1) + '%';
+  }
+
+  /* ---- playback: autoplay loop, Pause/Play, Replay ---- */
+  var t = 0, playing = !reduce, onScreen = true, last = 0;
+  var btn = $('play');
+  var ICON_PAUSE = '<svg viewBox="0 0 12 12" aria-hidden="true"><rect x="2" y="1.5" width="2.6" height="9" rx=".6" fill="currentColor"/><rect x="7.4" y="1.5" width="2.6" height="9" rx=".6" fill="currentColor"/></svg>';
+  var ICON_PLAY = '<svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 1.4v9.2L10.4 6z" fill="currentColor"/></svg>';
+  function setBtn(){ btn.innerHTML = (playing ? ICON_PAUSE + 'Pause' : ICON_PLAY + 'Play'); }
+  btn.addEventListener('click', function(){ playing = !playing; last = 0; setBtn(); });
+  $('replay').addEventListener('click', function(){ t = 0; playing = true; last = 0; setBtn(); render(t); });
+  function tick(now){
+    if (!last) last = now;
+    var dt = Math.min((now - last) / 1000, .1);
+    last = now;
+    if (playing && onScreen){ t += dt; if (t >= D) t -= D; render(t); }
+    requestAnimationFrame(tick);
+  }
+  if (reduce){
+    demo.classList.add('reduced');
+    render(STATIC_T);
+  } else {
+    if ('IntersectionObserver' in window){
+      new IntersectionObserver(function(es){ onScreen = es[0].isIntersecting; }).observe(demo);
+    }
+    setBtn();
+    render(0);
+    requestAnimationFrame(tick);
+  }
+})();
+</script>
+</body>
+</html>

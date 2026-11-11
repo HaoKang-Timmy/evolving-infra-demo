@@ -1,0 +1,273 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="robots" content="noindex">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Moving wall</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f7f5f2;--panel:#fff;--fg:#232328;--muted:#56545d;--faint:#67646d;--red:#c92336;--line:#d9d5cf;--display:'Space Grotesk',Arial,sans-serif;--mono:'IBM Plex Mono',ui-monospace,monospace;--node-p:#3f3c43;--node-d:#d9d6d2;color-scheme:light}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.6 var(--display);-webkit-font-smoothing:antialiased}
+button{font:inherit;color:inherit;cursor:pointer;background:none;border:0;padding:0;margin:0}
+button:focus-visible{outline:2px solid var(--red);outline-offset:3px}
+h3,h4,p{margin:0}
+[hidden]{display:none!important}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+
+/* Preview strip: not part of the demo. */
+.preview{background:#eeebe6;border-bottom:1px solid var(--line)}
+.preview p{width:min(1076px,calc(100% - 32px));margin:0 auto;padding:9px 0;display:flex;flex-wrap:wrap;gap:2px 14px;font:12px/1.5 var(--mono);color:var(--muted)}
+.preview b{font-weight:600;color:var(--fg)}
+
+.wrap{width:min(1076px,calc(100% - 32px));margin:28px auto 56px}
+.demo{background:#fffdfaf2;border:1px solid #d7d2cc;border-radius:10px}
+.stage{padding:16px}
+.demo-head{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px 18px;margin-bottom:16px}
+.demo-head h3{font-size:26px;font-weight:500;line-height:1.1;letter-spacing:-.04em}
+.accent{color:var(--red)}
+.controls{display:flex;gap:6px}
+.btn{display:inline-flex;align-items:center;justify-content:center;min-height:36px;min-width:76px;padding:7px 12px;border:1px solid #aaa59e;border-radius:4px;font-size:14px;font-weight:500;line-height:1.3;white-space:nowrap;transition:background .2s,border-color .2s}
+.btn:hover{background:#ece8e2;border-color:#817a74}
+
+/* The same agents pour work into both clusters. */
+.agents{display:flex;flex-direction:column;align-items:center;gap:6px;margin-bottom:14px}
+.agents-label{position:relative;width:100%;height:20px;text-align:center;font:500 14px/20px var(--display);color:var(--muted)}
+.agents-label span{position:absolute;inset:0;transition:opacity .4s}
+.agents[data-mix="m"] [data-l="c"],.agents[data-mix="c"] [data-l="m"]{opacity:0}
+.badges{display:flex;gap:8px}
+.badge{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;background:#efebe6;border:1.5px solid #8f8890;color:#3f3c43;transition:background .35s,border-color .35s,color .35s}
+.badge svg{width:15px;height:15px;display:block}
+.badge .i-c,.badge.cu .i-m{display:none}
+.badge.cu .i-c{display:block}
+.badge.cu{background:#3f3c43;border-color:#3f3c43;color:#fff;animation:pop .45s ease}
+@keyframes pop{50%{transform:scale(1.2)}}
+
+/* Each cluster is one container: prefill nodes on the left of the wall, decode nodes on the right. */
+.boxes{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.box{min-width:0;border:1px solid #d6d1cb;border-radius:6px;background:#f8f6f2;padding:10px 12px 10px}
+.box.ours{border-color:#cd929b;background:#fffafa}
+.box h4{font-size:19px;font-weight:500;line-height:1.2;letter-spacing:-.025em;margin-bottom:8px}
+.box.ours h4{color:var(--red)}
+.field{position:relative;overflow:hidden;height:160px;transition:opacity .4s}
+.demo.fading .field{opacity:.12}
+.tank{position:absolute;top:0;border:1px solid #d3cdc6;border-top:0;border-radius:0 0 6px 6px;background:#fff}
+.level{position:absolute;background:radial-gradient(circle,#4a464f 0 2.5px,transparent 3px) 0 100%/8px 8px,#ece6df;border-top:1px solid #c9c2ba}
+.tile{position:absolute;border-radius:4px;background:var(--node-p);border:1px solid #39363e;transition:left .5s cubic-bezier(.3,.7,.2,1),background .5s,border-color .5s,opacity .45s}
+.tile.d{background:var(--node-d);border-color:#a9a39d}
+.tile.dim{opacity:.28}
+.tile.flash{animation:ring .9s ease both}
+@keyframes ring{0%,100%{box-shadow:0 0 0 0 #c9233600}40%{box-shadow:0 0 0 6px #c9233633}}
+.wall{position:absolute;top:0;width:4px;border-radius:2px;background:#8f8890}
+.ours .wall{background:var(--red)}
+.drop{position:absolute;left:0;top:0;width:7px;height:7px;margin:-3.5px 0 0 -3.5px;border-radius:50%;background:#4a464f;will-change:transform}
+.wait{position:absolute;left:0;top:0;transform:translateX(-50%);padding:2px 5px;border-radius:3px;background:#fff;font:500 11px/1 var(--mono);letter-spacing:.04em;color:var(--faint);white-space:nowrap;opacity:0;transition:opacity .3s}
+.wait.on{opacity:1}
+
+.foot{margin-top:12px}
+.key{display:flex;align-items:center;gap:6px;font:12px/1.4 var(--mono);color:var(--faint)}
+.sw{display:inline-block;width:14px;height:12px;border-radius:2px;background:var(--node-p);border:1px solid #39363e}
+.sw.d{margin-left:10px;background:var(--node-d);border-color:#a9a39d}
+.demo[data-playing="false"] *{animation-play-state:paused!important}
+
+@media (max-width:640px){
+  .stage{padding:14px 12px}
+  .demo-head h3{font-size:23px}
+  .boxes{grid-template-columns:minmax(0,1fr);gap:10px}
+}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<header class="preview"><p><b>Design 03-F — Moving wall</b><span>Work from the agents falls on prefill or decode nodes: behind a fixed wall one side piles up while the other sits idle, and Evolving Infra slides the wall so both sides stay busy.</span></p></header>
+<main class="wrap">
+  <section class="demo" id="demo" data-playing="true" aria-labelledby="demo-title">
+    <div class="stage">
+      <div class="demo-head">
+        <h3 id="demo-title">Move the wall. <span class="accent">Keep both busy.</span></h3>
+        <div class="controls"><button class="btn" type="button" id="play">Pause</button><button class="btn" type="button" id="replay">Replay</button></div>
+      </div>
+      <p class="sr-only">Animation: two clusters of nine GPU nodes. A wall separates prefill nodes from decode nodes, and work from the agents falls on each side. The agents change from math agents to computer-use agents, so more work falls on the prefill side. With the fixed split, work piles up on the prefill side while several decode nodes sit idle. Evolving Infra slides its wall and turns three decode nodes into prefill nodes, so nothing piles up and both sides stay busy.</p>
+      <div class="agents" data-mix="m" aria-hidden="true">
+        <div class="agents-label"><span data-l="m">Math agents</span><span data-l="c">Computer-use agents</span></div>
+        <div class="badges"></div>
+      </div>
+      <div class="boxes" aria-hidden="true">
+        <div class="box"><h4>Fixed split</h4><div class="field"><span class="wait">waiting</span></div></div>
+        <div class="box ours"><h4>Evolving Infra</h4><div class="field"></div></div>
+      </div>
+      <div class="foot"><span class="key" aria-hidden="true"><i class="sw"></i>prefill node <i class="sw d"></i>decode node</span></div>
+    </div>
+  </section>
+</main>
+<script>
+(function () {
+  'use strict';
+  /* Work model: each node finishes one unit of work per second. Math agents bring more decode work,
+     computer-use agents more prefill work. The same inflow reaches both clusters. */
+  var N_BADGES = 8, SHIFT_START = 1.2, SHIFT_STEP = 0.15, LOAD = 0.9, FALL = 250, DROPS_PER_UNIT = 2.2;
+  var FLIPS = [1.75, 2.15, 2.55]; /* Evolving Infra moves its wall one node at a time */
+  var L = 10, FADE_AT = 9.55, STILL_AT = 8.3, PRE = 0.8;
+  function badgeIsCU(b, t) { return t >= SHIFT_START + b * SHIFT_STEP; }
+  function mixAt(t) { var n = 0; for (var b = 0; b < N_BADGES; b++) if (badgeIsCU(b, t)) n++; return n / N_BADGES; }
+  function inflow(t) { var f = mixAt(t); return [LOAD * (3 + 3 * f), LOAD * (6 - 3 * f)]; }
+
+  var demo = document.getElementById('demo');
+  var agents = demo.querySelector('.agents');
+  var playBtn = document.getElementById('play'), replayBtn = document.getElementById('replay');
+  var reduce = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+  var ICON_M = '<svg class="i-m" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M11.5 4.4V3h-7l4 5-4 5h7v-1.4"/></svg>';
+  var ICON_C = '<svg class="i-c" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"><rect x="2" y="2.5" width="12" height="8.5" rx="1.2"/><path d="M6 13.5h4" stroke-linecap="round"/><path d="M6.6 4.6l4 2.6-1.8.5-.9 1.7z" fill="currentColor" stroke="none"/></svg>';
+  var badges = [], bwrap = agents.querySelector('.badges');
+  for (var b = 0; b < N_BADGES; b++) {
+    var be = document.createElement('span'); be.className = 'badge'; be.innerHTML = ICON_M + ICON_C;
+    bwrap.appendChild(be); badges.push(be);
+  }
+
+  function mk(field, cls) { var e = document.createElement('div'); e.className = cls; field.appendChild(e); return e; }
+  var boxes = [].slice.call(demo.querySelectorAll('.box')).map(function (el) {
+    var field = el.querySelector('.field'), bx = { el: el, field: field, evolving: el.classList.contains('ours'), wait: el.querySelector('.wait'), tiles: [], els: {}, g: null, s: null, wx: 0 };
+    bx.tank = mk(field, 'tank');
+    bx.levels = [mk(field, 'level'), mk(field, 'level')];
+    for (var i = 0; i < 9; i++) bx.tiles.push({ el: mk(field, 'tile'), cls: '' });
+    bx.wall = mk(field, 'wall');
+    if (bx.wait) field.appendChild(bx.wait);
+    return bx;
+  });
+
+  function layout(bx) {
+    var W = bx.field.clientWidth, big = W >= 420, pad = 6, G = 14, g = 5;
+    var tw = (W - 2 * pad - 8 * g - (G - g)) / 9, th = big ? 30 : 24, hc = big ? 118 : 92;
+    bx.g = { W: W, pad: pad, G: G, gap: g, tw: tw, th: th, hc: hc, u: hc * 0.16 };
+    bx.field.style.height = (hc + th + 9) + 'px';
+    var ts = bx.tank.style; ts.left = (pad - 3) + 'px'; ts.width = (W - 2 * pad + 6) + 'px'; ts.height = (hc + th + 8) + 'px';
+    bx.wall.style.height = (hc + th + 7) + 'px';
+    for (var i = 0; i < 9; i++) { var s = bx.tiles[i].el.style; s.top = (hc + 3) + 'px'; s.width = tw + 'px'; s.height = th + 'px'; }
+  }
+  function wallAt(g, nP) { return g.pad + nP * (g.tw + g.gap) - g.gap + g.G / 2; }
+  function comps(bx) {
+    var g = bx.g, wx = bx.wx;
+    return [{ l: g.pad - 2, r: wx - 3 }, { l: wx + 3, r: g.W - g.pad + 2 }];
+  }
+  function levelH(bx, side) {
+    var s = bx.s, n = side ? 9 - s.nP : s.nP;
+    return Math.min(bx.g.hc - 20, s.B[side] / n * bx.g.u);
+  }
+  function rand(s) { s.seed = (s.seed * 1103515245 + 12345) % 2147483648; return s.seed / 2147483648; }
+
+  function newState(evolving) { return { t: -PRE, nP: 3, B: [0, 0], busy: [2.7, 5.4], flipT: -99, drops: [], acc: [0, 0], seed: 7, n: 0, evolving: evolving }; }
+  function step(bx, dt) {
+    var s = bx.s, i;
+    s.t += dt;
+    if (s.evolving) {
+      var n = 3; for (i = 0; i < FLIPS.length; i++) if (s.t >= FLIPS[i]) n++;
+      if (n !== s.nP) { s.nP = n; s.flipT = s.t; s.busy[0] = Math.max(s.busy[0], n - 0.3); }
+    }
+    var inn = inflow(s.t), cap = [s.nP, 9 - s.nP], k = 1 - Math.exp(-dt / 0.35);
+    for (var side = 0; side < 2; side++) {
+      s.B[side] = Math.max(0, s.B[side] + (inn[side] - cap[side]) * dt);
+      var use = s.B[side] > 0.02 ? cap[side] : Math.min(cap[side], inn[side]);
+      s.busy[side] += (use - s.busy[side]) * k;
+      s.acc[side] += inn[side] * DROPS_PER_UNIT * dt;
+      while (s.acc[side] >= 1) { s.acc[side] -= 1; s.drops.push({ id: s.n++, side: side, r: rand(s), y: -4 - rand(s) * 12 }); }
+    }
+    var keep = [];
+    for (i = 0; i < s.drops.length; i++) {
+      var d = s.drops[i]; d.y += FALL * dt;
+      if (d.y < bx.g.hc - levelH(bx, d.side) - 2) keep.push(d);
+    }
+    s.drops = keep;
+  }
+  function render(bx, dt, snap) {
+    var g = bx.g, s = bx.s, nP = s.nP, nD = 9 - nP, i;
+    var wt = wallAt(g, nP);
+    bx.wx = snap ? wt : bx.wx + (wt - bx.wx) * (1 - Math.exp(-dt * 9));
+    bx.wall.style.left = (bx.wx - 2).toFixed(1) + 'px';
+    var c = comps(bx);
+    for (var side = 0; side < 2; side++) {
+      var h = levelH(bx, side), ls = bx.levels[side].style;
+      ls.left = c[side].l + 'px'; ls.width = Math.max(0, c[side].r - c[side].l) + 'px';
+      ls.top = (g.hc + 1 - h).toFixed(1) + 'px'; ls.height = h.toFixed(1) + 'px';
+      ls.display = h > 0.5 ? '' : 'none';
+    }
+    var litP = Math.min(nP, Math.ceil(s.busy[0] - 0.25)), litD = Math.min(nD, Math.ceil(s.busy[1] - 0.25));
+    for (i = 0; i < 9; i++) {
+      var isP = i < nP, dim = isP ? i >= litP : (i - nP) < nD - litD;
+      var cls = 'tile ' + (isP ? 'p' : 'd') + (dim ? ' dim' : '') + (bx.evolving && i === nP - 1 && s.t - s.flipT < 0.9 ? ' flash' : '');
+      if (bx.tiles[i].cls !== cls) { bx.tiles[i].el.className = cls; bx.tiles[i].cls = cls; }
+      bx.tiles[i].el.style.left = (g.pad + i * (g.tw + g.gap) + (isP ? 0 : g.G - g.gap)).toFixed(1) + 'px';
+    }
+    var live = {};
+    for (i = 0; i < s.drops.length; i++) {
+      var d = s.drops[i], cc = c[d.side], el = bx.els[d.id];
+      live[d.id] = 1;
+      if (!el) { el = bx.els[d.id] = document.createElement('span'); el.className = 'drop'; bx.field.appendChild(el); }
+      var x = cc.l + 5 + d.r * Math.max(0, cc.r - cc.l - 10);
+      el.style.transform = 'translate(' + x.toFixed(1) + 'px,' + d.y.toFixed(1) + 'px)';
+    }
+    for (var id in bx.els) if (!live[id]) { bx.els[id].remove(); delete bx.els[id]; }
+    if (bx.wait) {
+      var hp = levelH(bx, 0), on = hp > 22;
+      bx.wait.classList.toggle('on', on);
+      if (on) { bx.wait.style.left = ((c[0].l + c[0].r) / 2).toFixed(1) + 'px'; bx.wait.style.top = Math.max(1, g.hc - hp - 19).toFixed(1) + 'px'; }
+    }
+  }
+
+  var t = 0, last = 0, playing = !reduce, visible = true;
+  function chrome() {
+    for (var b = 0; b < N_BADGES; b++) badges[b].classList.toggle('cu', badgeIsCU(b, t));
+    agents.dataset.mix = t >= SHIFT_START + 0.6 ? 'c' : 'm';
+    demo.classList.toggle('fading', t >= FADE_AT);
+  }
+  function reset() {
+    boxes.forEach(function (bx) {
+      bx.s = newState(bx.evolving);
+      while (bx.s.t < 0) step(bx, 1 / 60);
+      render(bx, 0, true);
+    });
+    t = boxes[0].s.t;
+    chrome();
+  }
+  function setPlaying(v) {
+    playing = v; demo.dataset.playing = v ? 'true' : 'false';
+    playBtn.textContent = v ? 'Pause' : 'Play';
+  }
+  function frame(now) {
+    var dt = Math.min(0.05, Math.max(0, (now - last) / 1000)); last = now;
+    if (playing && visible && dt > 0) {
+      t += dt;
+      boxes.forEach(function (bx) { step(bx, dt); render(bx, dt, false); });
+      chrome();
+      if (t >= L) reset();
+    }
+    requestAnimationFrame(frame);
+  }
+
+  boxes.forEach(layout);
+  reset();
+  if (reduce) {
+    /* One still frame after the shift: the fixed cluster has piled up work, Evolving Infra has moved its wall. */
+    boxes.forEach(function (bx) { while (bx.s.t < STILL_AT) step(bx, 1 / 60); render(bx, 0, true); });
+    t = STILL_AT; chrome();
+    agents.querySelector('[data-l="c"]').textContent = 'Math agents → computer-use agents';
+    demo.querySelector('.controls').hidden = true;
+    setPlaying(false);
+    window.addEventListener('resize', function () { boxes.forEach(function (bx) { layout(bx); render(bx, 0, true); }); });
+    return;
+  }
+  playBtn.addEventListener('click', function () { setPlaying(!playing); });
+  replayBtn.addEventListener('click', function () { reset(); setPlaying(true); });
+  window.addEventListener('resize', function () { boxes.forEach(function (bx) { layout(bx); render(bx, 0, true); }); });
+  if ('IntersectionObserver' in window) {
+    new IntersectionObserver(function (es) { visible = es[0].isIntersecting; }).observe(demo);
+  }
+  setPlaying(true);
+  requestAnimationFrame(function (n) { last = n; requestAnimationFrame(frame); });
+})();
+</script>
+</body>
+</html>

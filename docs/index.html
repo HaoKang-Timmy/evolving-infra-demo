@@ -299,7 +299,7 @@
           <h2 id="planning-heading"><span class="accent-text">Adapt</span> compute allocation<br>to dynamic agent workloads.</h2>
           <div><p class="lead">When the workload composition shifts, Evolving Infra moves nodes between prefill and decode, so neither side becomes the bottleneck.</p><p>It learns prefill and decode iteration-time models online, without offline profiling. The prefill model incorporates KV reuse, and the planner switches only when the predicted throughput gain of a new split persists across the planning window. As the workload shifts from math agents to computer-use agents, it achieves 2.1× the throughput of Dynamo and 28% more than the best static split.</p></div>
         </div>
-        <div class="demo-frame" id="planning-demo"><iframe src="demos/compute-allocation.html?v=5" title="Demo: as the workload shifts, Evolving Infra reaches the optimal PD split sooner than an existing planner" style="height:880px"></iframe></div>
+        <div class="demo-frame" id="planning-demo"><iframe src="demos/compute-allocation.html?v=recorded-splits-2" title="Demo: as the workload shifts, Evolving Infra reaches the optimal PD split sooner than the Dynamo planner" style="height:880px"></iframe></div>
       </div>
     </section>
     <section class="idea-section" id="kv-management" aria-labelledby="kv-heading">
@@ -309,7 +309,7 @@
           <h2 id="kv-heading"><span class="accent-text">Adapt</span> KV cache management<br>to agent context management.</h2>
           <div><p class="lead">Evolving Infra adapts KV cache management to agent context management. When the cache is full, KV that no active branch references is evicted first.</p><p>The cluster-wide KV directory counts the active branches that reference each KV block on each node. This lets eviction prioritize replaced histories and unreferenced copies before the KV of branches waiting for tools, sub-agents, or users. The router sends each prefill request to the node with the shortest predicted TTFT; that node fetches remote KV while the request waits in its queue.</p></div>
         </div>
-        <div class="demo-frame" id="kv-demo"><iframe src="demos/kv-cache.html?v=5" title="Demo: when the cache is full, an existing KV manager evicts in LRU order, while Evolving Infra evicts KV that no active branch needs and keeps the KV of a branch that waits for a tool" style="height:620px"></iframe></div>
+        <div class="demo-frame" id="kv-demo"><iframe src="demos/kv-lifecycle.html" title="Demo: KV eviction and reuse during compaction, a subagent finishing, and a tool call" style="height:620px"></iframe></div>
       </div>
     </section>
 <section id="evidence" class="idea-section evidence-section" aria-labelledby="evidence-heading">

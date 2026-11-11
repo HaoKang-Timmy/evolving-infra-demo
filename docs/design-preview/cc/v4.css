@@ -1,0 +1,54 @@
+/* V4 · Machines that change jobs. Only this version's styles; the shared grammar (eyebrow, title, side names,
+   panel, counters, clock, speed, note) comes from stage.css. Stage pixels; panel children use the panel's inner
+   box (896 x 596, inside the 2 px border). */
+.v4-panel { top: 236px; width: 900px; height: 600px; }
+.v4-abs { position: absolute; }
+
+/* The line of agents waiting for the model: one dot per waiting agent, a serpentine queue between rope guides */
+.v4-linewrap { position: absolute; left: 0; top: 0; }
+.v4-line { display: block; }
+.v4-rope { stroke: #2b2e3a; stroke-width: 2; }
+.v4-post { fill: #3c3f4b; }
+.v4-dot { fill: var(--wait); }
+.v4-linelabel { position: absolute; left: 22px; font-size: 24px; font-weight: 600; line-height: 28px; color: var(--wait); white-space: nowrap; }
+.v4-linelabel i { display: inline-block; width: 14px; height: 14px; margin-right: 10px; border-radius: 50%; background: var(--wait); vertical-align: 1px; }
+
+/* Machines: 84 x 220 tiles. read = light, write = dark with a gray outline, out of service = dark hatched, dashed. */
+.v4-tw { position: absolute; width: 84px; height: 220px; }
+.v4-tile { position: absolute; inset: 0; border-radius: 8px; border: 2px solid; overflow: hidden; }
+.v4-tile.read { background: #d9dbe1; border-color: #d9dbe1; color: #0b0c12; }
+.v4-tile.write { background: #1b1d29; border-color: #8b8f9a; color: #e8e9ee; }
+.v4-tile.off { background: repeating-linear-gradient(135deg, #0b0c12 0 9px, #15161f 9px 18px); border: 2px dashed #3a3d48; color: #8b8f9a; }
+.v4-tile.stop { border-color: var(--wait); }
+.v4-letter { position: absolute; left: 10px; top: 6px; font-size: 20px; font-weight: 600; line-height: 24px; opacity: .6; }
+.v4-job { position: absolute; left: 0; right: 0; top: 90px; font-size: 28px; font-weight: 600; line-height: 36px; text-align: center; }
+.v4-rs { position: absolute; left: 20px; top: 88px; width: 40px; height: 40px; display: none; }
+.v4-tile.off .v4-rs { display: block; }
+.v4-stopband { position: absolute; left: 0; right: 0; bottom: 0; height: 30px; display: none; background: var(--wait); color: #0b0c12;
+  font-size: 18px; font-weight: 600; line-height: 30px; text-align: center; }
+.v4-tile.stop .v4-stopband { display: block; }
+.v4-ring { position: absolute; width: 98px; height: 234px; border: 3px solid var(--ours); border-radius: 14px; opacity: 0;
+  box-shadow: 0 0 18px rgba(224, 49, 63, .55), inset 0 0 10px rgba(224, 49, 63, .25); }
+
+/* One callout per side, hung under the machine it describes */
+.v4-call { position: absolute; width: 300px; padding: 6px 16px 8px; border: 1px solid #3a3d48; border-radius: 8px; background: #161821;
+  text-align: center; opacity: 0; }
+.v4-call.ours { border-color: rgba(224, 49, 63, .7); }
+.v4-l1 { font-size: 22px; font-weight: 600; line-height: 28px; color: var(--fg); white-space: nowrap; }
+.v4-l2 { display: flex; align-items: center; justify-content: center; gap: 12px; height: 28px; margin-top: 4px; }
+.v4-track { flex: 1; height: 6px; border-radius: 3px; background: #2b2e3a; overflow: hidden; }
+.v4-fill { display: block; width: 0; height: 100%; background: var(--dyn); }
+.v4-num { font-size: 22px; font-weight: 600; line-height: 28px; color: var(--fg); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.v4-num:empty { display: none; }
+.v4-call.ours .v4-l1, .v4-call.ours .v4-num { color: var(--ours); }
+.v4-stem { position: absolute; width: 2px; background: #4a4d59; opacity: 0; }
+
+/* Progress under each panel: one tick per finished agent, the counter, the shared clock */
+.v4-ticks { position: absolute; height: 16px; background: repeating-linear-gradient(90deg, var(--dyn) 0 3.6px, transparent 3.6px 7.6px); }
+.v4-ticks.ours { background: repeating-linear-gradient(90deg, var(--ours) 0 3.6px, transparent 3.6px 7.6px); }
+.v4-count { display: flex; align-items: center; gap: 14px; height: 58px; line-height: 1; }
+.v4-count svg { width: 42px; height: 42px; flex: none; }
+.v4-count .counter { line-height: 1; }
+.v4-clock { position: absolute; width: 900px; text-align: center; line-height: 1; }
+.v4-clock.ours { color: var(--ours); }
+.speed svg { width: 30px; height: 20px; margin-right: 10px; }
