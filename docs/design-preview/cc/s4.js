@@ -38,7 +38,7 @@
   // ?tiles=level: amber tiles fill from the bottom row up as a level (a count), instead of marking agents
   const LEVEL = !(typeof location !== 'undefined' && new URLSearchParams(location.search).get('tiles') === 'agents');
   const FILL = Array.from({ length: 126 }, (_, q) => (8 - Math.floor(q / 14)) * 14 + (q % 14)); // fill rank of tile q
-  const MOVE = 54; // window seconds a node takes to slide to its new place (0.6 s of video)
+  const MOVE = 72; // window seconds a node takes to move to its new place (0.8 s of video)
   const NOTE_S = 270; // window seconds Evolving Infra's switch note stays (3 s of video)
 
   // In state ch (W waiting for the first token, G decoding) or not, per agent slot every 10 s. The number of tiles in
@@ -186,33 +186,42 @@
       const past = EV[arm].filter((e) => e[0] <= w);
       const tc = past.length ? past[past.length - 1][0] : -Infinity;
       let from = slots(px, lists(arm, tc, false)), to = slots(px, lists(arm, tc, true));
-      let p = Number.isFinite(tc) ? Stage.ease(Stage.seg(w, tc, tc + MOVE)) : 1;
+      // progress of the last group change, 0 to 1; it ends before the next change starts, so no move is cut short
+      const next = EV[arm].find((e) => e[0] > tc), dur = next ? Math.min(MOVE, next[0] - tc) : MOVE;
+      let r = Number.isFinite(tc) ? Stage.seg(w, tc, tc + dur) : 1;
       let moving = new Set(past.filter((e) => e[0] === tc).map((e) => e[1]));
       const firstLook = {}; // looks of the first change's movers while they move one at a time
       let ringOn = (n) => arm === 'ours' && moving.has(n) && w - tc < MOVE + 45;
       if (arm === 'ours' && tc === FIRST) {
+        const seq = firstSteps(px);
         if (t < F0 + SPAN) {
-          const seq = firstSteps(px), last = seq.movers.length - 1;
-          const i = Stage.clamp(Math.floor((t - F0 - PAUSE) / STEP), 0, last);
-          const q = Stage.ease(Stage.seg(t, F0 + PAUSE + i * STEP, F0 + PAUSE + (i + 1) * STEP));
-          from = seq.layouts[i]; to = seq.layouts[i + 1]; p = q; moving = new Set([seq.movers[i]]);
-          seq.movers.forEach((n, j) => { firstLook[n] = j < i || (j === i && q >= 0.5) ? OURS1[n] : OURS0[n]; });
-          ringOn = (n) => n === seq.movers[i] && t >= F0 + PAUSE;
+          const i = Stage.clamp(Math.floor((t - F0 - PAUSE) / STEP), 0, seq.movers.length - 1);
+          r = Stage.seg(t, F0 + PAUSE + i * STEP, F0 + PAUSE + (i + 1) * STEP);
+          from = seq.layouts[i]; to = seq.layouts[i + 1]; moving = new Set([seq.movers[i]]);
+          seq.movers.forEach((n, j) => { firstLook[n] = j < i || (j === i && r >= 0.5) ? OURS1[n] : OURS0[n]; });
+          // a switched node keeps its ring, so at the end the three switched nodes are marked together
+          ringOn = (n) => t >= F0 + PAUSE && seq.movers.includes(n) && seq.movers.indexOf(n) <= i;
         } else {
-          p = 1; // the first change has finished its one-at-a-time moves
-          ringOn = () => false;
+          r = 1; // the first change has finished its one-at-a-time moves
+          ringOn = (n) => t < F0 + SPAN + 1.2 && seq.movers.includes(n);
         }
       }
+      // A node going into the lane drops first and one leaving it rises last; a node changing group within the row
+      // drops, slides along the lane and rises. The other nodes shift only while the mover is in the lane, so no two
+      // nodes overlap.
+      const ph = (a, b) => Stage.ease(Stage.seg(r, a, b));
+      const across = (1 - Math.cos(Math.PI * Stage.seg(r, 0.2, 0.8))) / 2; // a gentle slide: long moves stay easy to follow
+      const down = ph(0, 0.2), up = ph(0.8, 1);
       const states = arm === 'dyn' ? dynAt(w) : oursTl[oursIdx(w)][1].split('');
       const nodes = [];
       for (let n = 0; n < 9; n++) {
         const st = states[n];
         // P, D or T (restarting); a moving node keeps its old look for the first half of the slide
-        const look = firstLook[n] || (moving.has(n) && p < 0.5 ? groupOf(arm, n, tc - 0.01) : groupOf(arm, n, w));
-        // a node that changes group dips into the lane while it slides, so it never overlaps the others
-        const dip = moving.has(n) && from.y[n] === to.y[n] ? LANE * Math.sin(Math.PI * p) : 0;
+        const look = firstLook[n] || (moving.has(n) && r < 0.5 ? groupOf(arm, n, tc - 0.01) : groupOf(arm, n, w));
+        const dy = to.y[n] - from.y[n];
+        const dip = moving.has(n) && dy === 0 && to.x[n] !== from.x[n] ? LANE * (down - up) : 0;
         nodes.push({
-          n, x: from.x[n] + (to.x[n] - from.x[n]) * p, y: from.y[n] + (to.y[n] - from.y[n]) * p + dip, look,
+          n, x: from.x[n] + (to.x[n] - from.x[n]) * across, y: from.y[n] + dy * (dy > 0 ? down : up) + dip, look,
           draining: arm === 'dyn' && st === 'S',
           ring: ringOn(n),
         });
@@ -275,7 +284,7 @@
       const chips = [];
       for (let n = 0; n < 9; n++) {
         const cg = el('g', {}, g);
-        const ring = el('rect', { x: -6, y: -6, width: ROW.w + 12, height: ROW.h + 12, rx: 10, fill: 'none', stroke: C.ours, 'stroke-width': 3, opacity: 0 }, cg);
+        const ring = el('rect', { x: -4, y: -4, width: ROW.w + 8, height: ROW.h + 8, rx: 9, fill: 'none', stroke: C.ours, 'stroke-width': 3, opacity: 0 }, cg);
         const box = el('rect', { width: ROW.w, height: ROW.h, rx: 6 }, cg);
         const txt = el('text', { x: ROW.w / 2, y: ROW.h / 2 + 10, 'text-anchor': 'middle', 'font-size': 28, 'font-weight': 600 }, cg);
         const icon = el('path', { d: RESTART, transform: `translate(${ROW.w / 2},${ROW.h / 2}) scale(1.35)`, fill: 'none', stroke: C.muted, 'stroke-width': 2.4, 'stroke-linecap': 'round', opacity: 0 }, cg);
