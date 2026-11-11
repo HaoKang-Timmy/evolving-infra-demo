@@ -191,8 +191,8 @@
       <div class="wrap">
         <div class="section-topline" data-reveal><span class="eyebrow">03 / DECOUPLED INFRASTRUCTURE</span><span class="mono-note">DECOUPLING IS THE FIRST STEP.</span></div>
         <div class="idea-heading idea-decoupling" data-reveal>
-          <h2 id="idea-heading"><span class="accent-text idea-decouple-word"><img class="decouple-icon" src="fig/decoupled-link.svg" alt="" aria-hidden="true">Decouple</span> compute allocation<br>from KV cache management.</h2>
-          <div><p class="lead">Reallocate compute as workloads change. Keep reusable KV available.</p><p>Change which nodes run prefill and decode independently of where useful context is retained, fetched, and evicted. Symmetric engines let every node serve prefill or decode without a restart. A shared host-memory KV pool keeps reusable KV readable by all nodes when a node switches phases. Decoupling gives infrastructure the freedom to evolve.</p></div>
+          <h2 id="idea-heading"><span class="accent-text idea-decouple-word"><img class="decouple-icon" src="fig/decoupled-link.svg" alt="" aria-hidden="true">Decouple</span> compute from KV cache<br>for <span class="accent-text">efficient</span> online adaptation.</h2>
+          <div><p class="lead">Nodes switch between prefill and decode without a restart, and their KV stays readable by all nodes.</p><p>Change which nodes run prefill and decode independently of where useful context is retained, fetched, and evicted. Symmetric engines let every node serve prefill or decode without a restart. A shared host-memory KV pool keeps reusable KV readable by all nodes when a node switches phases. Decoupling gives infrastructure the freedom to evolve.</p></div>
         </div>
         <div class="role-story" id="role-story">
         <section class="switch-demo" id="role-switch-demo" data-step="0" data-baseline="restart" data-playing="false" aria-labelledby="switch-demo-title">
