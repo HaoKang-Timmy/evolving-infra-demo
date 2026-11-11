@@ -1,12 +1,14 @@
 // S4: S3 with the cache hit rate back in the header, right of each side name (as in S2). Default: the average cache
 // hit so far; ?hit=5min: over the last 5 minutes. Waiting agents form a level by default; ?tiles=agents marks agents.
+// Every tile is one of the 126 agents: waiting for its first token, decoding, or in a tool call (the data has almost no
+// idle agents: 5 single samples, drawn as tool calls), so both grids are always full and neither side looks smaller.
 (() => {
   'use strict';
   const D = window.CC_DATA;
   const NS = 'http://www.w3.org/2000/svg';
   const C = {
     fg: '#e8e9ee', muted: '#8b8f9a', faint: '#5f6470', dyn: '#d9dbe1', ours: '#e0313f', track: '#262833',
-    wait: '#f0a830', waitBg: '#4a3812', gen: '#3ecf8e', genBg: '#10372a', tile: '#191b24', panel: '#12131c', panelLine: '#c9ccd4',
+    wait: '#f0a830', waitBg: '#4a3812', gen: '#3ecf8e', genBg: '#10372a', tool: '#5b8def', toolBg: '#172846', tile: '#191b24', panel: '#12131c', panelLine: '#c9ccd4',
     chipP: '#e8e9ee', chipPText: '#14151c', chipD: '#191b24', chipDLine: '#3a3d48', chipDText: '#c9ccd4', speed: '#9aa0ab',
   };
   const LEAD = 1, SPEED = 90, WIN = 3600;
@@ -146,7 +148,7 @@
     }
   }
 
-  // Level: waiting tiles fill from the bottom, decoding tiles stack on top of them.
+  // Level: waiting tiles fill from the bottom, decoding tiles stack on top of them; the tiles above are in a tool call.
   function levelAlpha(arm, k0, f) {
     const count = (rows) => { let c0 = 0, c1 = 0; for (const row of rows) { c0 += row[k0]; c1 += row[k0 + 1]; } return c0 + (c1 - c0) * f; };
     const nw = count(SM[arm]), ng = count(SMG[arm]);
@@ -243,6 +245,8 @@
         hit: h0 + (h1 - h0) * f,
         nodes, note,
       };
+      const sd = out.sides[arm];
+      sd.talpha = sd.alpha.map((a, q) => Stage.clamp(1 - a - sd.galpha[q], 0, 1)); // every other agent is in a tool call
     }
     return out;
   }
@@ -255,6 +259,7 @@
   };
   const HOURGLASS = 'M-7,-10H7L1.6,-1.2V1.2L7,10H-7L-1.6,1.2V-1.2Z';
   const SPARK = 'M0,-10C1.2,-3.2 3.2,-1.2 10,0C3.2,1.2 1.2,3.2 0,10C-1.2,3.2 -3.2,1.2 -10,0C-3.2,-1.2 -1.2,-3.2 0,-10Z';
+  const TOOL = 'M-9,-7L-2,0L-9,7M1,7H10'; // a terminal prompt, drawn with a stroke
   const RESTART = 'M9,0A9,9 0 1 1 6.36,-6.36M6.36,-6.36L1.53,-7.65M6.36,-6.36L5.07,-11.19';
   const V = {};
 
@@ -281,11 +286,13 @@
         const r = Math.floor(q / GRID.cols), c = q % GRID.cols;
         const tg = el('g', { transform: `translate(${s.x + GRID.left + c * (GRID.tw + GRID.gx)},${GRID.y + r * (GRID.th + GRID.gy)})` }, g);
         el('rect', { width: GRID.tw, height: GRID.th, rx: 4, fill: C.tile }, tg);
+        const blue = el('rect', { width: GRID.tw, height: GRID.th, rx: 4, fill: C.toolBg, opacity: 0 }, tg);
+        const term = el('path', { d: TOOL, transform: `translate(${GRID.tw / 2},${GRID.th / 2})`, fill: 'none', stroke: C.tool, 'stroke-width': 2.6, 'stroke-linecap': 'round', 'stroke-linejoin': 'round', opacity: 0 }, tg);
         const green = el('rect', { width: GRID.tw, height: GRID.th, rx: 4, fill: C.genBg, opacity: 0 }, tg);
         const spark = el('path', { d: SPARK, transform: `translate(${GRID.tw / 2},${GRID.th / 2})`, fill: C.gen, opacity: 0 }, tg);
         const amber = el('rect', { width: GRID.tw, height: GRID.th, rx: 4, fill: C.waitBg }, tg);
         const icon = el('path', { d: HOURGLASS, transform: `translate(${GRID.tw / 2},${GRID.th / 2})`, fill: C.wait }, tg);
-        tiles.push({ amber, icon, green, spark });
+        tiles.push({ amber, icon, green, spark, blue, term });
       }
       const ticks = [];
       for (let q = 0; q < BAR.n; q++) ticks.push(el('rect', { x: s.x + q * BAR.pitch, y: BAR.y, width: BAR.w, height: BAR.h, rx: 1, fill: s.tick, opacity: 0 }, g));
@@ -301,13 +308,16 @@
     const clock = el('text', { x: 960, y: 1002, 'text-anchor': 'middle' }, svg);
     el('tspan', { 'font-size': 22, 'letter-spacing': 1, fill: C.muted }, clock).textContent = 'ELAPSED';
     V.clock = el('tspan', { dx: 14, 'font-size': 40, 'font-weight': 600, fill: C.fg }, clock);
-    const lg = el('g', { transform: 'translate(698,1024)' }, svg);
+    const lg = el('g', { transform: 'translate(590,1024)' }, svg);
     el('rect', { width: 36, height: 28, rx: 4, fill: C.waitBg }, lg);
     el('path', { d: HOURGLASS, transform: 'translate(18,14) scale(0.8)', fill: C.wait }, lg);
     el('text', { x: 50, y: 22, 'font-size': 22, fill: C.muted }, lg).textContent = 'waiting for first token (TTFT)';
     el('rect', { x: 390, width: 36, height: 28, rx: 4, fill: C.genBg }, lg);
     el('path', { d: SPARK, transform: 'translate(408,14) scale(0.8)', fill: C.gen }, lg);
     el('text', { x: 440, y: 22, 'font-size': 22, fill: C.muted }, lg).textContent = 'decoding';
+    el('rect', { x: 552, width: 36, height: 28, rx: 4, fill: C.toolBg }, lg);
+    el('path', { d: TOOL, transform: 'translate(570,14) scale(0.8)', fill: 'none', stroke: C.tool, 'stroke-width': 3, 'stroke-linecap': 'round', 'stroke-linejoin': 'round' }, lg);
+    el('text', { x: 602, y: 22, 'font-size': 22, fill: C.muted }, lg).textContent = 'in a tool call';
     el('path', { d: 'M0,0L12,8L0,16ZM14,0L26,8L14,16Z', transform: 'translate(1786,1026)', fill: C.speed }, svg);
     el('text', { x: 1880, y: 1046, 'text-anchor': 'end', 'font-size': 30, fill: C.speed }, svg).textContent = '90×';
   }
@@ -330,11 +340,13 @@
     for (const s of SIDES) {
       const v = V[s.arm], ms = m.sides[s.arm];
       ms.alpha.forEach((a, q) => {
-        const o = a.toFixed(3), og = ms.galpha[q].toFixed(3);
+        const o = a.toFixed(3), og = ms.galpha[q].toFixed(3), ot = ms.talpha[q].toFixed(3);
         v.tiles[q].amber.setAttribute('opacity', o);
         v.tiles[q].icon.setAttribute('opacity', o);
         v.tiles[q].green.setAttribute('opacity', og);
         v.tiles[q].spark.setAttribute('opacity', og);
+        v.tiles[q].blue.setAttribute('opacity', ot);
+        v.tiles[q].term.setAttribute('opacity', ot);
       });
       ms.nodes.forEach((nd) => paintChip(v.chips[nd.n], nd));
       if (ms.note) {
