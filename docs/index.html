@@ -31,7 +31,8 @@
   <link rel="stylesheet" href="idea-demos.css?v=demo-frames-1">
   <link rel="stylesheet" href="page-outline.css?v=outline-5">
   <link rel="stylesheet" href="research-details.css?v=evidence-box-1">
-  <link rel="stylesheet" href="arch-compare.css?v=two-problems-1">
+  <link rel="stylesheet" href="arch-compare.css?v=both-animate-1">
+  <link rel="stylesheet" href="workload-replay.css">
   <link rel="preload" as="image" href="media/scene/apps-atlas.png">
   <link rel="preload" as="image" href="media/scene/hardware-atlas.png">
   <script src="js/site.js?v=light-motion" defer></script>
@@ -40,6 +41,8 @@
   <script src="js/reading-view.js?v=follow-scroll" defer></script>
   <script src="js/role-switch.js?v=paper-scope" defer></script>
   <script src="js/demo-frames.js?v=1" defer></script>
+  <script src="js/arch-compare.js" defer></script>
+  <script src="js/workload-replay.js" defer></script>
   <script src="js/page-outline.js?v=outline-3" defer></script>
   <script src="js/evidence.js?v=arxiv-1" defer></script>
 </head>
@@ -152,15 +155,17 @@
           <p class="lead">Evolving Infra decouples compute allocation from KV cache management, so nodes switch their compute phases efficiently between prefill and decode. An online planner then sizes the PD split from fine-grained signals, and an agent-aware KV manager keeps the KV that agents will reuse.</p>
         </div>
         <figure class="arch-compare" aria-label="Existing PD disaggregation compared with Evolving Infra">
+          <div class="arch-demo-control"><p data-arch-event>Demand shifts: reallocate one prefill node to decode.</p><div><button type="button" data-arch-play>Pause</button><button type="button" data-arch-replay>Replay</button></div></div>
           <div class="arch-grid">
             <article class="arch-panel is-existing" aria-labelledby="arch-existing-title">
               <h3 class="arch-title" id="arch-existing-title">Existing PD disaggregation</h3>
               <span class="arch-band is-both" aria-hidden="true"></span>
               <p class="arch-top arch-layer">Compute allocation from <em>coarse signals</em></p>
-              <div class="arch-row arch-nodes" aria-hidden="true"><span class="arch-node"><b>P</b></span><span class="arch-node"><b>P</b></span><span class="arch-node"><b>P</b></span><span class="arch-node is-d"><b>D</b></span><span class="arch-node is-d"><b>D</b></span><span class="arch-node is-d"><b>D</b></span></div>
+              <div class="arch-row arch-nodes" aria-hidden="true"><span class="arch-node"><b>P</b></span><span class="arch-node"><b>P</b></span><span class="arch-node is-changing"><b>P</b></span><span class="arch-node is-d"><b>D</b></span><span class="arch-node is-d"><b>D</b></span><span class="arch-node is-d"><b>D</b></span></div>
               <div class="arch-mid" aria-hidden="true"><div class="arch-row"><span></span><span></span><span></span><span></span><span></span><span></span></div><span class="arch-pill">COUPLED</span></div>
-              <div class="arch-row arch-kv" aria-hidden="true"><span class="arch-cache"><i></i><i></i></span><span class="arch-cache"><i></i><i></i><i></i></span><span class="arch-cache"><i></i><i></i></span><span class="arch-cache"><i></i></span><span class="arch-cache"><i></i><i></i></span><span class="arch-cache"><i></i></span></div>
+              <div class="arch-row arch-kv" aria-hidden="true"><span class="arch-cache"><i></i><i></i></span><span class="arch-cache"><i></i><i></i><i></i></span><span class="arch-cache" data-arch-cache><i></i><i></i></span><span class="arch-cache"><i></i></span><span class="arch-cache"><i></i><i></i></span><span class="arch-cache"><i></i></span></div>
               <p class="arch-bottom arch-layer"><em><span class="arch-nowrap">Recency-based</span></em> KV cache management</p>
+              <p class="arch-live" data-arch-existing>Serving prefill · KV cached</p>
               <ul class="arch-results"><li><p class="arch-cause"><i aria-hidden="true">✕</i>Costly adaptation</p><p class="arch-effects"><span>Downtime</span><span>Lost KV</span></p></li><li><p class="arch-cause"><i aria-hidden="true">✕</i>Inaccurate adaptation</p><p class="arch-effects"><span>Load imbalance</span><span>Reusable KV evicted</span></p></li></ul>
             </article>
             <article class="arch-panel is-ours" aria-labelledby="arch-ours-title">
@@ -168,14 +173,15 @@
               <span class="arch-band is-compute" aria-hidden="true"></span>
               <span class="arch-band is-kv" aria-hidden="true"></span>
               <p class="arch-top arch-layer">Compute allocation from <em><span class="arch-nowrap">fine-grained</span> signals</em></p>
-              <div class="arch-row arch-nodes" aria-hidden="true"><span class="arch-node"><b>P</b></span><span class="arch-node"><b>P</b></span><span class="arch-node is-switch"><b class="as-p">P</b><b class="as-d">D</b><b class="as-both">P→D</b></span><span class="arch-node is-d"><b>D</b></span><span class="arch-node is-d"><b>D</b></span><span class="arch-node is-d"><b>D</b></span></div>
+              <div class="arch-row arch-nodes" aria-hidden="true"><span class="arch-node"><b>P</b></span><span class="arch-node"><b>P</b></span><span class="arch-node is-changing"><b>P</b></span><span class="arch-node is-d"><b>D</b></span><span class="arch-node is-d"><b>D</b></span><span class="arch-node is-d"><b>D</b></span></div>
               <div class="arch-mid" aria-hidden="true"><span class="arch-pill"><img src="fig/decoupled-link.svg" alt="">DECOUPLED</span></div>
               <div class="arch-kv" aria-hidden="true"><div class="arch-pool arch-row"><span><i></i><i></i></span><span><i></i><i></i><i></i></span><span><i></i><i></i></span><span><i></i></span><span><i></i><i></i></span><span><i></i></span></div></div>
               <p class="arch-bottom arch-layer"><em>Agent-aware</em> KV cache management</p>
+              <p class="arch-live" data-arch-ours>Serving prefill · KV cached</p>
               <ul class="arch-results"><li><p class="arch-cause"><i aria-hidden="true">✓</i>Efficient adaptation</p><p class="arch-effects"><span>No downtime</span><span>No lost KV</span></p></li><li><p class="arch-cause"><i aria-hidden="true">✓</i>Accurate adaptation</p><p class="arch-effects"><span>Balanced load</span><span>Reusable KV kept</span></p></li></ul>
             </article>
           </div>
-          <figcaption class="arch-key"><span><b>P</b> = prefill node</span><span><b>D</b> = decode node</span></figcaption>
+          <figcaption class="arch-key"><span><b>P</b> = prefill node</span><span><b>D</b> = decode node</span><span>Restart-based example · illustration, not to scale</span></figcaption>
         </figure>
       </div>
     </section>
@@ -292,7 +298,7 @@
           <h2 id="planning-heading"><span class="accent-text">Adapt</span> compute allocation<br>to dynamic agent workloads.</h2>
           <div><p class="lead">When the workload composition shifts, Evolving Infra moves nodes between prefill and decode, so neither side becomes the bottleneck.</p><p>It learns prefill and decode iteration-time models online, without offline profiling. The prefill model incorporates KV reuse, and the planner switches only when the predicted throughput gain of a new split persists across the planning window. As the workload shifts from math agents to computer-use agents, it achieves 2.1× the throughput of Dynamo and 28% more than the best static split.</p></div>
         </div>
-        <div class="demo-frame" id="planning-demo"><iframe src="demos/compute-allocation.html?v=5" title="Demo: as the workload shifts, Evolving Infra reaches the optimal PD split sooner than an existing planner" style="height:880px"></iframe></div>
+        <div class="demo-frame" id="planning-demo"><iframe src="demos/compute-allocation.html?v=dynamo-1" title="Demo: as the workload shifts, Evolving Infra reaches the optimal PD split sooner than the Dynamo planner" style="height:880px"></iframe></div>
       </div>
     </section>
     <section class="idea-section" id="kv-management" aria-labelledby="kv-heading">
@@ -302,7 +308,7 @@
           <h2 id="kv-heading"><span class="accent-text">Adapt</span> KV cache management<br>to agent context management.</h2>
           <div><p class="lead">Evolving Infra adapts KV cache management to agent context management. When the cache is full, KV that no active branch references is evicted first.</p><p>The cluster-wide KV directory counts the active branches that reference each KV block on each node. This lets eviction prioritize replaced histories and unreferenced copies before the KV of branches waiting for tools, sub-agents, or users. The router sends each prefill request to the node with the shortest predicted TTFT; that node fetches remote KV while the request waits in its queue.</p></div>
         </div>
-        <div class="demo-frame" id="kv-demo"><iframe src="demos/kv-cache.html?v=5" title="Demo: when the cache is full, an existing KV manager evicts in LRU order, while Evolving Infra evicts KV that no active branch needs and keeps the KV of a branch that waits for a tool" style="height:620px"></iframe></div>
+        <div class="demo-frame" id="kv-demo"><iframe src="demos/kv-lifecycle.html" title="Demo: KV eviction and reuse during compaction, a subagent finishing, and a tool call" style="height:620px"></iframe></div>
       </div>
     </section>
 <section id="evidence" class="idea-section evidence-section" aria-labelledby="evidence-heading">
@@ -335,7 +341,16 @@
       <p class="ev-line">Kimi K2.6 · 36 GB300 GPUs · three one-hour phases</p>
       <p class="ev-intro">Three consecutive hours move from decode-heavy Putnam, through a mixed workload, to prefill-heavy OSWorld. A single static split cannot match all three phases.</p>
       <div class="adaptation-layout">
-        <figure class="timeline ev-panel"><div class="legend timeline-legend"><span><i class="ours"></i>Evolving Infra</span><span><i class="baseline"></i>Dynamo</span><span><i class="reference"></i>Best per-window SGLang split</span><span><i class="static-ref"></i>Best static SGLang split</span></div><img src="fig/eval-shift-split.svg" alt="Measured PD split over 180 minutes across Putnam, mixed, and OSWorld phases"><figcaption>Time after warmup. The dotted Dynamo segments mark a node relaunch. Reference splits are profiled under SGLang; symmetric engines can have a different optimum.</figcaption></figure>
+        <div class="adaptation-replay">
+          <section class="shift-demo" id="shift-demo" aria-label="Workload and Evolving Infra allocation over the same three-hour run">
+            <header class="shift-head"><p><strong>WORKLOAD → COMPUTE ALLOCATION</strong><br>3 hours replayed in 18 seconds</p><button type="button" id="shift-play" aria-pressed="true">Pause</button></header>
+            <div class="shift-phases" role="group" aria-label="Jump to workload phase"><button type="button" data-shift-phase="0" aria-pressed="true">Putnam<small>0–60 min</small></button><button type="button" data-shift-phase="1" aria-pressed="false">Mixed<small>60–120 min</small></button><button type="button" data-shift-phase="2" aria-pressed="false">OSWorld<small>120–180 min</small></button></div>
+            <div class="shift-row"><div class="shift-workload"><p class="shift-label">CONCURRENT AGENTS</p><p class="shift-agents">Putnam<strong id="shift-putnam">288</strong></p><p class="shift-agents is-empty">OSWorld<strong id="shift-osworld">0</strong></p></div><span class="shift-arrow" aria-hidden="true">→</span><div class="shift-allocation"><p class="shift-label">EVOLVING INFRA</p><strong id="shift-split">3P · 6D</strong><div class="shift-capacity" aria-hidden="true"><span class="shift-p" id="shift-p">P</span><span class="shift-d">D</span></div><p class="shift-capacity-note">P = prefill · D = decode · 9 nodes total</p></div></div>
+            <div class="shift-clock"><span>0</span><input id="shift-seek" type="range" min="0" max="180" step="0.1" value="0" aria-label="Minutes after warmup"><span>180</span><strong id="shift-time">0 min</strong></div>
+            <p class="shift-caption" id="shift-caption">Decode-heavy math agents: six of the nine nodes serve decode.</p><p class="shift-source">Time after warmup. Split transitions reconstructed from the paper figure.</p>
+          </section>
+          <details class="method shift-measurement"><summary>Measured PD splits and baseline comparisons</summary><div><figure class="timeline ev-panel"><div class="legend timeline-legend"><span><i class="ours"></i>Evolving Infra</span><span><i class="baseline"></i>Dynamo</span><span><i class="reference"></i>Best per-window SGLang split</span><span><i class="static-ref"></i>Best static SGLang split</span></div><img src="fig/eval-shift-split.svg" alt="Measured PD split over 180 minutes across Putnam, mixed, and OSWorld phases"><figcaption>Time after warmup. The dotted Dynamo segments mark a node relaunch. Reference splits are profiled under SGLang; symmetric engines can have a different optimum.</figcaption></figure></div></details>
+        </div>
         <div class="measured-gains"><p class="ev-kicker">THROUGHPUT OVER THE WHOLE RUN</p><p><strong>2.14×</strong><span>the throughput of Dynamo</span></p><p><strong>1.28×</strong><span>the throughput of the best static split</span></p><div class="gain-note">The best static split balances prefill and decode only in the mixed phase.</div></div>
       </div>
       <details class="method"><summary>Workload schedule and reference splits</summary><div><p>After a 30-minute warmup: one hour with 288 Putnam agents, one hour with 144 Putnam and 72 OSWorld agents, and one hour with 144 OSWorld agents. All phases use Kimi K2.6.</p><p>The best static split is selected over the whole run. The per-window reference is selected for each 10-minute window. Both use SGLang PD disaggregation, so they are reference points rather than an oracle for the symmetric engine.</p></div></details>

@@ -3,9 +3,9 @@
 body.content-active #architecture .arch-heading .lead { max-width: 62ch; margin-top: 24px; }
 #architecture .arch-nowrap { white-space: nowrap; }
 #architecture .arch-compare { margin: 0; }
-#architecture .arch-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: repeat(7, auto); column-gap: 20px; }
-/* Both panels share the seven row tracks, so each layer lines up across the two panels. */
-#architecture .arch-panel { grid-row: span 7; display: grid; grid-template-rows: subgrid; row-gap: 0; min-width: 0; padding: 22px 26px 22px; border: 1px solid #d6d1cb; border-radius: 12px; background: #f8f6f2; }
+#architecture .arch-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: repeat(8, auto); column-gap: 20px; }
+/* Both panels share the eight row tracks, so each layer lines up across the two panels. */
+#architecture .arch-panel { grid-row: span 8; display: grid; grid-template-rows: subgrid; row-gap: 0; min-width: 0; padding: 22px 26px 22px; border: 1px solid #d6d1cb; border-radius: 12px; background: #f8f6f2; }
 #architecture .arch-panel.is-ours { border-color: #cd929b; background: #fffafa; }
 #architecture .arch-panel > * { grid-column: 1; min-width: 0; }
 #architecture .arch-panel > :not(.arch-band) { position: relative; z-index: 1; }
@@ -16,7 +16,8 @@ body.content-active #architecture .arch-heading .lead { max-width: 62ch; margin-
 #architecture .arch-mid { grid-row: 4; position: relative; height: 56px; }
 #architecture .arch-kv { grid-row: 5; }
 #architecture .arch-bottom { grid-row: 6; margin-top: 12px; }
-#architecture .arch-results { grid-row: 7; }
+#architecture .arch-live { grid-row: 7; }
+#architecture .arch-results { grid-row: 8; }
 
 /* Layers. Existing: compute allocation and KV cache management share one box. Evolving Infra: two boxes with a gap. */
 #architecture .arch-band { margin: -13px -14px; border: 1px solid #ddd6ce; border-radius: 10px; background: #eeeae4; }
@@ -47,24 +48,26 @@ body.content-active #architecture .arch-heading .lead { max-width: 62ch; margin-
 #architecture .arch-pool { align-items: center; height: 40px; border: 1px solid #d79aa6; border-bottom-width: 3px; border-radius: 8px; background: #fff; }
 #architecture .arch-pool > span { display: flex; align-items: center; justify-content: center; gap: 3px; }
 
-/* One node keeps switching between prefill and decode. */
-#architecture .arch-node.is-switch { outline: 2px solid var(--red); outline-offset: 2px; animation: arch-phase 8s ease-in-out infinite; }
-#architecture .arch-node.is-switch b { grid-area: 1 / 1; }
-#architecture .arch-node.is-switch .as-p { animation: arch-show-p 8s ease-in-out infinite; }
-#architecture .arch-node.is-switch .as-d { opacity: 0; animation: arch-show-d 8s ease-in-out infinite; }
-#architecture .arch-node.is-switch .as-both { display: none; font-size: 16px; }
-@keyframes arch-phase { 0%, 40%, 100% { border-color: #39363e; background: #3f3c43; color: #fff; } 50%, 90% { border-color: #a9a39d; background: #d9d6d2; color: #343038; } }
-@keyframes arch-show-p { 0%, 40%, 100% { opacity: 1; } 47%, 93% { opacity: 0; } }
-@keyframes arch-show-d { 0%, 43%, 97%, 100% { opacity: 0; } 50%, 90% { opacity: 1; } }
-@media (prefers-reduced-motion: reduce) {
-  #architecture .arch-node.is-switch, #architecture .arch-node.is-switch b { animation: none; }
-  #architecture .arch-node.is-switch { border-color: #a9a39d; background: #d9d6d2; color: #343038; }
-  #architecture .arch-node.is-switch :is(.as-p, .as-d) { display: none; }
-  #architecture .arch-node.is-switch .as-both { display: block; }
-}
+/* The same phase change runs on both sides. JS keeps their stages synchronized. */
+#architecture .arch-node.is-changing { outline: 2px solid #a99a91; outline-offset: 2px; transition: background .25s, color .25s; }
+#architecture .is-ours .arch-node.is-changing { outline-color: var(--red); }
+#architecture .arch-node.is-offline { background: #e6e0d8; color: #827a74; border-style: dashed; }
+#architecture .arch-node.is-offline b { font-size: 26px; }
+#architecture .arch-cache i { transition: opacity .4s, transform .4s; }
+#architecture .arch-cache.is-lost { border-style: dashed; }
+#architecture .arch-cache.is-lost i { opacity: 0; transform: translateY(8px); }
+#architecture .arch-live { min-height: 38px; margin: 28px 0 0; font: 12px/1.5 var(--mono); color: #6a5b55; }
+#architecture .is-ours .arch-live { color: var(--red); }
+#architecture .arch-demo-control { display: flex; align-items: center; justify-content: space-between; gap: 14px; margin: 0 0 15px; }
+#architecture .arch-demo-control p { margin: 0; font-size: 16px; }
+#architecture .arch-demo-control > div { display: flex; gap: 6px; }
+#architecture .arch-demo-control button { font: inherit; font-size: 13px; padding: 6px 12px; border: 1px solid #aaa59e; border-radius: 4px; background: #fffdfa; color: var(--fg); cursor: pointer; }
+#architecture .arch-demo-control button:focus-visible { outline: 2px solid var(--red); outline-offset: 3px; }
+@media (prefers-reduced-motion: reduce) { #architecture .arch-compare * { transition: none!important; } }
+@media (max-width: 760px) { #architecture .arch-demo-control { align-items: start; flex-direction: column; } }
 
 /* What each design leads to: two points first (is adaptation costly, is it right), each with its concrete results. */
-#architecture .arch-results { display: grid; align-content: start; gap: 14px; margin: 32px 0 0; padding: 0; list-style: none; }
+#architecture .arch-results { display: grid; align-content: start; gap: 14px; margin: 6px 0 0; padding: 0; list-style: none; }
 #architecture .arch-cause { display: flex; align-items: center; gap: 8px; font-size: 16px; font-weight: 500; line-height: 1.3; color: var(--fg); }
 #architecture .arch-cause i { display: inline-grid; place-items: center; flex: none; width: 19px; height: 19px; border-radius: 50%; background: #d6cfc9; color: #4f4952; font: 600 10px/1 var(--mono); font-style: normal; }
 #architecture .is-ours .arch-cause i { background: var(--red); color: #fff; }
@@ -94,7 +97,7 @@ body.content-active #architecture .arch-heading .lead { max-width: 62ch; margin-
   #architecture :is(.arch-cache, .arch-pool) { height: 36px; }
   #architecture :is(.arch-cache, .arch-pool > span) { gap: 2px; }
   #architecture .arch-pill { padding: 3px 9px; font-size: 10px; }
-  #architecture .arch-results { margin-top: 28px; }
+  #architecture .arch-results { margin-top: 6px; }
   #architecture .arch-cause { font-size: 15px; }
   #architecture .arch-effects span { font-size: 13px; }
 }
