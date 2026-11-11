@@ -5,9 +5,9 @@
   const reduced=matchMedia('(prefers-reduced-motion: reduce)');
   const left=root.querySelector('.is-existing .is-changing'), right=root.querySelector('.is-ours .is-changing');
   const cache=root.querySelector('[data-arch-cache]'), play=root.querySelector('[data-arch-play]');
-  // Illustration timing: hold P for 3s, switch over 2s, finish the restart at 6s.
+  // Illustration timing: hold P for 3s, switch over 2s, finish the restart at 7s.
   // The restart is deliberately compressed; these are presentation durations.
-  const SWITCH_START=3,SWITCH_END=5,RESTART_END=6,LOOP=10;
+  const SWITCH_START=3,SWITCH_END=5,RESTART_END=7,LOOP=10;
   let time=reduced.matches?8:0,playing=!reduced.matches,visible=false,last=null,phase=-1;
   function render(){
     const progress=Math.max(0,Math.min(1,(time-SWITCH_START)/(SWITCH_END-SWITCH_START)));
