@@ -260,8 +260,8 @@
       <div class="wrap">
         <div class="section-topline" data-reveal><span class="eyebrow">04 / AGENT-ADAPTIVE COMPUTE ALLOCATION</span><span class="mono-note">NO OFFLINE PROFILING.</span></div>
         <div class="idea-heading idea-decoupling" data-reveal>
-          <h2 id="planning-heading"><span class="accent-text">Adapt</span> compute allocation<br>to dynamic agent workloads.</h2>
-          <div><p class="lead">When the workload composition shifts, Evolving Infra moves nodes between prefill and decode, so neither side becomes the bottleneck.</p><p>It learns prefill and decode iteration-time models online, without offline profiling. The prefill model incorporates KV reuse, and the planner switches only when the predicted throughput gain of a new split persists across the planning window. As the workload shifts from math agents to computer-use agents, it achieves 2.1× the throughput of Dynamo and 28% more than the best static split.</p></div>
+          <h2 id="planning-heading">Find the right PD split <span class="accent-text">online</span>,<br>for diverse and shifting agents.</h2>
+          <div><p class="lead">Iteration-time models fitted online predict prefill and decode time accurately, including KV reuse, so the planner picks the split each workload needs without offline profiling.</p><p>The models predict iteration time with a mean error below 7% outside the settings they were fitted on, and converge within a minute. For coding, math, and computer-use agents, the planner matches the split to each workload&rsquo;s compute demand online, instead of an offline sweep that costs thousands of GPU-hours per workload. As the workload shifts from math to computer-use agents, the split tracks the best split of each 10-minute window, and Evolving Infra achieves 2.1× the throughput of Dynamo and 28% more than the best static split.</p></div>
         </div>
         <div class="demo-frame" id="planning-demo"><iframe src="demos/compute-allocation.html?v=recorded-splits-2" title="Demo: as the workload shifts, Evolving Infra reaches the optimal PD split sooner than the Dynamo planner" style="height:880px"></iframe></div>
       </div>
