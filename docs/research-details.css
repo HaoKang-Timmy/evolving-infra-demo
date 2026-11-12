@@ -82,3 +82,11 @@
   #evidence :is(.latency-plots img, .attribution-layout > figure > img) { height: auto; max-height: 260px; }
   #evidence .ev-panel { padding: 12px 12px 14px; }
 }
+
+/* BibTeX of the technical report (07), in a panel like the evidence panels; long lines wrap. */
+#research .bibtex { margin-top: 18px; border: 1px solid var(--line); border-radius: 8px; background: #fcfbf9; overflow: hidden; }
+#research .bibtex-head { display: flex; align-items: center; justify-content: space-between; padding: 8px 12px 8px 16px; border-bottom: 1px solid var(--line); font: 12px/1.5 var(--mono); letter-spacing: .08em; color: var(--muted); }
+#research .bibtex-copy { padding: 4px 10px; border: 1px solid #ded9d2; border-radius: 4px; background: transparent; color: var(--muted); font: 12px var(--mono); cursor: pointer; }
+#research .bibtex-copy:hover { border-color: #ca7a85; color: var(--red); }
+#research .bibtex-copy:focus-visible { outline: 2px solid var(--red); outline-offset: 2px; }
+#research .bibtex pre { margin: 0; padding: 14px 16px; font: 12.5px/1.65 var(--mono); color: #3a3840; white-space: pre-wrap; overflow-wrap: anywhere; }
