@@ -27,9 +27,6 @@ button:focus-visible,a:focus-visible{outline:2px solid var(--red);outline-offset
 .stage[data-layout=narrow] svg{max-width:460px;margin:0 auto}
 .caption{min-height:3.2em;margin-top:8px;font-size:15px;line-height:1.5;color:var(--fg);max-width:880px}
 .caption b{font-weight:600}
-footer{display:flex;justify-content:space-between;gap:8px 20px;flex-wrap:wrap;margin-top:10px;padding-top:10px;border-top:1px solid var(--line);font:400 10.5px/1.5 var(--mono);color:var(--muted)}
-footer a{color:var(--red);text-decoration:none}
-footer a:hover{text-decoration:underline}
 
 @media(max-width:640px){
   .demo{padding:14px 12px 12px}
