@@ -1,0 +1,142 @@
+/* Section 02: the overview. Three points, one per section 03-05, and the paper's Figure 1, built up in
+   three beats by js/arch-overview.js. Colors follow the paper and section 03: dark = prefill,
+   light = decode, red = KV moves and phase switches. */
+
+/* The points: one per section that follows (03-05), with its key phrase in red.
+   The point text needs body.content-active to override the 17px reading-size rule for paragraphs. */
+#architecture .arch-points { max-width: 1000px; margin: 30px 0 0; padding: 0; list-style: none; }
+#architecture .arch-points li { display: grid; grid-template-columns: 15rem minmax(0, 1fr); column-gap: 24px; align-items: baseline; padding: 16px 0; border-top: 1px solid #ddd6ce; }
+#architecture .arch-points li:last-child { border-bottom: 1px solid #ddd6ce; }
+#architecture .arch-point-label { display: flex; gap: 10px; color: var(--muted); font: 500 12px/1.5 var(--mono); letter-spacing: .08em; text-transform: uppercase; text-decoration: none; }
+#architecture .arch-point-label b { color: var(--red); font-weight: 600; }
+#architecture .arch-point-label:hover, #architecture .arch-point-label:focus-visible { color: var(--fg); }
+body.content-active #architecture .arch-points li p { margin: 0; color: var(--fg); font-size: 20px; line-height: 1.5; letter-spacing: -.02em; }
+/* The points: one per section that follows (03-05), with its key phrase in red.
+   The point text needs body.content-active to override the 17px reading-size rule for paragraphs. */
+#architecture .arch-points { max-width: 1000px; margin: 30px 0 0; padding: 0; list-style: none; }
+#architecture .arch-points li { display: grid; grid-template-columns: 15rem minmax(0, 1fr); column-gap: 24px; align-items: baseline; padding: 16px 0; border-top: 1px solid #ddd6ce; }
+#architecture .arch-points li:last-child { border-bottom: 1px solid #ddd6ce; }
+#architecture .arch-point-label { display: flex; gap: 10px; color: var(--muted); font: 500 12px/1.5 var(--mono); letter-spacing: .08em; text-transform: uppercase; text-decoration: none; }
+#architecture .arch-point-label b { color: var(--red); font-weight: 600; }
+#architecture .arch-point-label:hover, #architecture .arch-point-label:focus-visible { color: var(--fg); }
+body.content-active #architecture .arch-points li p { margin: 0; color: var(--fg); font-size: 20px; line-height: 1.5; letter-spacing: -.02em; }
+#architecture .arch-overview { margin: 0; }
+
+/* Steps (one per point above), playback, and the caption of the current beat. */
+#architecture .ov-control { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin: 0 0 12px; }
+#architecture .ov-steps { display: flex; flex-wrap: wrap; gap: 6px; }
+#architecture .ov-steps button { display: inline-flex; align-items: baseline; gap: 8px; padding: 6px 12px; border: 1px solid #d6d1cb; border-radius: 999px; background: #fffdfa; color: var(--muted); font: 500 11.5px/1.3 var(--mono); letter-spacing: .06em; text-transform: uppercase; cursor: pointer; }
+#architecture .ov-steps button b { color: var(--red); font-weight: 600; }
+#architecture .ov-steps button[aria-current="step"] { border-color: #e3aab4; background: #fbe4e8; color: #9e1529; }
+#architecture .ov-buttons { display: flex; flex: none; gap: 6px; }
+#architecture .ov-buttons button { font: inherit; font-size: 13px; padding: 6px 12px; border: 1px solid #aaa59e; border-radius: 4px; background: #fffdfa; color: var(--fg); cursor: pointer; }
+#architecture .arch-overview button:focus-visible { outline: 2px solid var(--red); outline-offset: 3px; }
+#architecture .ov-caption { min-height: 3em; margin: 0 0 12px; color: var(--fg); font-size: 16px; line-height: 1.5; }
+
+/* The figure. The arrow layer sits on top; arrows end at box edges. */
+#architecture .ov-stage { position: relative; padding: 24px 28px 20px; border: 1px solid #d6d1cb; border-radius: 12px; background: #fbfaf8; }
+#architecture .ov-arrows { position: absolute; inset: 0; z-index: 3; width: 100%; height: 100%; overflow: visible; pointer-events: none; }
+/* Only the arrows themselves: the arrowhead paths inside <marker> keep their fill. */
+#architecture .ov-arrows > path { fill: none; opacity: 0; }
+#architecture .ov-route { stroke: #39363e; stroke-width: 1.6; }
+#architecture .ov-mem { stroke: var(--red); stroke-width: 2.2; }
+#architecture .ov-cmp { stroke: var(--red); stroke-width: 2.2; stroke-dasharray: 7 5; }
+#architecture .ov-arrows .ov-arc-reveal { fill: none; stroke: #fff; stroke-width: 12; }
+#architecture .ov-tok { opacity: 0; }
+#architecture .ov-tok circle, #architecture .ov-tok rect { fill: var(--red); }
+#architecture .ov-tok text { fill: #fff; font: 600 12px/1 var(--display); text-anchor: middle; dominant-baseline: central; }
+
+#architecture .ov-top, #architecture .ov-nodes { position: relative; z-index: 2; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); column-gap: 18px; }
+#architecture .ov-top { align-items: center; margin-bottom: 58px; }
+#architecture .ov-request { grid-column: 1; justify-self: start; padding: 7px 14px; border-radius: 6px; background: var(--red); color: #fff; font: 600 15px/1.2 var(--display); }
+#architecture .ov-router { grid-column: 2 / span 2; justify-self: start; display: inline-flex; align-items: center; gap: 8px; padding: 6px 8px 6px 14px; border: 1.5px solid #39363e; border-radius: 6px; background: #fff; color: var(--fg); font: 600 15px/1.2 var(--display); }
+#architecture .ov-port { display: inline-grid; place-items: center; width: 24px; height: 24px; border-radius: 4px; font: 600 12px/1 var(--display); font-style: normal; }
+#architecture .ov-port.is-p { background: #3f3c43; color: #fff; }
+#architecture .ov-port.is-d { border: 1px solid #a9a39d; background: #d9d6d2; color: #343038; }
+
+/* Nodes: two GPUs each. The ghost marks where the switching node was; slot 4 is where it goes. */
+#architecture :is(.ov-node, .ov-ghost, .ov-slot) { grid-row: 1; display: flex; justify-content: center; gap: 10px; padding: 14px 10px; border: 1.5px solid #39363e; border-radius: 8px; background: #fff; }
+#architecture [data-ov="n1"] { grid-column: 1; }
+#architecture [data-ov="n2"] { grid-column: 2; }
+#architecture :is([data-ov="ghost"], [data-ov="n3"]) { grid-column: 3; }
+#architecture [data-ov="slot4"] { grid-column: 4; visibility: hidden; }
+#architecture [data-ov="n5"] { grid-column: 5; }
+#architecture :is(.ov-node, .ov-ghost, .ov-slot) i { display: grid; place-items: center; width: 46px; aspect-ratio: 1; border-radius: 4px; font: 600 11px/1 var(--display); font-style: normal; }
+#architecture .ov-node.is-p i { background: #3f3c43; color: #fff; }
+#architecture .ov-node.is-d i { border: 1px solid #a9a39d; background: #d9d6d2; color: #343038; }
+#architecture .ov-ghost { z-index: 0; border: 1.5px dashed var(--red); background: transparent; opacity: 0; }
+#architecture .ov-ghost i { border: 1px dashed #77727b; background: #a19ca5; color: #fff; }
+#architecture .ov-mover { position: relative; z-index: 1; transition: border-color .3s, box-shadow .3s; }
+#architecture .ov-node.ov-mover i { border: 1px solid color-mix(in srgb, #a9a39d calc(var(--sw, 0) * 100%), #3f3c43); background: color-mix(in srgb, #d9d6d2 calc(var(--sw, 0) * 100%), #3f3c43); color: color-mix(in srgb, #343038 calc(var(--sw, 0) * 100%), #fff); }
+/* A ring instead of a thicker border, so the row height does not change. */
+#architecture .ov-mover.is-switched { border-color: var(--red); box-shadow: 0 0 0 1px var(--red); }
+#architecture .ov-node.is-busy i { animation: ov-busy .55s ease-in-out infinite alternate; }
+@keyframes ov-busy { from { box-shadow: 0 0 0 0 rgba(201, 35, 54, 0); } to { box-shadow: 0 0 0 4px rgba(201, 35, 54, .28); } }
+
+/* Shared host memory: KV blocks labeled with the number of active branches that reference them. */
+#architecture .ov-memory { position: relative; z-index: 2; margin-top: 64px; padding: 12px 14px 10px; border: 1.5px solid #8a8590; border-radius: 8px; background: #f1efec; transition: border-color .3s, box-shadow .3s; }
+#architecture .ov-memory.is-full { border-color: var(--red); box-shadow: 0 0 0 3px rgba(201, 35, 54, .12); }
+#architecture .ov-blocks { display: flex; justify-content: space-between; gap: 6px; }
+#architecture .ov-kv { position: relative; display: grid; place-items: center; width: 28px; height: 28px; border: 1px solid #8c8c8c; border-radius: 3px; background: #d6d3cf; color: #1a1a1a; font: 600 13px/1 var(--display); transition: background .35s, color .35s, border-color .35s, opacity .35s; }
+#architecture .ov-kv.is-req { border-color: #8f1526; background: var(--red); color: #fff; }
+#architecture [data-ov="kv-n"] { transform: translateY(-5px); }
+#architecture .ov-kv.is-new { opacity: 0; }
+#architecture .ov-kv.is-zero { border-style: dashed; background: #fff; color: #8c8c8c; }
+#architecture .ov-kv.is-evicted { color: transparent; }
+#architecture .ov-kv::before, #architecture .ov-kv::after { content: ""; position: absolute; left: 3px; right: 3px; top: 50%; height: 2px; background: var(--red); opacity: 0; transition: opacity .35s; }
+#architecture .ov-kv::before { transform: rotate(45deg); }
+#architecture .ov-kv::after { transform: rotate(-45deg); }
+#architecture .ov-kv.is-evicted::before, #architecture .ov-kv.is-evicted::after { opacity: 1; }
+#architecture .ov-memory-label { margin: 8px 0 0; color: var(--fg); font: 600 14px/1.3 var(--display); }
+#architecture .ov-full { color: var(--red); opacity: 0; transition: opacity .3s; }
+#architecture .ov-memory.is-full .ov-full { opacity: 1; }
+
+/* Legend, as in the paper figure. */
+#architecture .ov-key { display: flex; flex-wrap: wrap; gap: 6px 20px; margin-top: 12px; color: #625b63; font: 12px/1.6 var(--mono); }
+#architecture .ov-key span { display: inline-flex; align-items: center; gap: 7px; }
+#architecture .ov-key i { flex: none; display: inline-block; }
+#architecture .ov-key-p, #architecture .ov-key-d { width: 12px; height: 12px; border-radius: 2px; }
+#architecture .ov-key-p { background: #3f3c43; }
+#architecture .ov-key-d { border: 1px solid #a9a39d; background: #d9d6d2; }
+#architecture .ov-key-mem, #architecture .ov-key-cmp { width: 24px; border-top: 2px solid var(--red); }
+#architecture .ov-key-cmp { border-top-style: dashed; }
+#architecture .ov-key-n { display: inline-grid !important; place-items: center; width: 16px; height: 16px; border: 1px solid #8c8c8c; border-radius: 2px; background: #d6d3cf; color: #1a1a1a; font: italic 600 10px/1 var(--display); }
+#architecture .ov-key-x { width: 14px; height: 14px; border: 1px dashed #8c8c8c; border-radius: 2px; background: linear-gradient(45deg, transparent 45%, var(--red) 45% 55%, transparent 55%), linear-gradient(-45deg, transparent 45%, var(--red) 45% 55%, transparent 55%); }
+
+/* The point above the figure that matches the current beat. */
+#architecture .arch-points li { position: relative; }
+#architecture .arch-points li::before { content: ""; position: absolute; left: -16px; top: 16px; bottom: 16px; width: 3px; border-radius: 2px; background: var(--red); opacity: 0; transition: opacity .3s; }
+#architecture .arch-points li.is-current::before { opacity: 1; }
+#architecture .arch-points li.is-current .arch-point-label { color: var(--fg); }
+
+/* Seeking and looping jump straight to the new state. */
+#architecture .arch-overview.is-jumping * { transition: none !important; }
+@media (prefers-reduced-motion: reduce) { #architecture .arch-overview * { transition: none !important; animation: none !important; } }
+
+@media (max-width: 760px) {
+  #architecture .arch-points { margin-top: 20px; }
+  #architecture .arch-points li { grid-template-columns: minmax(0, 1fr); row-gap: 6px; padding: 13px 0; }
+  body.content-active #architecture .arch-points li p { font-size: 18px; }
+  #architecture .arch-points { margin-top: 20px; }
+  #architecture .arch-points li { grid-template-columns: minmax(0, 1fr); row-gap: 6px; padding: 13px 0; }
+  body.content-active #architecture .arch-points li p { font-size: 18px; }
+  #architecture .ov-control { flex-direction: column; align-items: stretch; gap: 10px; }
+  #architecture .ov-steps button { padding: 5px 10px; font-size: 10.5px; }
+  #architecture .ov-caption { min-height: 4.5em; font-size: 15px; }
+  #architecture .ov-stage { padding: 18px 12px 14px; }
+  #architecture .ov-top, #architecture .ov-nodes { column-gap: 8px; }
+  #architecture .ov-top { margin-bottom: 50px; }
+  #architecture .ov-request, #architecture .ov-router { font-size: 13px; }
+  #architecture .ov-request { padding: 6px 9px; }
+  #architecture .ov-router { grid-column: 2 / span 4; padding: 5px 6px 5px 10px; gap: 6px; }
+  #architecture .ov-port { width: 21px; height: 21px; font-size: 11px; }
+  #architecture :is(.ov-node, .ov-ghost, .ov-slot) { gap: 4px; padding: 8px 4px; border-radius: 6px; }
+  #architecture :is(.ov-node, .ov-ghost, .ov-slot) i { width: 22px; font-size: 0; border-radius: 3px; }
+  #architecture .ov-memory { margin-top: 52px; padding: 10px 8px 8px; }
+  #architecture .ov-blocks { gap: 3px; }
+  #architecture .ov-kv { width: 22px; height: 22px; font-size: 11px; }
+  #architecture .ov-kv.is-extra { display: none; }
+  #architecture .ov-memory-label { font-size: 13px; }
+  #architecture .ov-key { gap: 4px 14px; font-size: 11px; }
+  #architecture .arch-points li::before { left: -10px; top: 13px; bottom: 13px; }
+}

@@ -128,16 +128,16 @@ Window icons: [Material Icons](https://github.com/google/material-design-icons),
 
 ## Architecture and evidence
 
-Section 02 (`#architecture`) comes directly after the demo and before the three idea demos (03–05). It sets
-existing PD disaggregation next to Evolving Infra in two aligned panels. Each panel has two layers, compute
-allocation (the planner and the P/D nodes) and KV cache management (the KV and the KV manager). In existing PD
-disaggregation both layers sit in one box and each node holds its own KV (coupled); in Evolving Infra they are
-two boxes around one shared KV pool (decoupled). The planner sizes the PD split from coarse versus fine-grained
-signals; the KV manager evicts the least recently used KV versus the KV that agents no longer need. One node keeps
-switching between prefill and decode; with reduced motion it shows "P→D". Under each panel, two points
-(costly or efficient adaptation, inaccurate or accurate adaptation) each list two concrete results;
-later sections keep the three problems.
-`docs/arch-compare.css` holds its layout. Section 06 (`#evidence`) presents the
+Section 02 (`#architecture`) comes directly after the demo and gives the overview before the three idea
+sections (03–05). Under its heading, three points state what each of 03–05 contributes in the paper's words,
+with the key phrase in red; each label links to its section. Below them, the paper's Figure 1 is built up in
+three beats that match the points: a prefill node pulls the request's reusable KV from shared host memory (03),
+the planner moves one node from prefill to decode without a restart and the node writes its KV to the pool
+(04), and branch counts drop until, with memory full, KV that no active branch references is evicted first
+(05). Step buttons jump to a beat, and the point of the current beat is marked in red. The final frame is the
+paper figure; with reduced motion it is shown without animation. `docs/arch-overview.css` and
+`docs/js/arch-overview.js` hold its layout and timeline.
+Section 06 (`#evidence`) presents the
 measured results; `docs/research-details.css` scopes its layout, and `docs/js/evidence.js` switches the
 stationary workload figures and their interpretation.
 
