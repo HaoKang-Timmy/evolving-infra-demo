@@ -38,3 +38,5 @@
 @media (max-width:900px) { .split-charts-grid { grid-template-columns: minmax(0,1fr); } .split-chart { max-width: 520px; } }
 @media (max-width:600px) { .split-charts-head { flex-direction: column; } }
 @media (prefers-reduced-motion: reduce) { .sc-best { transition: none; } }
+/* Section 05 heading: its first line is a little longer than the other section headings, so scale it a touch smaller to keep two lines. */
+.idea-decoupling h2#kv-heading { font-size: clamp(34px,4.15vw,62px); }

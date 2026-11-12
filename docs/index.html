@@ -28,7 +28,7 @@
   <link rel="stylesheet" href="reading-typography.css?v=evidence-1">
   <link rel="stylesheet" href="reading-compact.css?v=code-link-1">
   <link rel="stylesheet" href="role-switch.css?v=measured-2">
-  <link rel="stylesheet" href="split-charts.css?v=2">
+  <link rel="stylesheet" href="split-charts.css?v=3">
   <link rel="stylesheet" href="idea-demos.css?v=demo-frames-1">
   <link rel="stylesheet" href="page-outline.css?v=outline-5">
   <link rel="stylesheet" href="research-details.css?v=evidence-box-1">
@@ -315,8 +315,8 @@
       <div class="wrap">
         <div class="section-topline" data-reveal><span class="eyebrow">05 / AGENT-ADAPTIVE KV CACHE MANAGEMENT</span><span class="mono-note">UNREFERENCED KV GOES FIRST.</span></div>
         <div class="idea-heading idea-decoupling" data-reveal>
-          <h2 id="kv-heading"><span class="accent-text">Adapt</span> KV cache management<br>to agent context management.</h2>
-          <div><p class="lead">Evolving Infra adapts KV cache management to agent context management. When the cache is full, KV that no active branch references is evicted first.</p><p>The cluster-wide KV directory counts the active branches that reference each KV block on each node. This lets eviction prioritize replaced histories and unreferenced copies before the KV of branches waiting for tools, sub-agents, or users. The router sends each prefill request to the node with the shortest predicted TTFT; that node fetches remote KV while the request waits in its queue.</p></div>
+          <h2 id="kv-heading"><span class="accent-text">Learn</span> from agent context management,<br>manage KV cluster-wide.</h2>
+          <div><p class="lead">A cluster-wide KV directory counts the active branches that reference each KV block, so eviction drops replaced histories and finished sub-agents first and keeps the KV of branches waiting for tools, sub-agents, or users.</p><p>The router sends each prefill request to the node with the shortest predicted TTFT; that node fetches remote KV while the request waits in its queue.</p></div>
         </div>
         <div class="demo-frame" id="kv-demo"><iframe src="demos/kv-lifecycle.html" title="Demo: KV eviction and reuse during compaction, a subagent finishing, and a tool call" style="height:620px"></iframe></div>
       </div>
