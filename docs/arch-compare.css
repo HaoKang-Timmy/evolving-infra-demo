@@ -1,6 +1,13 @@
 /* Section 02: existing PD disaggregation next to Evolving Infra. Node colors follow the 03 demo (role-switch.css). */
-/* The reading-size rule caps leads at 34ch; this lead is the section summary, so it may run wider. */
-body.content-active #architecture .arch-heading .lead { max-width: 62ch; margin-top: 24px; }
+/* The overview: one point per section that follows (03-05), with its key phrase in red.
+   The point text needs body.content-active to override the 17px reading-size rule for paragraphs. */
+#architecture .arch-points { max-width: 1000px; margin: 30px 0 0; padding: 0; list-style: none; }
+#architecture .arch-points li { display: grid; grid-template-columns: 15rem minmax(0, 1fr); column-gap: 24px; align-items: baseline; padding: 16px 0; border-top: 1px solid #ddd6ce; }
+#architecture .arch-points li:last-child { border-bottom: 1px solid #ddd6ce; }
+#architecture .arch-point-label { display: flex; gap: 10px; color: var(--muted); font: 500 12px/1.5 var(--mono); letter-spacing: .08em; text-transform: uppercase; text-decoration: none; }
+#architecture .arch-point-label b { color: var(--red); font-weight: 600; }
+#architecture .arch-point-label:hover, #architecture .arch-point-label:focus-visible { color: var(--fg); }
+body.content-active #architecture .arch-points li p { margin: 0; color: var(--fg); font-size: 20px; line-height: 1.5; letter-spacing: -.02em; }
 #architecture .arch-nowrap { white-space: nowrap; }
 #architecture .arch-compare { margin: 0; }
 #architecture .arch-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: repeat(8, auto); column-gap: 20px; }
@@ -88,7 +95,9 @@ body.content-active #architecture .arch-heading .lead { max-width: 62ch; margin-
 @media (max-width: 760px) {
   #architecture .arch-grid { grid-template-columns: minmax(0, 1fr); grid-template-rows: none; row-gap: 14px; }
   #architecture .arch-panel { grid-row: auto; grid-template-rows: none; padding: 18px 22px 20px; }
-  body.content-active #architecture .arch-heading .lead { margin-top: 18px; }
+  #architecture .arch-points { margin-top: 20px; }
+  #architecture .arch-points li { grid-template-columns: minmax(0, 1fr); row-gap: 6px; padding: 13px 0; }
+  body.content-active #architecture .arch-points li p { font-size: 18px; }
 }
 @media (max-width: 420px) {
   #architecture .arch-panel { padding: 16px 18px 18px; }
