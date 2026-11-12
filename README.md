@@ -4,7 +4,7 @@ Evolving Infra is an agent-adaptive LLM serving framework that adapts compute al
 project page, the demo video, and the code that renders the video.
 
 - Project page: https://inference-rsi.com/ (source in `docs/`, served by GitHub Pages)
-- Demo video: [`docs/media/merge_demo.mp4`](docs/media/merge_demo.mp4), played by the page.
+- Demo video: [`docs/media/demo.mp4`](docs/media/demo.mp4) (poster `docs/media/demo-poster.jpg`), played by the page.
   The merged demo compares Dynamo and Evolving Infra on OSWorld computer-use tasks and concurrent Claude Code agents.
   Its poster is extracted from the opening title. Evolving Infra is drawn in the page red (`#c92336`). In the coding
   part, a Dynamo node that restarts is shown in amber, so red marks only Evolving Infra, and the icon legend sits above
