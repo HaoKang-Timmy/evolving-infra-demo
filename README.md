@@ -130,13 +130,13 @@ Window icons: [Material Icons](https://github.com/google/material-design-icons),
 
 Section 02 (`#architecture`) comes directly after the demo and gives the overview before the three idea
 sections (03–05). Under its heading, three points state what each of 03–05 contributes in the paper's words,
-with the key phrase in red; each label links to its section. Below them, the paper's Figure 1 is built up in
-three beats that match the points: a prefill node pulls the request's reusable KV from shared host memory (03),
-the planner moves one node from prefill to decode without a restart and the node writes its KV to the pool
-(04), and branch counts drop until, with memory full, KV that no active branch references is evicted first
-(05). Step buttons jump to a beat, and the point of the current beat is marked in red. The final frame is the
-paper figure; with reduced motion it is shown without animation. `docs/arch-overview.css` and
-`docs/js/arch-overview.js` hold its layout and timeline.
+with the key phrase in red; each label links to its section. Below them, the paper's Figure 1 plays as one
+continuous animation: requests are served with reusable KV pulled from shared host memory while agents fork
+and compact, so the branch counts on the KV blocks change; the agent mix turns decode-heavy and one node
+switches from prefill to decode in 6.2 s without a restart (the paper's measured average); and when memory is
+full, KV that no active branch references is evicted first. Short labels appear where each change happens.
+The final frame is the paper figure; with reduced motion it is shown without animation.
+`docs/arch-overview.css` and `docs/js/arch-overview.js` hold its layout and timeline.
 Section 06 (`#evidence`) presents the
 measured results; `docs/research-details.css` scopes its layout, and `docs/js/evidence.js` switches the
 stationary workload figures and their interpretation.

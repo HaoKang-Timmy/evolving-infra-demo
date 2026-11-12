@@ -31,7 +31,7 @@
   <link rel="stylesheet" href="idea-demos.css?v=demo-frames-1">
   <link rel="stylesheet" href="page-outline.css?v=outline-5">
   <link rel="stylesheet" href="research-details.css?v=evidence-box-1">
-  <link rel="stylesheet" href="arch-overview.css?v=1">
+  <link rel="stylesheet" href="arch-overview.css?v=2">
   <link rel="stylesheet" href="workload-replay.css?v=phase-only-4">
   <link rel="preload" as="image" href="media/scene/apps-atlas.png">
   <link rel="preload" as="image" href="media/scene/hardware-atlas.png">
@@ -41,7 +41,7 @@
   <script src="js/reading-view.js?v=follow-scroll" defer></script>
   <script src="js/role-switch.js?v=measured-2" defer></script>
   <script src="js/demo-frames.js?v=1" defer></script>
-  <script src="js/arch-overview.js?v=1" defer></script>
+  <script src="js/arch-overview.js?v=2" defer></script>
   <script src="js/shift-data.js" defer></script>
   <script src="js/workload-replay.js?v=phase-only-4" defer></script>
   <script src="js/page-outline.js?v=outline-3" defer></script>
@@ -155,12 +155,8 @@
           <h2 id="architecture-heading">Adapts compute and KV cache<br>to agent workloads, <span class="accent-text">online</span>.</h2>
           <ol class="arch-points"><li><a class="arch-point-label" href="#why-evolve"><b>03</b>Decoupled infrastructure</a><p>Decoupling compute allocation from KV cache management enables <span class="accent-text">efficient online adaptation</span>. Nodes switch between prefill and decode in place, and their KV stays readable by all nodes.</p></li><li><a class="arch-point-label" href="#workload-planning"><b>04</b>Compute allocation</a><p>Iteration-time models fitted online <span class="accent-text">accurately capture the model, hardware, and agent workload</span>, including KV reuse. The planner moves nodes between prefill and decode without offline profiling.</p></li><li><a class="arch-point-label" href="#kv-management"><b>05</b>KV cache management</a><p>KV-reuse-aware eviction and routing <span class="accent-text">keep the KV that agents will reuse</span> and balance prefill work across nodes.</p></li></ol>
         </div>
-        <figure class="arch-overview" aria-label="Overview of Evolving Infra. A router sends prefill and decode work to nodes. A prefill node pulls reusable KV from shared host memory. A node switches from prefill to decode without a restart. When memory is full, KV that no active branch references is evicted first.">
-          <div class="ov-control">
-            <div class="ov-steps" role="group" aria-label="Animation steps"><button type="button" data-ov-step="0"><b>03</b>Decoupled infrastructure</button><button type="button" data-ov-step="1"><b>04</b>Compute allocation</button><button type="button" data-ov-step="2"><b>05</b>KV cache management</button></div>
-            <div class="ov-buttons"><button type="button" data-ov-play aria-pressed="true">Pause</button><button type="button" data-ov-replay>Replay</button></div>
-          </div>
-          <p class="ov-caption" data-ov-caption>A request arrives. The router sends its prefill to a prefill node.</p>
+        <figure class="arch-overview" aria-label="Overview of Evolving Infra at work. Requests are routed to prefill and decode nodes, and a prefill node pulls reusable KV from shared host memory. As agents fork and compact, the number of active branches that reference each KV block changes. When the agent mix turns decode-heavy, one node switches from prefill to decode in 6.2 seconds without a restart. When memory is full, KV that no active branch references is evicted first.">
+          <div class="ov-buttons"><button type="button" data-ov-play aria-pressed="true">Pause</button><button type="button" data-ov-replay>Replay</button></div>
           <div class="ov-stage" aria-hidden="true">
             <svg class="ov-arrows" data-ov="svg">
               <defs>
@@ -176,14 +172,16 @@
               <path class="ov-mem" data-ov-path="write"/>
               <path class="ov-cmp" data-ov-path="arc" mask="url(#ov-arc-mask)"/>
               <g class="ov-tok" data-ov-tok="req"><circle r="6"/></g>
+              <g class="ov-tok" data-ov-tok="req2"><circle r="6"/></g>
               <g class="ov-tok" data-ov-tok="d"><circle r="6"/></g>
-              <g class="ov-tok" data-ov-tok="pullA"><rect x="-11" y="-11" width="22" height="22" rx="3"/><text>3</text></g>
+              <g class="ov-tok" data-ov-tok="pullA"><rect x="-11" y="-11" width="22" height="22" rx="3"/><text>2</text></g>
               <g class="ov-tok" data-ov-tok="pullB"><rect x="-11" y="-11" width="22" height="22" rx="3"/><text>2</text></g>
               <g class="ov-tok" data-ov-tok="write"><rect x="-11" y="-11" width="22" height="22" rx="3"/><text>1</text></g>
             </svg>
             <div class="ov-top">
               <span class="ov-request" data-ov="request">Request</span>
               <span class="ov-router" data-ov="router">Router<i class="ov-port is-p" data-ov="port-p">P</i><i class="ov-port is-d" data-ov="port-d">D</i></span>
+              <span class="ov-mix" data-ov="mix"><span class="ov-mix-label">Agent mix</span><span class="ov-mix-bar"><i class="is-p"></i><i class="is-d"></i></span></span>
             </div>
             <div class="ov-nodes">
               <div class="ov-node is-p" data-ov="n1"><i>GPU</i><i>GPU</i></div>
@@ -194,9 +192,15 @@
               <div class="ov-node is-d" data-ov="n5"><i>GPU</i><i>GPU</i></div>
             </div>
             <div class="ov-memory" data-ov="memory">
-              <div class="ov-blocks"><span class="ov-kv">4</span><span class="ov-kv is-extra">4</span><span class="ov-kv" data-ov="kv-a">3</span><span class="ov-kv">3</span><span class="ov-kv is-extra">3</span><span class="ov-kv">2</span><span class="ov-kv is-extra">2</span><span class="ov-kv is-extra">2</span><span class="ov-kv">2</span><span class="ov-kv" data-ov="kv-b">2</span><span class="ov-kv">1</span><span class="ov-kv is-extra">1</span><span class="ov-kv is-extra">1</span><span class="ov-kv">1</span><span class="ov-kv is-req is-new" data-ov="kv-n">1</span><span class="ov-kv" data-ov="kv-z">1</span><span class="ov-kv" data-ov="kv-x">1</span></div>
+              <div class="ov-blocks"><span class="ov-kv">4</span><span class="ov-kv is-extra">4</span><span class="ov-kv" data-ov="kv-a">2</span><span class="ov-kv">3</span><span class="ov-kv is-extra">3</span><span class="ov-kv">2</span><span class="ov-kv is-extra">2</span><span class="ov-kv is-extra">2</span><span class="ov-kv">2</span><span class="ov-kv" data-ov="kv-b">2</span><span class="ov-kv">1</span><span class="ov-kv is-extra">1</span><span class="ov-kv is-extra">1</span><span class="ov-kv">1</span><span class="ov-kv is-req is-new" data-ov="kv-n">1</span><span class="ov-kv" data-ov="kv-z">1</span><span class="ov-kv" data-ov="kv-x">1</span></div>
               <p class="ov-memory-label">Shared host memory<span class="ov-full"> · full</span></p>
             </div>
+            <span class="ov-tag" data-ov-tag="fork">fork +1</span>
+            <span class="ov-tag" data-ov-tag="compact">compact −1</span>
+            <span class="ov-tag" data-ov-tag="mix">decode-heavy</span>
+            <span class="ov-tag" data-ov-tag="switch">6.2 s · no restart</span>
+            <span class="ov-tag" data-ov-tag="done">sub-agent done −1</span>
+            <span class="ov-tag" data-ov-tag="evict">full → evict 0 first</span>
           </div>
           <figcaption class="ov-key"><span><i class="ov-key-p"></i>Prefill resources</span><span><i class="ov-key-d"></i>Decode resources</span><span><i class="ov-key-mem"></i>Memory adaptation</span><span><i class="ov-key-cmp"></i>Compute adaptation</span><span><i class="ov-key-n">n</i>KV referenced by n branches</span><span><i class="ov-key-x"></i>Evicted when full</span></figcaption>
         </figure>
