@@ -135,7 +135,7 @@ continuous animation of two requests, with branch counts that follow the KV dire
 (Section 4.3). Request 1, the next step of agent A, pulls A's reusable KV from shared host memory; the reused
 blocks keep their counts, and the decode node that receives the request writes the new KV with count 1.
 Request 2, the first request of a fork of A, reuses the same KV, so each reused block gains one count, and its
-decode node writes the fork's new KV. The agent mix then turns decode-heavy and one node switches from prefill
+decode node writes the fork's new KV. The agent workload then turns decode-heavy and one node switches from prefill
 to decode in 6.2 s without a restart (the paper's measured average); a branch finishes and releases its
 counts; and when memory is full, KV that no active branch references is evicted first. Short labels appear
 where each change happens. The final frame is the paper figure; with reduced motion it is shown without

@@ -5,7 +5,7 @@
      receives the request writes the new KV, which only A references (count 1).
    - Request 2 is the first request of a fork of A. It reuses the same KV, now on the prefill node, so
      each reused block gains one branch (+1). Its decode node writes the fork's new KV (count 1).
-   - The agent mix turns decode-heavy and one node switches from prefill to decode without a restart
+   - The agent workload turns decode-heavy and one node switches from prefill to decode without a restart
      (6.2 s, the paper's measured average). A branch finishes and releases its counts; when memory is
      full, the KV that no active branch references is evicted first.
    The final frame is the paper figure. Timing is for presentation only. */
@@ -243,7 +243,7 @@
       el.kvN.classList.toggle('is-new', t < 9.2);
       tag('new2', within(t, 9.2, 10.3));
 
-      // The agent mix turns decode-heavy, and one node switches from prefill to decode within seconds.
+      // The agent workload turns decode-heavy, and one node switches from prefill to decode within seconds.
       el.mix.style.setProperty('--mix', String(ease(span(t, 9.6, 10.4))));
       tag('mix', within(t, 9.8, 11.8));
       const s = ease(span(t, 10.4, 11.2));

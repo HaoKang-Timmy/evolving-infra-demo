@@ -38,7 +38,7 @@ body.content-active #architecture .arch-points li p { margin: 0; color: var(--fg
 #architecture .ov-port.is-p { background: #3f3c43; color: #fff; }
 #architecture .ov-port.is-d { border: 1px solid #a9a39d; background: #d9d6d2; color: #343038; }
 
-/* Agent mix: the prefill share of the work shrinks when the mix turns decode-heavy (--mix 0 to 1). */
+/* Agent workload: the prefill share of the work shrinks when the workload turns decode-heavy (--mix 0 to 1). */
 #architecture .ov-mix { grid-column: 4 / span 2; justify-self: end; display: inline-flex; align-items: center; gap: 8px; color: var(--muted); font: 500 11px/1.2 var(--mono); letter-spacing: .06em; text-transform: uppercase; }
 #architecture .ov-mix-bar { display: flex; width: 132px; height: 12px; overflow: hidden; border: 1px solid #a9a39d; border-radius: 3px; background: #d9d6d2; }
 #architecture .ov-mix-bar .is-p { flex: 0 0 calc((58 - var(--mix, 0) * 30) * 1%); background: #3f3c43; }
@@ -129,4 +129,9 @@ body.content-active #architecture .arch-points li p { margin: 0; color: var(--fg
   #architecture .ov-memory-label { font-size: 13px; }
   #architecture .ov-tag { padding: 2px 6px; font-size: 10px; }
   #architecture .ov-key { gap: 4px 14px; font-size: 11px; }
+}
+
+/* Very small phones: a shorter bar leaves room for the decode-heavy label to its left. */
+@media (max-width: 360px) {
+  #architecture .ov-mix-bar { width: 64px; }
 }
