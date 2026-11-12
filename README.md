@@ -35,7 +35,7 @@ The site publishes from `main` → `docs/` on GitHub Pages at `inference-rsi.com
 The header links open the implementation repository,
 [mit-han-lab/EvolvingInfra](https://github.com/mit-han-lab/EvolvingInfra), and the technical report,
 [arXiv:2611.12304](https://arxiv.org/abs/2611.12304), in a new tab; the research section links the same report. The "Try it!!"
-button shows a release notice until `releaseLinks.code` is set at the top of `docs/js/site.js`.
+button also links to the implementation repository, which is open source.
 The website repository is separate from the implementation repository.
 
 After the opening, `js/reading-view.js` keeps a decorative copy of the scene behind the

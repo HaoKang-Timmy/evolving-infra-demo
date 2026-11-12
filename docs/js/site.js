@@ -1,8 +1,8 @@
 (() => {
   'use strict';
 
-  // Add the implementation repository and report URLs when they are public.
-  const releaseLinks = { code: null, paper: null };
+  // Implementation repository and report URLs; a null entry shows the release notice instead.
+  const releaseLinks = { code: 'https://github.com/mit-han-lab/EvolvingInfra', paper: null };
 
   const init = () => {
     const reveals = Array.from(document.querySelectorAll('[data-reveal]'));
@@ -75,7 +75,7 @@
     });
 
     const codeNote = document.getElementById('code-release-note');
-    if (codeNote && releaseLinks.code) codeNote.textContent = 'Explore the implementation on GitHub';
+    if (codeNote && releaseLinks.code) codeNote.textContent = 'Open source on GitHub';
 
     if (releaseClose) releaseClose.addEventListener('click', closeRelease);
     if (releaseDialog) {
