@@ -84,6 +84,7 @@ body.content-active #architecture .arch-points li p { margin: 0; color: var(--fg
 /* Short labels next to what changes. Default tags sit above their point. */
 #architecture .ov-tag { position: absolute; z-index: 4; left: 0; top: 0; padding: 3px 8px; border: 1px solid #e3aab4; border-radius: 999px; background: #fff; color: #9e1529; font: 600 11px/1.2 var(--mono); white-space: nowrap; transform: translate(-50%, -100%); opacity: 0; transition: opacity .25s; pointer-events: none; }
 #architecture .ov-tag[data-anchor="below"] { transform: translate(-50%, 0); }
+#architecture .ov-tag[data-anchor="below-start"] { transform: none; }
 #architecture .ov-tag[data-anchor="center"] { transform: translate(-50%, -50%); }
 #architecture .ov-tag[data-anchor="above-end"] { transform: translate(-100%, -100%); }
 #architecture .ov-tag[data-anchor="below-end"] { transform: translate(-100%, 0); }
