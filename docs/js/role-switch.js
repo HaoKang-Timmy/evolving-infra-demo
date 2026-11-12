@@ -151,6 +151,18 @@
       if (auto && entry.intersectionRatio >= 0.35) { auto = false; setPlaying(true); }
     }, { threshold: [0, 0.35] }) : null;
     if (observer) observer.observe(stage); else visible = true;
+    // Grow the measured switch-time bars the first time they come into view.
+    const measured = document.querySelector('.switch-measured');
+    let measuredObserver = null;
+    if (measured) {
+      if (reduced() || !('IntersectionObserver' in window)) measured.classList.add('is-in');
+      else {
+        measuredObserver = new IntersectionObserver((entries) => {
+          if (entries.some((e) => e.isIntersecting)) { measured.classList.add('is-in'); measuredObserver.disconnect(); }
+        }, { threshold: 0.4 });
+        measuredObserver.observe(measured);
+      }
+    }
 
     const api = {
       seek(t) { auto = false; setPlaying(false); time = Math.max(0, Math.min(LOOP - 0.01, Number(t) || 0)); sides.forEach((s) => { s.last = []; }); render(time); return api.getState(); },
@@ -158,7 +170,7 @@
       pause() { auto = false; setPlaying(false); return api.getState(); },
       replay() { auto = false; restart(); return api.getState(); },
       getState() { return { time, playing, visible, reducedMotion: reduced() }; },
-      destroy() { destroyed = true; if (frame) cancelAnimationFrame(frame); if (observer) observer.disconnect(); removers.forEach((r) => r()); if (window.RoleSwitchDemo === api) delete window.RoleSwitchDemo; }
+      destroy() { destroyed = true; if (frame) cancelAnimationFrame(frame); if (observer) observer.disconnect(); if (measuredObserver) measuredObserver.disconnect(); removers.forEach((r) => r()); if (window.RoleSwitchDemo === api) delete window.RoleSwitchDemo; }
     };
     window.RoleSwitchDemo = api;
     setPlaying(false); render(time);

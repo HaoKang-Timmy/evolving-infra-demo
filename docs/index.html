@@ -27,7 +27,7 @@
   <link rel="stylesheet" href="reading-view.css?v=nav-links-2">
   <link rel="stylesheet" href="reading-typography.css?v=evidence-1">
   <link rel="stylesheet" href="reading-compact.css?v=code-link-1">
-  <link rel="stylesheet" href="role-switch.css?v=nine-nodes-1">
+  <link rel="stylesheet" href="role-switch.css?v=measured-2">
   <link rel="stylesheet" href="idea-demos.css?v=demo-frames-1">
   <link rel="stylesheet" href="page-outline.css?v=outline-5">
   <link rel="stylesheet" href="research-details.css?v=evidence-box-1">
@@ -39,7 +39,7 @@
   <script src="js/hero.js?v=adaptive-copy" defer></script>
   <script src="js/workload.js?v=light-motion" defer></script>
   <script src="js/reading-view.js?v=follow-scroll" defer></script>
-  <script src="js/role-switch.js?v=nine-nodes-1" defer></script>
+  <script src="js/role-switch.js?v=measured-2" defer></script>
   <script src="js/demo-frames.js?v=1" defer></script>
   <script src="js/arch-compare.js?v=workload-shift-1" defer></script>
   <script src="js/shift-data.js" defer></script>
@@ -248,6 +248,21 @@
           </article>
           </div>
           <p class="switch-legend"><span><b>P</b> Prefill · <b>D</b> Decode</span><span>Blocks = cached KV</span><span>Illustration, not to scale</span></p>
+          <div class="switch-measured" aria-label="Measured: phase switch time and lost KV reuse, Evolving Infra compared with Dynamo">
+            <p class="measured-title">MEASURED <span>36 GB300 GPUs · average over the nine evaluation settings</span></p>
+            <div class="measured-grid">
+              <div class="measured-switch">
+                <p class="measured-label">Phase switch time</p>
+                <div class="measured-row is-ours"><span class="measured-name">Evolving Infra</span><span class="measured-bar" style="--w:0.82%"><i></i></span><span class="measured-value"><b>6.2 s</b> keeps serving</span></div>
+                <div class="measured-row"><span class="measured-name">Dynamo</span><span class="measured-bar" style="--w:100%"><i></i></span><span class="measured-value"><b>754 s</b> out of service</span></div>
+              </div>
+              <div class="measured-kv">
+                <p class="measured-label">Lost KV reuse</p>
+                <p class="measured-big"><b>81–95%</b> less than Dynamo, in every setting</p>
+                <p class="measured-def">Cache hits missed, relative to an ideal cache shared by all nodes with no phase switches.</p>
+              </div>
+            </div>
+          </div>
 
 
           </div>

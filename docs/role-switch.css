@@ -265,3 +265,30 @@ body.content-active #why-evolve .idea-decoupling .lead { max-width: none; margin
   .is-timeline .stored-request > b { font-size: 7px; }
 }
 .is-timeline .switch-node.is-waiting { outline: 2px dashed #c3213b; outline-offset: 2px; }
+
+/* Measured comparison under the illustration: switch time bars to scale, lost KV reuse. */
+.switch-measured { margin-top: 18px; padding: 16px 18px 18px; border: 1px solid #e3d4d8; border-radius: 10px; background: #fffafa; }
+.measured-title { margin: 0 0 12px; color: var(--red); font: 600 11px/1.4 var(--mono); letter-spacing: .1em; }
+.measured-title span { margin-left: 10px; color: #7a7278; font-weight: 400; letter-spacing: .02em; }
+.measured-grid { display: grid; grid-template-columns: minmax(0,1.7fr) minmax(0,1fr); gap: 14px 28px; align-items: start; }
+.measured-label { margin: 0 0 8px; color: #4f4952; font: 600 11px/1.4 var(--mono); letter-spacing: .06em; text-transform: uppercase; }
+.measured-row { display: grid; grid-template-columns: 104px minmax(0,1fr) 150px; align-items: center; gap: 10px; margin-top: 7px; }
+.measured-name { font-size: 14px; font-weight: 500; }
+.measured-row.is-ours .measured-name { color: var(--red); }
+.measured-bar { position: relative; height: 14px; border-radius: 3px; background: #efe9e3; overflow: hidden; }
+.measured-bar i { position: absolute; inset: 0 auto 0 0; width: var(--w); min-width: 4px; border-radius: 3px; background: #8a8188; transition: width 2.6s cubic-bezier(.3,.1,.3,1) .2s; }
+.is-ours .measured-bar i { background: var(--red); transition-duration: .25s; }
+.has-js .switch-measured:not(.is-in) .measured-bar i { width: 0; min-width: 0; }
+.measured-value { font: 12px/1.3 var(--mono); color: #6f6870; white-space: nowrap; }
+.measured-value b { margin-right: 6px; color: var(--fg); font: 600 17px/1 var(--display); }
+.is-ours .measured-value b { color: var(--red); }
+.measured-big { margin: 0; font-size: 15px; line-height: 1.35; }
+.measured-big b { display: block; color: var(--red); font-size: 34px; font-weight: 600; line-height: 1.05; letter-spacing: -.03em; }
+.measured-def { margin: 6px 0 0; color: #7a7278; font: 11px/1.5 var(--mono); }
+@media (max-width:760px) {
+  .measured-grid { grid-template-columns: minmax(0,1fr); }
+  .measured-row { grid-template-columns: 104px minmax(0,1fr); }
+  .measured-name { font-size: 13px; white-space: nowrap; }
+  .measured-value { grid-column: 2; }
+  .measured-title span { display: block; margin: 2px 0 0; }
+}
