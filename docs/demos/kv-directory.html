@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>KV directory demo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="kv-directory.css">
+<script src="kv-directory.js" defer></script>
+</head>
+<body>
+<section class="demo" id="demo" aria-labelledby="kvd-title">
+  <header class="head">
+    <h3 id="kvd-title">Counts follow agent context management and KV transfers.<br><span>KV that no active branch references is evicted first.</span></h3>
+    <button type="button" class="play" id="kvd-play" aria-pressed="true">Pause</button>
+  </header>
+  <div class="tabs" role="group" aria-label="Step of the illustration">
+    <button type="button" data-chapter="0" aria-pressed="true"><b>a</b>Consecutive requests<i></i></button>
+    <button type="button" data-chapter="1" aria-pressed="false"><b>b</b>Compaction<i></i></button>
+    <button type="button" data-chapter="2" aria-pressed="false"><b>c</b>P2P and D2D<i></i></button>
+    <button type="button" data-chapter="3" aria-pressed="false"><b>d</b>P2D or D2P<i></i></button>
+    <button type="button" data-chapter="4" aria-pressed="false"><b>+</b>Branch ends<i></i></button>
+  </div>
+  <div class="stage"><svg id="kvd" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="kvd-caption"></svg></div>
+  <p class="caption" id="kvd-caption"></p>
+  <footer>
+    <span>Illustration of Figure 4 and Algorithm E.2 · counts are kept per node · timing is for presentation only</span>
+    <a href="https://arxiv.org/html/2611.12304#S4.SS3" target="_blank" rel="noopener noreferrer">Technical report, Section 4.3 ↗</a>
+  </footer>
+</section>
+</body>
+</html>

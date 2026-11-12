@@ -1,0 +1,40 @@
+:root{--fg:#232328;--muted:#5d5962;--faint:#8a858c;--red:#c92336;--line:#d7d2cc;--display:'Space Grotesk',Arial,sans-serif;--mono:'IBM Plex Mono',ui-monospace,monospace;color-scheme:light}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:transparent;color:var(--fg);font:16px/1.6 var(--display);-webkit-font-smoothing:antialiased}
+h3,p{margin:0}
+button{font:inherit;color:inherit;cursor:pointer;background:none;border:0;padding:0;margin:0}
+button:focus-visible,a:focus-visible{outline:2px solid var(--red);outline-offset:3px}
+
+/* Same box as the other demos of the page. */
+.demo{background:#fffdfaf2;border:1px solid var(--line);border-radius:10px;padding:18px 20px 14px}
+.head{display:flex;justify-content:space-between;align-items:flex-start;gap:18px}
+.head h3{font-size:24px;font-weight:500;line-height:1.16;letter-spacing:-.035em}
+.head h3>span{color:var(--red)}
+.play{flex:none;font:500 12px/1 var(--mono);letter-spacing:.04em;border:1px solid #aaa59e;border-radius:4px;padding:8px 12px;min-width:68px}
+.play:hover{border-color:#6f6a70}
+
+.tabs{display:flex;gap:4px 22px;flex-wrap:wrap;margin-top:18px;border-bottom:1px solid var(--line)}
+.tabs button{position:relative;display:flex;align-items:baseline;gap:7px;padding:0 0 9px;font-size:14px;color:var(--muted);white-space:nowrap}
+.tabs button b{font:500 11px/1 var(--mono);color:var(--faint)}
+.tabs button i{position:absolute;left:0;bottom:-1px;height:2px;width:0;background:var(--red)}
+.tabs button[aria-pressed=true]{color:var(--fg)}
+.tabs button[aria-pressed=true] b{color:var(--red)}
+.tabs button:hover{color:var(--fg)}
+
+.stage{margin-top:14px}
+.stage svg{display:block;width:100%;height:auto;overflow:visible}
+.stage[data-layout=narrow] svg{max-width:460px;margin:0 auto}
+.caption{min-height:3.2em;margin-top:8px;font-size:15px;line-height:1.5;color:var(--fg);max-width:880px}
+.caption b{font-weight:600}
+footer{display:flex;justify-content:space-between;gap:8px 20px;flex-wrap:wrap;margin-top:10px;padding-top:10px;border-top:1px solid var(--line);font:400 10.5px/1.5 var(--mono);color:var(--muted)}
+footer a{color:var(--red);text-decoration:none}
+footer a:hover{text-decoration:underline}
+
+@media(max-width:640px){
+  .demo{padding:14px 12px 12px}
+  .head h3{font-size:19px}
+  .tabs{gap:2px 14px;margin-top:14px}
+  .tabs button{font-size:12.5px;padding-bottom:7px}
+  .caption{font-size:13.5px;min-height:4.5em}
+}

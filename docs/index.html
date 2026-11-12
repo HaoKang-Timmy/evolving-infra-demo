@@ -316,9 +316,9 @@
         <div class="section-topline" data-reveal><span class="eyebrow">05 / AGENT-ADAPTIVE KV CACHE MANAGEMENT</span><span class="mono-note">UNREFERENCED KV GOES FIRST.</span></div>
         <div class="idea-heading idea-decoupling" data-reveal>
           <h2 id="kv-heading"><span class="accent-text">Learn</span> from agent context management,<br>manage KV cluster-wide.</h2>
-          <div><p class="lead">A cluster-wide KV directory counts the active branches that reference each KV block, so eviction drops replaced histories and finished sub-agents first and keeps the KV of branches waiting for tools, sub-agents, or users.</p><p>The router sends each prefill request to the node with the shortest predicted TTFT; that node fetches remote KV while the request waits in its queue.</p></div>
+          <div><p class="lead">A cluster-wide KV directory counts, on each node, the active branches that reference each KV block. Eviction drops replaced histories, the contexts of finished sub-agents, and source copies left by same-phase moves first, and keeps the KV of branches waiting for tools, sub-agents, or users.</p><p>The router sends each prefill request to the node with the shortest predicted TTFT; that node fetches remote KV while the request waits in its queue.</p></div>
         </div>
-        <div class="demo-frame" id="kv-demo"><iframe src="demos/kv-lifecycle.html" title="Demo: KV eviction and reuse during compaction, a subagent finishing, and a tool call" style="height:620px"></iframe></div>
+        <div class="demo-frame" id="kv-demo"><iframe src="demos/kv-directory.html" title="Demo: the cluster-wide KV directory counts the active branches that reference each block on each node, as branches append, compact, move between nodes, and finish" style="height:760px"></iframe></div>
       </div>
     </section>
 <section id="evidence" class="idea-section evidence-section" aria-labelledby="evidence-heading">

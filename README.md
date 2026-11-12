@@ -75,6 +75,22 @@ users advance one stage at a time. The sequence is qualitative, not a timed benc
 comparison scope includes pinned upstream source links and does not claim that vLLM or SGLang
 universally lack KV transfer or runtime phase switching.
 
+Section 05 embeds `docs/demos/kv-directory.html` (`kv-directory.js`, `kv-directory.css`), the report's
+Figure 4 as one animation. The router's cluster-wide KV directory is a prefix tree; each block lists, for
+each node that holds it, how many active branches reference it there (R<sub>P1</sub>, R<sub>P2</sub>,
+R<sub>D1</sub>). Four steps follow the four panels and end on the panel's exact counts and ±1 tags:
+(a) a consecutive request counts only its new block; (b) compaction raises the branch version from v1 to
+v2, releases the counts on the dropped history, and counts the new block; (c) a same-phase move (P2P or
+D2D) counts the branch on the target and releases the source once the target holds the current version;
+(d) a cross-phase transfer (P2D or D2P) keeps the counts on both nodes and sends only new KV. A fifth step
+applies the branch-end rule of Section 4.3. The left column shows the branch contexts and the router's
+branch table (version and the nodes where each branch holds counts, Algorithm E.1); the right column shows
+each node's host-memory eviction order, zero counts first and LRU within each group (Section 5.3), with a
+plain-LRU row for contrast after compaction. Both branches start on P1 in every panel, as in the paper,
+so steps c and d fade back to that state. "Waiting for a tool" is an illustrative state of branch 2;
+timing is for presentation only. The scene is one SVG drawn by the script, with wide, medium and phone
+layouts; reduced-motion users see each step's final frame.
+
 The opening uses two transparent 2×2 illustration atlases in `docs/media/scene/`, with generation
 prompts alongside them. They are conceptual artwork, not product photographs or a list of validated
 platforms. The demo and result captions state the actual experimental hardware. The upper-layer
