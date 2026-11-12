@@ -10,10 +10,11 @@
    (d) A transfer across phases (P2D, D2P) keeps the counts on both nodes; each step sends only new KV.
    The extra step "Branch ends" applies line 13 of Algorithm E.2: the router releases all counts of a
    finished branch.
-   Each node evicts its host blocks in the order (1[R > 0], last access): zero-count blocks first, LRU
-   within each group (Section 5.3); among blocks accessed together, a child goes before its parent. The
-   right column shows that order. "Waiting for a tool" is an illustrative state of branch 2. Timing is for
-   presentation only. */
+   The right column shows each node's host-memory eviction order as the open-source engine keys it by
+   default (predicted_return_fixed): zero-count blocks first, in LRU order, as in Section 5.3; among
+   blocks with positive counts, the one whose branch is predicted to return last goes first (the paper
+   uses LRU there). The prediction m(idle age) is the engine's built-in table. "Waiting for a tool" is an
+   illustrative state of branch 2. Timing is for presentation only. */
 (() => {
   'use strict';
 
@@ -50,14 +51,14 @@
   function start() {
     return {
       nodes: {
-        sys: { c: 'sys', rows: { P1: { v: 2, T: 1 } } },
-        b1: { c: 'b1', rows: { P1: { v: 1, T: 1 } } },
+        sys: { c: 'sys', rows: { P1: { v: 2, T: 30 } } },
+        b1: { c: 'b1', rows: { P1: { v: 1, T: 30 } } },
         b2: { c: 'b2', rows: { P1: { v: 1, T: 0 } } },
       },
       bar1: ['sys', 'b1'], bar2: ['sys', 'b2'], ghost: null, ver: 1,
       st1: 'active', st2: 'waiting for a tool', done2: false,
       arrow: null, lru: false, focus: [], send1: false,
-      N1: ['P1'], N2: ['P1'], hot: [],
+      N1: ['P1'], N2: ['P1'], hot: [], now: 30,
     };
   }
   function count(s, id, node, delta, T) {
@@ -79,47 +80,47 @@
       { d: 2.6, tr: 1.2, flight: ['b1', 'P1'], cap: 'Branch 1 sends its next request. Its context only <b>appends</b> tokens to its previous request.',
         fx: (s) => { s.bar1.push('n1'); s.st1 = 'sends next request'; s.send1 = true; s.hot = ['P1']; } },
       { d: 5.6, cap: 'P1 counts only the new block that its prefill adds (<b>+1</b>). The reused blocks keep their counts, since branch 1 was already counted on them.',
-        fx: (s) => { s.nodes.n1 = { c: 'red', rows: { P1: { v: 1, T: 2, tag: '+1' } } }; touch(s, ['sys', 'b1'], 'P1', 2); s.focus = ['sys', 'b1']; s.st1 = 'active'; s.send1 = false; } },
+        fx: (s) => { s.nodes.n1 = { c: 'red', rows: { P1: { v: 1, T: 40, tag: '+1' } } }; touch(s, ['sys', 'b1'], 'P1', 40); s.now = 40; s.focus = ['sys', 'b1']; s.st1 = 'active'; s.send1 = false; } },
     ] },
     { reset: false, beats: [
       { d: 2.4, cap: 'The new block is now part of branch 1&rsquo;s context, version v1.',
         fx: (s) => { s.nodes.n1.c = 'b1'; } },
       { d: 3.0, tr: 1.2, flight: ['b1', 'P1'], cap: 'The harness <b>compacts</b> branch 1. Its new request no longer extends the previous one, so the router increments its version from v1 to v2.',
-        fx: (s) => { s.ghost = ['sys', 'b1', 'n1']; s.bar1 = ['sys', 'k1']; s.ver = 2; s.st1 = 'compacts its context'; s.send1 = true; s.hot = ['P1']; } },
+        fx: (s) => { s.ghost = ['sys', 'b1', 'n1']; s.bar1 = ['sys', 'k1']; s.ver = 2; s.now = 50; s.st1 = 'compacts its context'; s.send1 = true; s.hot = ['P1']; } },
       { d: 2.8, cap: 'The router releases branch 1&rsquo;s counts on the history that the new context drops (<b>&minus;1</b>). The old blocks drop to R<sub>P1</sub> = 0.',
         fx: (s) => { count(s, 'b1', 'P1', -1); count(s, 'n1', 'P1', -1); s.send1 = false; } },
       { d: 6.4, lru: true, cap: 'P1 counts the new block that the prefill of the compacted context adds (<b>+1</b>). The replaced history now goes first on eviction, and branch 2, waiting for a tool, keeps its KV. LRU would evict branch 2&rsquo;s context first.',
-        fx: (s) => { s.nodes.k1 = { c: 'red', rows: { P1: { v: 1, T: 3, tag: '+1' } } }; touch(s, ['sys'], 'P1', 3); s.lru = true; s.st1 = 'active'; } },
+        fx: (s) => { s.nodes.k1 = { c: 'red', rows: { P1: { v: 1, T: 50, tag: '+1' } } }; touch(s, ['sys'], 'P1', 50); s.lru = true; s.st1 = 'active'; } },
     ] },
     { reset: true, beats: [
       { d: 2.2, cap: 'Again, both branches start on P1.' },
       { d: 2.8, tr: 1.2, flight: ['b1', 'P2'], cap: 'The router sends branch 1&rsquo;s next request to prefill node P2, which has the shortest predicted TTFT.',
-        fx: (s) => { s.bar1.push('n1'); s.st1 = 'request goes to P2'; s.send1 = true; s.hot = ['P2']; } },
+        fx: (s) => { s.bar1.push('n1'); s.st1 = 'request goes to P2'; s.send1 = true; s.hot = ['P2']; s.now = 40; } },
       { d: 2.6, tr: 1.4, transfer: ['P1', 'P2', ['sys', 'b1']], cap: 'While the request waits in P2&rsquo;s queue, P2 fetches branch 1&rsquo;s reusable KV from the host memory of P1.',
         fx: (s) => { s.arrow = { from: 'P1', to: 'P2', blocks: ['sys', 'b1'] }; s.send1 = false; } },
       { d: 2.8, cap: 'P2 counts all blocks of branch 1, including the new block that its prefill adds (<b>+1</b>).',
-        fx: (s) => { count(s, 'sys', 'P2', 1, 4); count(s, 'b1', 'P2', 1, 4); s.nodes.n1 = { c: 'red', rows: { P2: { v: 1, T: 4, tag: '+1' } } }; s.N1 = ['P1', 'P2']; } },
+        fx: (s) => { count(s, 'sys', 'P2', 1, 40); count(s, 'b1', 'P2', 1, 40); s.nodes.n1 = { c: 'red', rows: { P2: { v: 1, T: 40, tag: '+1' } } }; s.N1 = ['P1', 'P2']; } },
       { d: 6.2, cap: 'Once P2 holds the current version, P1 releases its counts (<b>&minus;1</b>): the branch reuses only the copy on P2. Branch 1&rsquo;s own block on P1 drops to R<sub>P1</sub> = 0 and goes first on eviction; the system prompt stays counted by branch 2. D2D moves follow the same rule.',
         fx: (s) => { count(s, 'sys', 'P1', -1); count(s, 'b1', 'P1', -1); s.st1 = 'active'; s.N1 = ['P2']; s.hot = []; } },
     ] },
     { reset: true, beats: [
       { d: 2.0, cap: 'Both branches start on P1.' },
       { d: 2.4, tr: 1.4, transfer: ['P1', 'D1', ['sys', 'b1']], cap: 'Branch 1&rsquo;s previous request is decoded on decode node D1, which receives its KV from P1.',
-        fx: (s) => { s.arrow = { from: 'P1', to: 'D1', blocks: ['sys', 'b1'] }; s.st1 = 'decoding on D1'; s.hot = ['D1']; } },
+        fx: (s) => { s.arrow = { from: 'P1', to: 'D1', blocks: ['sys', 'b1'] }; s.st1 = 'decoding on D1'; s.hot = ['D1']; s.now = 32; } },
       { d: 2.8, cap: 'D1 counts the KV of branch 1 (<b>+1</b>), and P1 keeps its counts: across phases, both copies serve later steps.',
-        fx: (s) => { count(s, 'sys', 'D1', 1, 1.5); count(s, 'b1', 'D1', 1, 1.5); s.N1 = ['P1', 'D1']; } },
+        fx: (s) => { count(s, 'sys', 'D1', 1, 32); count(s, 'b1', 'D1', 1, 32); s.N1 = ['P1', 'D1']; } },
       { d: 2.4, tr: 1.2, flight: ['b1', 'P1'], cap: 'The next request of branch 1 alternates back to P1.',
         fx: (s) => { quiet(s); s.bar1.push('n1'); s.st1 = 'request goes to P1'; s.send1 = true; s.hot = ['P1']; } },
       { d: 2.4, cap: 'P1 counts the new block that its prefill adds (<b>+1</b>).',
-        fx: (s) => { s.nodes.n1 = { c: 'red', rows: { P1: { v: 1, T: 5, tag: '+1' } } }; touch(s, ['sys', 'b1'], 'P1', 5); s.send1 = false; } },
+        fx: (s) => { s.nodes.n1 = { c: 'red', rows: { P1: { v: 1, T: 40, tag: '+1' } } }; touch(s, ['sys', 'b1'], 'P1', 40); s.now = 40; s.send1 = false; } },
       { d: 2.4, tr: 1.4, transfer: ['P1', 'D1', ['n1']], cap: 'D1 already holds the rest of the context, so P1 sends <b>only the new KV</b>.',
         fx: (s) => { s.arrow = { from: 'P1', to: 'D1', blocks: ['n1'] }; s.st1 = 'decoding on D1'; s.hot = ['D1']; } },
       { d: 6.0, cap: 'D1 counts the new block too (<b>+1</b>). Both nodes keep their counts, since the next step of the branch needs the copies in both phases. D2P transfers follow the same rule.',
-        fx: (s) => { const n = s.nodes.n1; n.rows.P1.tag = null; n.rows.D1 = { v: 1, T: 6, tag: '+1' }; touch(s, ['sys', 'b1'], 'D1', 6); } },
+        fx: (s) => { const n = s.nodes.n1; n.rows.P1.tag = null; n.rows.D1 = { v: 1, T: 42, tag: '+1' }; touch(s, ['sys', 'b1'], 'D1', 42); s.now = 42; } },
     ] },
     { reset: false, beats: [
       { d: 2.8, cap: 'Branch 2 finishes, and the harness reports it to the router.',
-        fx: (s) => { s.nodes.n1.c = 'b1'; s.st1 = 'active'; s.st2 = 'finished'; s.done2 = true; s.hot = []; } },
+        fx: (s) => { s.nodes.n1.c = 'b1'; s.st1 = 'active'; s.st2 = 'finished'; s.done2 = true; s.hot = []; s.now = 60; } },
       { d: 6.2, cap: 'The router releases all counts of branch 2 (<b>&minus;1</b>). Its context drops to R<sub>P1</sub> = 0 and goes first on eviction. The system prompt stays counted, since branch 1 still references it.',
         fx: (s) => { count(s, 'sys', 'P1', -1); count(s, 'b2', 'P1', -1); s.N2 = []; } },
     ] },
@@ -164,6 +165,7 @@
     treeY: [192, 300, 404], spread: 174, box: { w: 124, h: 56 }, LH: 20, countSize: 14.5, tagMode: 'side', ring: 'left',
     mem: { x: 902, chipX: 952, y: [126, 226, 318], right: 1180, cw: 32, ch: 26, gap: 6 },
     table: { x: 0, y: 330, w: 256 },
+    memKey: { x: 902, y: 386, lines: ['R = 0: evicted first, oldest first', 'R > 0: latest predicted return first', '21s: expected remaining idle time'] },
     legend: { x: 0, y: 476, widths: [128, 152, 152, 92, 112, 182, 200] },
   };
   const MEDIUM = {
@@ -176,10 +178,11 @@
     treeY: [190, 300, 404], spread: 150, box: { w: 120, h: 56 }, LH: 20, countSize: 14.5, tagMode: 'edge', ring: 'top',
     mem: { above: true, xs: [4, 280, 544], chipX: 4, axisY: 498, y: [556], right: 780, cw: 32, ch: 26, gap: 6 },
     table: { x: 0, y: 330, w: 300 },
+    memKey: { x: 330, y: 462, lines: ['R = 0 first, oldest first · R > 0: latest predicted return first', '21s: expected remaining idle time, from the idle age'] },
     legend: { x: 0, y: 666, widths: [150, 180, 180, 110], rowH: 24 },
   };
   const NARROW = {
-    name: 'narrow', W: 400, H: 1114,
+    name: 'narrow', W: 400, H: 1156,
     titles: [[0, 12, 'AGENT HARNESS'], [0, 326, 'ROUTER · CLUSTER-WIDE KV DIRECTORY'], [0, 738, 'NODES · HOST-MEMORY EVICTION ORDER']],
     seps: [],
     card1: { x: 0, y: 26, w: 196, h: 140 }, card2: { x: 204, y: 26, w: 196, h: 140 }, seg: 0.74, barCap: 'context',
@@ -188,7 +191,8 @@
     treeY: [484, 576, 664], spread: 126, box: { w: 104, h: 50 }, LH: 18, countSize: 13, tagMode: 'edge', ring: 'top',
     mem: { x: 0, chipX: 58, y: [810, 902, 970], right: 400, cw: 30, ch: 25, gap: 6 },
     table: { x: 0, y: 200, w: 400 },
-    legend: { x: 0, y: 1028, widths: [200, 200], rowH: 24 },
+    memKey: { x: 0, y: 1012, lines: ['R = 0: evicted first, oldest first', 'R > 0: latest predicted return first', '21s: expected remaining idle time'] },
+    legend: { x: 0, y: 1070, widths: [200, 200], rowH: 24 },
   };
 
   /* ---------- small helpers ---------- */
@@ -512,11 +516,29 @@
     label(`${key}-t`, 'tags', x + 15, y + 4.3, t, { mono: true, size: 11.5, weight: 600, fill: plus ? '#ffffff' : INK, anchor: 'middle', op });
   }
 
-  // Host memory of each node in eviction order: zero counts first, LRU within each group (Section 5.3).
+  // Expected remaining idle time m(tau) of the open-source engine's default order (predicted_return_fixed,
+  // evolving_infra/.../mem_cache/unified_cache/retention_order.py): the built-in table, linear between its
+  // anchors in 1-s bins; an idle age of 150 s or more counts as finished (m = inf).
+  const MTAU = [[0, 21], [10, 38], [20, 60], [30, 70], [60, 67], [90, 49], [110, 33], [115, 29]];
+  function expectedWait(tau) {
+    if (tau >= 150) return Infinity;
+    const b = Math.min(Math.floor(tau), 119);
+    if (b >= 115) return 29;
+    let i = 0;
+    while (MTAU[i + 1][0] <= b) i++;
+    const [t0, m0] = MTAU[i], [t1, m1] = MTAU[i + 1];
+    return Math.round((m0 + ((m1 - m0) * (b - t0)) / (t1 - t0)) * 10) / 10;
+  }
+  // Host memory of each node in eviction order, as the engine's retention eviction keys it: zero counts
+  // first, in LRU order; then blocks that an active branch references, the one whose branch is predicted to
+  // return last first (-m of the idle age), then LRU. Ties go child before parent. The engine's other key
+  // levels (blocks of a queued or running request last, host-only leaves before GPU-backed copies) do not
+  // change the order in the frames shown.
   function order(s, node) {
+    const m = (id) => expectedWait(s.now - s.nodes[id].rows[node].T);
     return Object.keys(s.nodes).filter((id) => s.nodes[id].rows[node]).sort((a, b) => {
       const ra = s.nodes[a].rows[node], rb = s.nodes[b].rows[node];
-      return (ra.v > 0) - (rb.v > 0) || ra.T - rb.T || DEPTH[b] - DEPTH[a] || TREE_ORDER[a] - TREE_ORDER[b];
+      return (ra.v > 0) - (rb.v > 0) || (ra.v > 0 ? m(b) - m(a) : 0) || ra.T - rb.T || DEPTH[b] - DEPTH[a] || TREE_ORDER[a] - TREE_ORDER[b];
     });
   }
   function drawMemory(G, A, B, p, op) {
@@ -529,6 +551,7 @@
     attr(el('mem-axis', 'path', 'back'), { d: `M${M.chipX} ${ay}H${M.right - 4}`, stroke: MUTED, 'stroke-width': 1, fill: 'none', 'marker-end': 'url(#kvd-head-m)' });
     label('mem-first', 'back', M.chipX, ay - 7, 'evicted first', { mono: true, size: 10.5, fill: FILL.red });
     label('mem-last', 'back', M.right - 6, ay - 7, 'evicted last', { mono: true, size: 10.5, fill: MUTED, anchor: 'end' });
+    G.memKey.lines.forEach((t, i) => label(`mem-k${i}`, 'back', G.memKey.x, G.memKey.y + i * 15, t, { mono: true, size: 10, fill: i === 0 ? FILL.red : MUTED }));
     NODES.forEach((node, r) => {
       const S0 = slot(r), y = S0.y, cX = S0.chipX;
       if (M.above) {
@@ -566,6 +589,11 @@
         attr(el(`mc-${node}-${id}`, 'rect', 'mem'), { x, y: y - CH / 2 + lift, width: CW, height: CH, rx: 4, fill: mix(FILL[ca], FILL[cb], p), 'fill-opacity': 1 - 0.42 * z,
           stroke: z > 0.5 ? INK : mix(EDGE[ca], EDGE[cb], p), 'stroke-width': z > 0.5 ? 1.3 : 0.9, 'stroke-dasharray': z > 0.5 ? '3.5 2.5' : 'none', opacity: pres });
         const v = p < 0.5 ? (va !== null ? va : vb) : (vb !== null ? vb : va);
+        const Sx = p < 0.5 ? (ia >= 0 ? A : B) : (ib >= 0 ? B : A);
+        if (v > 0) {
+          const mw = expectedWait(Sx.now - Sx.nodes[id].rows[node].T);
+          label(`mcm-${node}-${id}`, 'mem', x + CW / 2, y + CH / 2 + 14, Number.isFinite(mw) ? `${Math.round(mw)}s` : 'done', { mono: true, size: 9.5, fill: MUTED, anchor: 'middle', op: pres });
+        }
         label(`mct-${node}-${id}`, 'mem', x + CW / 2, y + 4.5 + lift, String(v), { mono: true, size: 12.5, weight: 600, fill: z > 0.5 ? INK : mix(ON[ca], ON[cb], p), anchor: 'middle', op: pres });
       });
       // For contrast, the order of plain LRU on P1, which ignores the counts (Section 3.3).

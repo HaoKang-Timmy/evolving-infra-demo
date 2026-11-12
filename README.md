@@ -85,8 +85,11 @@ D2D) counts the branch on the target and releases the source once the target hol
 (d) a cross-phase transfer (P2D or D2P) keeps the counts on both nodes and sends only new KV. A fifth step
 applies the branch-end rule of Section 4.3. The left column shows the branch contexts and the router's
 branch table (version and the nodes where each branch holds counts, Algorithm E.1); the right column shows
-each node's host-memory eviction order, zero counts first and LRU within each group (Section 5.3), with a
-plain-LRU row for contrast after compaction. Both branches start on P1 in every panel, as in the paper,
+each node's host-memory eviction order as the open-source engine keys it by default
+(`SGLANG_KV_SESSION_RETENTION_ORDER=predicted_return_fixed`): zero counts first, in LRU order; then the
+blocks whose branch is predicted to return last, with the expected remaining idle time from the engine's
+built-in table under each block (the report uses LRU within this group). A plain-LRU row shows the
+contrast after compaction. Both branches start on P1 in every panel, as in the paper,
 so steps c and d fade back to that state. "Waiting for a tool" is an illustrative state of branch 2;
 timing is for presentation only. The scene is one SVG drawn by the script, with wide, medium and phone
 layouts; reduced-motion users see each step's final frame.
