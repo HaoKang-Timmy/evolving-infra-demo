@@ -90,3 +90,7 @@ dialog::backdrop { background: #29252b73; }
   .nav-links { background: var(--panel); border-color: var(--line); box-shadow: 0 18px 32px #28201e17; }
   .menu-toggle { background: var(--panel); }
 }
+
+/* Inline links into the technical report. */
+.report-link { color: inherit; text-decoration: underline; text-decoration-color: rgba(201, 35, 54, .55); text-decoration-thickness: 1.5px; text-underline-offset: 3px; transition: color .2s, text-decoration-color .2s; }
+.report-link:hover, .report-link:focus-visible { color: var(--red); text-decoration-color: var(--red); }
