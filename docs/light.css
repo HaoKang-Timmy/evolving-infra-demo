@@ -94,3 +94,19 @@ dialog::backdrop { background: #29252b73; }
 /* Inline links into the technical report. */
 .report-link { color: inherit; text-decoration: underline; text-decoration-color: rgba(201, 35, 54, .55); text-decoration-thickness: 1.5px; text-underline-offset: 3px; transition: color .2s, text-decoration-color .2s; }
 .report-link:hover, .report-link:focus-visible { color: var(--red); text-decoration-color: var(--red); }
+
+/* Dev Week: a shiny pill in the header that opens the poster page. */
+.nav-links .nav-devweek { position: relative; display: inline-flex; align-items: center; gap: 7px; padding: 8px 14px; border-radius: 999px; color: #fff; font-weight: 600; letter-spacing: .01em; white-space: nowrap;
+  background: linear-gradient(110deg, #c92336 0%, #c92336 36%, #ff97a3 50%, #c92336 64%, #c92336 100%); background-size: 260% 100%;
+  box-shadow: 0 0 0 1px rgba(201,35,54,.35), 0 4px 14px rgba(201,35,54,.28);
+  animation: devweek-shine 3.2s ease-in-out infinite, devweek-glow 2.4s ease-in-out infinite; transition: transform .2s; }
+.nav-links a.nav-devweek:hover, .nav-links a.nav-devweek:focus-visible { color: #fff; transform: translateY(-1px); }
+.nav-devweek-spark { display: inline-block; animation: devweek-spin 2.4s ease-in-out infinite; }
+.nav-devweek-date { padding: 2px 7px; border-radius: 999px; background: rgba(255,255,255,.22); font: 600 11px/1.3 var(--mono); }
+@keyframes devweek-shine { 0% { background-position: 100% 0; } 60%, 100% { background-position: 0 0; } }
+@keyframes devweek-glow { 0%, 100% { box-shadow: 0 0 0 1px rgba(201,35,54,.35), 0 4px 14px rgba(201,35,54,.28); } 50% { box-shadow: 0 0 0 1px rgba(201,35,54,.55), 0 6px 26px rgba(201,35,54,.55); } }
+@keyframes devweek-spin { 0%, 100% { transform: rotate(0) scale(1); } 50% { transform: rotate(180deg) scale(1.25); } }
+@media (max-width: 760px) { .nav-devweek-date { display: none; } .nav-links .nav-devweek { padding: 7px 11px; } }
+@media (prefers-reduced-motion: reduce) { .nav-links .nav-devweek, .nav-devweek-spark { animation: none; } }
+/* With the Dev Week pill, the header row is too long for phones: keep the gear, hide the wordmark. */
+@media (max-width: 480px) { .site-header .brand > span { display: none; } }
