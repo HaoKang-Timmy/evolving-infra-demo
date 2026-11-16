@@ -57,3 +57,20 @@
   .affiliation-logos { column-gap: 22px; }
   .logo-openai .openai-symbol { width: 28px; flex-basis: 28px; }
 }
+/* Center the six marks themselves, with even spacing; the kicker sits to their left outside the centering. */
+@media (min-width:701px) {
+  .intro-affiliations { display: block; width: max-content; }
+  .affiliation-kicker { position: absolute; right: calc(100% + 28px); top: 50%; transform: translateY(-50%); }
+  .affiliation-logos { display: flex; justify-content: center; gap: 46px; }
+  .affiliation-logo { flex: none; }
+  .logo-illinois img { width: 112px; max-width: none; }
+  .logo-nvidia img { height: 28px; max-width: none; }
+  .logo-mit img { height: 28px; max-width: none; }
+}
+@media (max-width:1100px) and (min-width:701px) {
+  .intro-affiliations { width: max-content; }
+  .affiliation-logos { gap: 26px; }
+  .affiliation-kicker { right: calc(100% + 18px); width: 56px; }
+  .logo-illinois img { width: 96px; }
+  .logo-nvidia img, .logo-mit img { height: 24px; }
+}
